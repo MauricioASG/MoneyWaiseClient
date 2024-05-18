@@ -12,19 +12,18 @@ type RootStackParamList = {
   Login: undefined;
 };
 
-type HomeScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'Home'>;
-  route: RouteProp<RootStackParamList, 'Home'>;
+type ExpenseScheduleProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'Schedule'>;
+  route: RouteProp<RootStackParamList, 'Schedule'>;
 };
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+const ExpenseSchedule: React.FC<ExpenseScheduleProps> = ({ navigation }) => {
   const handleButtonPress = (button: string) => {
     console.log(`${button} Pressed`);
   };
-
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>¡Bienvenido a la aplicación!</Text>
+      <Text style={styles.heading}>¡Bienvenido ExpenseSchedule!</Text>
       <Button
         title="Cerrar sesión"
         onPress={() => navigation.navigate('Login')}
@@ -48,4 +47,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default ExpenseSchedule;

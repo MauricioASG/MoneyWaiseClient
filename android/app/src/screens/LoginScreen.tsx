@@ -30,7 +30,7 @@ function Login({navigation}: LogInProps): React.JSX.Element {
         if (user && password) {
             Alert.alert('Entraste', 'Iniciando sesión...');
             navigation.navigate('Home');
-            return
+            return;
         }
         Alert.alert('Fallido', 'Datos incorrectos');
     };

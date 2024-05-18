@@ -12,19 +12,19 @@ type RootStackParamList = {
   Login: undefined;
 };
 
-type HomeScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'Home'>;
-  route: RouteProp<RootStackParamList, 'Home'>;
+type MySavingsProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'Savings'>;
+  route: RouteProp<RootStackParamList, 'Savings'>;
 };
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+const MySavings: React.FC<MySavingsProps> = ({ navigation }) => {
   const handleButtonPress = (button: string) => {
     console.log(`${button} Pressed`);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>¡Bienvenido a la aplicación!</Text>
+      <Text style={styles.heading}>¡Bienvenido MySavings!</Text>
       <Button
         title="Cerrar sesión"
         onPress={() => navigation.navigate('Login')}
@@ -48,4 +48,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default MySavings;
