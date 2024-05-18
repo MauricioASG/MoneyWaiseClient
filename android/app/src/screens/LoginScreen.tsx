@@ -1,65 +1,101 @@
+// //LoginScreen.tsx
 /* eslint-disable prettier/prettier */
+import { StackNavigationProp } from '@react-navigation/stack';
+import React from 'react';
+import {
+    SafeAreaView,
+    Button,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+    Alert,
+    Image,
+} from 'react-native';
 
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+type RootStackParamList = {
+    Home: undefined;
+    Login: undefined;
+}
 
-const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleLogin = () => {
-    // Aquí puedes implementar la lógica de autenticación
-    // Por ejemplo, verificar las credenciales y navegar a la pantalla Home si son válidas
-    if (email === 'usuario@example.com' && password === 'contraseña') {
-      navigation.navigate('Home');
-    } else {
-      alert('Credenciales incorrectas');
-    }
-  };
-
-  return (
-    <View style={styles.container}>
-      <Text style={styles.logo}>Mi Aplicación</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        secureTextEntry={true}
-        value={password}
-        onChangeText={setPassword}
-      />
-      <Button title="Ingresar" onPress={handleLogin} />
-    </View>
-  );
+type LogInProps = {
+    navigation: StackNavigationProp <RootStackParamList, 'Home'>;
 };
 
+function Login({navigation}: LogInProps): React.JSX.Element {
+    const [user, setUser] = React.useState('');
+    const [password, setPassword] = React.useState('');
+
+    const btnIngresaronPress = function () {
+        if (user && password) {
+            Alert.alert('Entraste', 'Iniciando sesión...');
+            navigation.navigate('Home');
+            return
+        }
+        Alert.alert('Fallido', 'Datos incorrectos');
+    };
+    return (
+        <SafeAreaView style={styles.screen}>
+            <View style={styles.container}>
+              <Image
+              source={require('../assets/MoneyWiseLogo.jpg')}
+              style={styles.image}
+              />
+                <Text style={styles.Text}>Inicio de sesion</Text>
+                <TextInput style={styles.textInput}
+                    placeholder="Usuario"
+                    placeholderTextColor={'#000000'}
+                    onChangeText={u => setUser(u)}
+                />
+                <TextInput style={styles.textInput}
+                    placeholder="Contraseña"
+                    secureTextEntry={true}
+                    placeholderTextColor={'#000000'}
+                    onChangeText={p => setPassword(p)}
+                />
+                <Button title="Ingresar" onPress={btnIngresaronPress} />
+            </View>
+        </SafeAreaView>
+    );
+}
+
 const styles = StyleSheet.create({
+  screen: {
+      height: '100%',
+      backgroundColor: '#0073AB',
+      justifyContent: 'center',
+      alignItems: 'center',
+  },
   container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#64B5F6',
+      width: '100%',
+      padding: 16,
   },
-  logo: {
-    fontSize: 24,
-    fontWeight: 'bold',
+  textInput: {
+      color: 'black',
+      borderBottomWidth: 1,
+      borderRadius: 8,
+      backgroundColor: 'white',
+      paddingVertical: 8,
+      paddingHorizontal: 12,
+      width: '80%',
+      margin: 8,
+  },
+  Text: {
+   color: 'black',
+   fontSize: 20,
+   marginBottom:10,
+   fontWeight: '500',
+  },
+  image: {
+    width: 200,
+    height: 200,
+    resizeMode: 'contain',
     marginBottom: 20,
-  },
-  input: {
-    width: '100%',
-    height: 40,
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 5,
-    marginBottom: 10,
-    paddingHorizontal: 10,
   },
 });
 
-export default LoginScreen;
+export default Login;
 
