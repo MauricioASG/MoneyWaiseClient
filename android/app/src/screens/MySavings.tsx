@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -12,23 +12,19 @@ type RootStackParamList = {
   Login: undefined;
 };
 
-type MySavingsProps = {
+type SavingsScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Savings'>;
   route: RouteProp<RootStackParamList, 'Savings'>;
 };
 
-const MySavings: React.FC<MySavingsProps> = ({ navigation }) => {
+const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation }) => {
   const handleButtonPress = (button: string) => {
     console.log(`${button} Pressed`);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>¡Bienvenido MySavings!</Text>
-      <Button
-        title="Cerrar sesión"
-        onPress={() => navigation.navigate('Login')}
-      />
+      <Text style={styles.heading}>Savings Screen</Text>
       <FooterMenu navigation={navigation} onButtonPress={handleButtonPress} />
     </View>
   );
@@ -48,4 +44,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MySavings;
+export default SavingsScreen;

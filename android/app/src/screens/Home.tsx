@@ -1,3 +1,4 @@
+//Home.tsx
 /* eslint-disable prettier/prettier */
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
