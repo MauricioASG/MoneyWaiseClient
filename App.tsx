@@ -15,7 +15,7 @@ const App = () => {
   return (
     <ButtonProvider>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Home">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Savings" component={SavingsScreen} />
           <Stack.Screen name="Schedule" component={ScheduleScreen} />
