@@ -4,9 +4,10 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, Keyboard, Platform } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, useFocusEffect } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../components/CustomButton';
+import { useButton } from '../contexts/FooterMenuContext';
 
 type RootStackParamList = {
   Home: undefined;
@@ -23,6 +24,13 @@ type SavingsScreenProps = {
 const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation }) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [savings, setSavings] = useState('');
+  const { setSelectedButton } = useButton();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectedButton('left');
+    }, [setSelectedButton])
+  );
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -45,7 +53,6 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation }) => {
   };
 
   const handleSavingsChange = (text: string) => {
-    // Remover cualquier caracter que no sea número
     const numericText = text.replace(/[^0-9]/g, '');
     setSavings(numericText);
   };

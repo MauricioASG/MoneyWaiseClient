@@ -1,8 +1,9 @@
 /* eslint-disable prettier/prettier */
-//FooterMenu
-import React from 'react';
+// FooterMenu.tsx
+import React, { useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import { useButton } from '../contexts/FooterMenuContext'; // Asegúrate de ajustar la ruta según sea necesario
 
 type RootStackParamList = {
@@ -18,6 +19,24 @@ type FooterMenuProps = {
 
 const FooterMenu: React.FC<FooterMenuProps> = ({ navigation, onButtonPress }) => {
   const { selectedButton, setSelectedButton } = useButton();
+  const route = useRoute();
+  const nav = useNavigation();
+
+  useEffect(() => {
+    switch (route.name) {
+      case 'Home':
+        setSelectedButton('center');
+        break;
+      case 'Savings':
+        setSelectedButton('left');
+        break;
+      case 'Schedule':
+        setSelectedButton('right');
+        break;
+      default:
+        break;
+    }
+  }, [route.name, setSelectedButton]);
 
   const handlePress = (button: string) => {
     setSelectedButton(button);

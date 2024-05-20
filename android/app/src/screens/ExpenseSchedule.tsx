@@ -1,9 +1,11 @@
+// ScheduleScreen.tsx
 /* eslint-disable prettier/prettier */
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, useFocusEffect } from '@react-navigation/native';
+import { useButton } from '../contexts/FooterMenuContext';
 
 type RootStackParamList = {
   Home: undefined;
@@ -12,23 +14,24 @@ type RootStackParamList = {
   Login: undefined;
 };
 
-type ExpenseScheduleProps = {
+type ScheduleScreenProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Schedule'>;
   route: RouteProp<RootStackParamList, 'Schedule'>;
 };
 
-const ExpenseSchedule: React.FC<ExpenseScheduleProps> = ({ navigation }) => {
-  const handleButtonPress = (button: string) => {
-    console.log(`${button} Pressed`);
-  };
+const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
+  const { setSelectedButton } = useButton();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectedButton('right');
+    }, [setSelectedButton])
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>¡Bienvenido ExpenseSchedule!</Text>
-      <Button
-        title="Cerrar sesión"
-        onPress={() => navigation.navigate('Login')}
-      />
-      <FooterMenu navigation={navigation} onButtonPress={handleButtonPress} />
+      <Text style={styles.heading}>Horario de Gastos</Text>
+      <FooterMenu navigation={navigation} />
     </View>
   );
 };
@@ -47,4 +50,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ExpenseSchedule;
+export default ScheduleScreen;

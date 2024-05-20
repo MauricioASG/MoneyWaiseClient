@@ -1,10 +1,11 @@
-//Home.tsx
+// Home.tsx
 /* eslint-disable prettier/prettier */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
+import { RouteProp, useFocusEffect } from '@react-navigation/native';
+import { useButton } from '../contexts/FooterMenuContext';
 
 type RootStackParamList = {
   Home: undefined;
@@ -19,9 +20,13 @@ type HomeScreenProps = {
 };
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
-  const handleButtonPress = (button: string) => {
-    console.log(`${button} Pressed`);
-  };
+  const { setSelectedButton } = useButton();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      setSelectedButton('center');
+    }, [setSelectedButton])
+  );
 
   return (
     <View style={styles.container}>
@@ -30,7 +35,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         title="Cerrar sesión"
         onPress={() => navigation.navigate('Login')}
       />
-      <FooterMenu navigation={navigation} onButtonPress={handleButtonPress} />
+      <FooterMenu navigation={navigation} />
     </View>
   );
 };
