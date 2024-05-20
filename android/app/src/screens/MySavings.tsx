@@ -1,3 +1,4 @@
+// SavingsScreen.tsx
 /* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, Keyboard, Platform } from 'react-native';
@@ -5,6 +6,7 @@ import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import CustomButton from '../components/CustomButton';
 
 type RootStackParamList = {
   Home: undefined;
@@ -19,25 +21,19 @@ type SavingsScreenProps = {
 };
 
 const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation }) => {
-  // Estado para rastrear si el teclado está visible
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [savings, setSavings] = useState('');
 
   useEffect(() => {
-    // Listeners para detectar cuando el teclado se muestra u oculta
     const keyboardDidShowListener = Keyboard.addListener(
       Platform.OS === 'android' ? 'keyboardDidShow' : 'keyboardWillShow',
-      () => {
-        setKeyboardVisible(true); // Actualiza el estado cuando el teclado se muestra
-      }
+      () => setKeyboardVisible(true)
     );
     const keyboardDidHideListener = Keyboard.addListener(
       Platform.OS === 'android' ? 'keyboardDidHide' : 'keyboardWillHide',
-      () => {
-        setKeyboardVisible(false); // Actualiza el estado cuando el teclado se oculta
-      }
+      () => setKeyboardVisible(false)
     );
 
-    // Limpiar los listeners cuando el componente se desmonta
     return () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
@@ -48,23 +44,55 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation }) => {
     console.log(`${button} Pressed`);
   };
 
+  const handleSavingsChange = (text: string) => {
+    // Remover cualquier caracter que no sea número
+    const numericText = text.replace(/[^0-9]/g, '');
+    setSavings(numericText);
+  };
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={styles.container}
-      extraScrollHeight={100} // Ajusta el scroll para evitar que el teclado cubra los campos de entrada
+      extraScrollHeight={100}
     >
       <Text style={styles.heading}>Savings Screen</Text>
       <Image
         source={require('../assets/MySavingsLogo.jpg')}
         style={styles.image}
       />
+      <Text style={styles.heading2}>Meta financiera</Text>
       <TextInput
         style={styles.textInput}
         placeholder="Ahorro"
-        secureTextEntry={true}
-        placeholderTextColor={'#000000'}
+        placeholderTextColor={'black'}
+        keyboardType="numeric"
+        value={savings}
+        onChangeText={handleSavingsChange}
       />
-      {/* Muestra el FooterMenu solo si el teclado no está visible */}
+      <CustomButton
+        title="Ajustes" 
+        onPress={() => handleButtonPress('Ajustes')} 
+        backgroundColor="#90CAF9"
+        marginBottom={10}
+        paddingHorizontal={85}
+        paddingVertical={16}
+      />
+      <CustomButton
+        title="Ingresar"
+        onPress={() => handleButtonPress('Ingresar')}
+        backgroundColor="#80DA80"
+        marginBottom={10}
+        paddingHorizontal={85}
+        paddingVertical={16}
+      />
+      <CustomButton 
+        title="Retirar" 
+        onPress={() => handleButtonPress('Retirar')} 
+        backgroundColor="#FF5564"
+        marginBottom={200}
+        paddingHorizontal={85}
+        paddingVertical={16}
+      />
       {!isKeyboardVisible && (
         <FooterMenu navigation={navigation} onButtonPress={handleButtonPress} />
       )}
@@ -86,6 +114,14 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 10,
   },
+  heading2: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    marginTop: 10,
+    marginRight: 135,
+    color: 'black',
+  },
   image: {
     width: 200,
     height: 200,
@@ -94,13 +130,14 @@ const styles = StyleSheet.create({
   },
   textInput: {
     color: 'black',
-    borderBottomWidth: 1,
+    borderBottomWidth: 2,
+    borderColor: 'black',
     borderRadius: 8,
-    backgroundColor: '#9BD3FD',
+    backgroundColor: '#E3F2FD',
     paddingVertical: 8,
     paddingHorizontal: 12,
     width: '80%',
-    marginBottom: 400,
+    marginBottom: 10,
   },
 });
 
