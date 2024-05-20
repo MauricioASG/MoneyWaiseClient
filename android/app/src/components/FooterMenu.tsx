@@ -1,6 +1,5 @@
+/* eslint-disable prettier/prettier */
 //FooterMenu
-/* eslint-disable prettier/prettier */
-/* eslint-disable prettier/prettier */
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';

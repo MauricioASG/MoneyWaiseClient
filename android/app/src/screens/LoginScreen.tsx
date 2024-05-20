@@ -1,4 +1,4 @@
-// //LoginScreen.tsx
+// LoginScreen.tsx
 /* eslint-disable prettier/prettier */
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
@@ -113,4 +113,3 @@ const styles = StyleSheet.create({
 });
 
 export default Login;
-
