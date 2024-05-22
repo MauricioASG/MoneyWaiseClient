@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
-// SavingsScreen.tsx
+// MySavingsAdd.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, Keyboard, Platform } from 'react-native';
+import {Text, StyleSheet, Image, TextInput, Keyboard, Platform } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useFocusEffect } from '@react-navigation/native';
@@ -18,36 +18,12 @@ type RootStackParamList = {
 };
 
 type SavingsScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'Savings'>;
-  route: RouteProp<RootStackParamList, 'Savings'>;
+  navigation: StackNavigationProp<RootStackParamList, 'SavingsAdd'>;
+  route: RouteProp<RootStackParamList, 'SavingsAdd'>;
 };
 
 const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation }) => {
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [savings, setSavings] = useState('');
-  const { setSelectedButton } = useButton();
-
-  useFocusEffect(
-    React.useCallback(() => {
-      setSelectedButton('left');
-    }, [setSelectedButton])
-  );
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      Platform.OS === 'android' ? 'keyboardDidShow' : 'keyboardWillShow',
-      () => setKeyboardVisible(true)
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      Platform.OS === 'android' ? 'keyboardDidHide' : 'keyboardWillHide',
-      () => setKeyboardVisible(false)
-    );
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
 
   const handleButtonPress = (button: string) => {
     console.log(`${button} Pressed`);
@@ -67,47 +43,28 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation }) => {
       contentContainerStyle={styles.container}
       extraScrollHeight={100}
     >
-      <Text style={styles.heading}>Savings Screen</Text>
+      <Text style={styles.heading}>Savings Add Screen</Text>
       <Image
-        source={require('../assets/MySavingsLogo.jpg')}
+        source={require('../assets/MySavingsAddLogo.jpg')}
         style={styles.image}
       />
       <Text style={styles.heading2}>Meta financiera</Text>
       <TextInput
         style={styles.textInput}
-        placeholder="Ahorro"
+        placeholder="Cantidad a ingresar"
         placeholderTextColor={'black'}
         keyboardType="decimal-pad"
         value={savings}
         onChangeText={handleSavingsChange}
       />
       <CustomButton
-        title="Ajustes"
-        onPress={() => handleButtonPress('Ingresar')}
-        backgroundColor="#90CAF9"
-        marginBottom={10}
-        paddingHorizontal={85}
-        paddingVertical={16}
-      />
-      <CustomButton
         title="Ingresar"
-        onPress={() => navigation.navigate('SavingsAdd')}
+        onPress={() => handleButtonPress('Ingresar')}
         backgroundColor="#80DA80"
-        marginBottom={10}
-        paddingHorizontal={85}
-        paddingVertical={16}
-      />
-      <CustomButton 
-        title="Retirar" 
-        onPress={() => handleButtonPress('Retirar')} 
-        backgroundColor="#FF5564"
         marginBottom={200}
         paddingHorizontal={85}
         paddingVertical={16}
       />
-      {!isKeyboardVisible && (
-        <FooterMenu navigation={navigation} onButtonPress={handleButtonPress} />
-      )}
     </KeyboardAwareScrollView>
   );
 };

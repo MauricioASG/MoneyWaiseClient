@@ -4,7 +4,6 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import {
     SafeAreaView,
-    Button,
     StyleSheet,
     Text,
     TextInput,
