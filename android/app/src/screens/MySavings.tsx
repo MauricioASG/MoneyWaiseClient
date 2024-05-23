@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
-// SavingsScreen.tsx
-// SavingsScreen.tsx
+// MySavings.tsx
+// MySavings.tsx
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, Keyboard, Platform } from 'react-native';
+import { Text, StyleSheet, Image, TextInput, Keyboard, Platform } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useFocusEffect } from '@react-navigation/native';
@@ -26,9 +26,9 @@ type SavingsScreenProps = {
 
 const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [savings, setSavings] = useState('');
+  const [savings, setSavings] = useState(''); // Mantenemos el estado para nuevos ahorros
+  const programmedSavings = route.params?.programmedSavings; // Obtenemos el valor pasado
   const { setSelectedButton } = useButton();
-  const programmedSavings = route.params?.programmedSavings;
 
   useFocusEffect(
     React.useCallback(() => {
@@ -54,7 +54,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
 
   useEffect(() => {
     if (programmedSavings) {
-      setSavings(programmedSavings);
+      setSavings(programmedSavings); // Establecemos el valor para mostrar
     }
   }, [programmedSavings]);
 
@@ -90,7 +90,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         keyboardType="decimal-pad"
         value={savings}
         onChangeText={handleSavingsChange}
-        editable={!programmedSavings}
+        editable={!programmedSavings} // Solo editable si no hay valor programado
       />
       <CustomButton
         title="Ajustes"
@@ -108,9 +108,9 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         paddingHorizontal={85}
         paddingVertical={16}
       />
-      <CustomButton 
-        title="Retirar" 
-        onPress={() => handleButtonPress('Retirar')} 
+      <CustomButton
+        title="Retirar"
+        onPress={() => handleButtonPress('Retirar')}
         backgroundColor="#FF5564"
         marginBottom={200}
         paddingHorizontal={85}
@@ -161,6 +161,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     width: '80%',
     marginBottom: 10,
+    textAlign: 'center',
+    fontSize: 25,
   },
 });
 

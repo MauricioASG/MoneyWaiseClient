@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
-// SavingsConf.tsx
+// MYSavingsConf.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput } from 'react-native';
+import { Text, StyleSheet, Image, TextInput } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -116,6 +116,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     width: '80%',
     marginBottom: 10,
+    textAlign: 'center',
+    fontSize: 25,
   },
   picker: {
     height: 50,
