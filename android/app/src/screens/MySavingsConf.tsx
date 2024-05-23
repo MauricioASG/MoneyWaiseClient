@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
-// MySavingsAdd.tsx
+// SavingsConf.tsx
 import React, { useState } from 'react';
-import {Text, StyleSheet, Image, TextInput } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -13,22 +14,19 @@ type RootStackParamList = {
   Schedule: undefined;
   Login: undefined;
   SavingsAdd: undefined;
+  SavingsConf: undefined;
 };
 
-type SavingsAddProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'SavingsAdd'>;
-  route: RouteProp<RootStackParamList, 'SavingsAdd'>;
+type SavingsConfProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'SavingsConf'>;
+  route: RouteProp<RootStackParamList, 'SavingsConf'>;
 };
 
-const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation }) => {
+const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
   const [savings, setSavings] = useState('');
-
-  const handleButtonPress = (button: string) => {
-    console.log(`${button} Pressed`);
-  };
+  const [interval, setInterval] = useState('daily'); // Nuevo estado para el intervalo
 
   const handleSavingsChange = (text: string) => {
-    // Permitir solo números y un punto decimal
     const numericText = text.replace(/[^0-9.]/g, '');
     const parts = numericText.split('.');
     if (parts.length <= 2) {
@@ -36,17 +34,21 @@ const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation }) => {
     }
   };
 
+  const handleApply = () => {
+    navigation.navigate('Savings', { programmedSavings: savings });
+  };
+
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={styles.container}
       extraScrollHeight={100}
     >
-      <Text style={styles.heading}>Savings Add Screen</Text>
+      <Text style={styles.heading}>Savings Configuration</Text>
       <Image
-        source={require('../assets/MySavingsAddLogo.jpg')}
+        source={require('../assets/MySavingsConfLogo.jpg')}
         style={styles.image}
       />
-      <Text style={styles.heading2}>Meta financiera</Text>
+      <Text style={styles.heading2}>Meta Deseable</Text>
       <TextInput
         style={styles.textInput}
         placeholder="Cantidad a ingresar"
@@ -55,9 +57,18 @@ const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation }) => {
         value={savings}
         onChangeText={handleSavingsChange}
       />
+      <Text style={styles.heading2}>Intervalo de Ahorro</Text>
+      <Picker
+        selectedValue={interval}
+        style={styles.picker}
+        onValueChange={(itemValue) => setInterval(itemValue)}
+      >
+        <Picker.Item label="Diario" value="daily" />
+        <Picker.Item label="Semanal" value="weekly" />
+      </Picker>
       <CustomButton
-        title="Ingresar"
-        onPress={() => handleButtonPress('Ingresar')}
+        title="Aplicar"
+        onPress={handleApply}
         backgroundColor="#80DA80"
         marginBottom={200}
         paddingHorizontal={85}
@@ -106,6 +117,11 @@ const styles = StyleSheet.create({
     width: '80%',
     marginBottom: 10,
   },
+  picker: {
+    height: 50,
+    width: '80%',
+    marginBottom: 20,
+  },
 });
 
-export default SavingsAdd;
+export default SavingsConf;

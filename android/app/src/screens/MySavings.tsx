@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 // SavingsScreen.tsx
+// SavingsScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TextInput, Keyboard, Platform } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
@@ -15,6 +16,7 @@ type RootStackParamList = {
   Schedule: undefined;
   Login: undefined;
   SavingsAdd: undefined;
+  SavingsConf: undefined;
 };
 
 type SavingsScreenProps = {
@@ -22,10 +24,11 @@ type SavingsScreenProps = {
   route: RouteProp<RootStackParamList, 'Savings'>;
 };
 
-const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation }) => {
+const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [savings, setSavings] = useState('');
   const { setSelectedButton } = useButton();
+  const programmedSavings = route.params?.programmedSavings;
 
   useFocusEffect(
     React.useCallback(() => {
@@ -49,16 +52,23 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (programmedSavings) {
+      setSavings(programmedSavings);
+    }
+  }, [programmedSavings]);
+
   const handleButtonPress = (button: string) => {
     console.log(`${button} Pressed`);
   };
 
   const handleSavingsChange = (text: string) => {
-    // Permitir solo números y un punto decimal
-    const numericText = text.replace(/[^0-9.]/g, '');
-    const parts = numericText.split('.');
-    if (parts.length <= 2) {
-      setSavings(numericText);
+    if (!programmedSavings) {
+      const numericText = text.replace(/[^0-9.]/g, '');
+      const parts = numericText.split('.');
+      if (parts.length <= 2) {
+        setSavings(numericText);
+      }
     }
   };
 
@@ -80,10 +90,11 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation }) => {
         keyboardType="decimal-pad"
         value={savings}
         onChangeText={handleSavingsChange}
+        editable={!programmedSavings}
       />
       <CustomButton
         title="Ajustes"
-        onPress={() => handleButtonPress('Ingresar')}
+        onPress={() => navigation.navigate('SavingsConf')}
         backgroundColor="#90CAF9"
         marginBottom={10}
         paddingHorizontal={85}
