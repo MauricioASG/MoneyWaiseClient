@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 // MySavings.tsx
-// MySavings.tsx
 import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, Image, TextInput, Keyboard, Platform } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
@@ -27,7 +26,8 @@ type SavingsScreenProps = {
 const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [savings, setSavings] = useState(''); // Mantenemos el estado para nuevos ahorros
-  const programmedSavings = route.params?.programmedSavings; // Obtenemos el valor pasado
+  const savingsGoal = route.params?.savingsGoal; // Obtenemos el valor de la meta financiera
+  const interval = route.params?.interval; // Obtenemos el valor del intervalo
   const { setSelectedButton } = useButton();
 
   useFocusEffect(
@@ -53,17 +53,17 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    if (programmedSavings) {
-      setSavings(programmedSavings); // Establecemos el valor para mostrar
+    if (savingsGoal) {
+      setSavings(savingsGoal); // Establecemos el valor para mostrar
     }
-  }, [programmedSavings]);
+  }, [savingsGoal]);
 
   const handleButtonPress = (button: string) => {
     console.log(`${button} Pressed`);
   };
 
   const handleSavingsChange = (text: string) => {
-    if (!programmedSavings) {
+    if (!savingsGoal) {
       const numericText = text.replace(/[^0-9.]/g, '');
       const parts = numericText.split('.');
       if (parts.length <= 2) {
@@ -90,8 +90,9 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         keyboardType="decimal-pad"
         value={savings}
         onChangeText={handleSavingsChange}
-        editable={!programmedSavings} // Solo editable si no hay valor programado
+        editable={!savingsGoal} // Solo editable si no hay valor programado
       />
+      <Text style={styles.text}>Plan de Ahorro: {interval}</Text>
       <CustomButton
         title="Ajustes"
         onPress={() => navigation.navigate('SavingsConf')}
@@ -112,7 +113,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         title="Retirar"
         onPress={() => handleButtonPress('Retirar')}
         backgroundColor="#FF5564"
-        marginBottom={200}
+        marginBottom={140}
         paddingHorizontal={85}
         paddingVertical={16}
       />
@@ -134,8 +135,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
-    marginTop: 10,
+    marginBottom: 5,
   },
   heading2: {
     fontSize: 24,
@@ -159,10 +159,18 @@ const styles = StyleSheet.create({
     backgroundColor: '#E3F2FD',
     paddingVertical: 8,
     paddingHorizontal: 12,
-    width: '80%',
+    width: '65%',
     marginBottom: 10,
     textAlign: 'center',
     fontSize: 25,
+  },
+  text: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    marginTop: 10,
+    marginRight: 100,
+    color: 'black',
   },
 });
 

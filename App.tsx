@@ -17,8 +17,8 @@ const App = () => {
     <NavigationContainer>
       <ButtonProvider>
         <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Savings" component={SavingsScreen} />
+          <Stack.Screen name="Home" component={HomeScreen}  options={{ title: 'Home' }} />
+          <Stack.Screen name="Savings" component={SavingsScreen}  options={{ title: 'Mis Ahorros' }} />
           <Stack.Screen name="Schedule" component={ScheduleScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="SavingsAdd" component={SavingsAdd} />

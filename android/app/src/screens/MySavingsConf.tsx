@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 // MYSavingsConf.tsx
-import React, { useState } from 'react';
-import { Text, StyleSheet, Image, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, StyleSheet, Image, TextInput, View } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
@@ -23,49 +23,95 @@ type SavingsConfProps = {
 };
 
 const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
-  const [savings, setSavings] = useState('');
-  const [interval, setInterval] = useState('daily'); // Nuevo estado para el intervalo
+  const [savingsGoal, setSavingsGoal] = useState('');
+  const [programmedSavings, setProgrammedSavings] = useState('');
+  const [interval, setInterval] = useState('Diario');
+  const [timePeriod, setTimePeriod] = useState('');
 
-  const handleSavingsChange = (text: string) => {
+  useEffect(() => {
+    calculateProgrammedSavings();
+  }, [savingsGoal, interval, timePeriod]);
+
+  const handleSavingsGoalChange = (text: string) => {
     const numericText = text.replace(/[^0-9.]/g, '');
     const parts = numericText.split('.');
     if (parts.length <= 2) {
-      setSavings(numericText);
+      setSavingsGoal(numericText);
+    }
+  };
+
+  const handleTimePeriodChange = (text: string) => {
+    const numericText = text.replace(/[^0-9]/g, '');
+    setTimePeriod(numericText);
+  };
+
+  const calculateProgrammedSavings = () => {
+    const goal = parseFloat(savingsGoal);
+    const period = parseInt(timePeriod, 10);
+    if (!isNaN(goal) && !isNaN(period) && period > 0) {
+      let savingsPerInterval = 0;
+      if (interval === 'Diario') {
+        savingsPerInterval = goal / period; //Ahorro diario calculado en dias
+      } else if (interval === 'Semanal') {
+        savingsPerInterval = goal / (period * 7); //Ahorro diario, pero calculado en semanas.
+      }
+      setProgrammedSavings(savingsPerInterval.toFixed(2));
+    } else {
+      setProgrammedSavings('');
     }
   };
 
   const handleApply = () => {
-    navigation.navigate('Savings', { programmedSavings: savings });
-  };
+    navigation.navigate('Savings', { savingsGoal, interval });
+  };  
 
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={styles.container}
       extraScrollHeight={100}
     >
-      <Text style={styles.heading}>Savings Configuration</Text>
+      <Text style={styles.heading}>Configuración de Ahorro</Text>
       <Image
         source={require('../assets/MySavingsConfLogo.jpg')}
         style={styles.image}
       />
-      <Text style={styles.heading2}>Meta Deseable</Text>
+      <Text style={styles.heading2}>Meta de Ahorro</Text>
       <TextInput
         style={styles.textInput}
-        placeholder="Cantidad a ingresar"
+        placeholder="cantidad $"
         placeholderTextColor={'black'}
         keyboardType="decimal-pad"
-        value={savings}
-        onChangeText={handleSavingsChange}
+        value={savingsGoal}
+        onChangeText={handleSavingsGoalChange}
       />
+
       <Text style={styles.heading2}>Intervalo de Ahorro</Text>
       <Picker
         selectedValue={interval}
         style={styles.picker}
         onValueChange={(itemValue) => setInterval(itemValue)}
       >
-        <Picker.Item label="Diario" value="daily" />
-        <Picker.Item label="Semanal" value="weekly" />
+        <Picker.Item label="Diario" value="Diario" />
+        <Picker.Item label="Semanal" value="Semanal" />
       </Picker>
+      <Text style={styles.heading2}>Periodo de Tiempo</Text>
+      <TextInput
+        style={styles.textInput}
+        placeholder={interval === 'Diario' ? 'Días' : 'Semanas'}
+        placeholderTextColor={'black'}
+        keyboardType="number-pad"
+        value={timePeriod}
+        onChangeText={handleTimePeriodChange}
+      />
+      <Text style={styles.heading2}>Ahorro Programado (en dias)</Text>
+      <TextInput
+        style={styles.textInput}
+        placeholder="cantidad $"
+        placeholderTextColor={'black'}
+        keyboardType="decimal-pad"
+        value={programmedSavings}
+        editable={false}
+      />
       <CustomButton
         title="Aplicar"
         onPress={handleApply}
@@ -97,8 +143,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     marginTop: 10,
-    marginRight: 135,
     color: 'black',
+    alignSelf: 'flex-start',
   },
   image: {
     width: 200,
@@ -120,9 +166,10 @@ const styles = StyleSheet.create({
     fontSize: 25,
   },
   picker: {
-    height: 50,
-    width: '80%',
-    marginBottom: 20,
+    height: 30,
+    width: '70%',
+    marginBottom: 15,
+    fontSize: 25,
   },
 });
 
