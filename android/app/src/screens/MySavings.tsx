@@ -11,10 +11,10 @@ import { useButton } from '../contexts/FooterMenuContext';
 
 type RootStackParamList = {
   Home: undefined;
-  Savings: undefined;
+  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string };
   Schedule: undefined;
   Login: undefined;
-  SavingsAdd: undefined;
+  SavingsAdd: { savingsGoal: string, interval: string };
   SavingsConf: undefined;
 };
 
@@ -25,9 +25,9 @@ type SavingsScreenProps = {
 
 const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [savingsGoal, setSavingsGoal] = useState(''); // Estado para la meta financiera
   const [savings, setSavings] = useState(''); // Mantenemos el estado para nuevos ahorros
-  const savingsGoal = route.params?.savingsGoal; // Obtenemos el valor de la meta financiera
-  const interval = route.params?.interval; // Obtenemos el valor del intervalo
+  const [interval, setInterval] = useState(''); // Estado para el intervalo
   const { setSelectedButton } = useButton();
 
   useFocusEffect(
@@ -53,18 +53,28 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
-    if (savingsGoal) {
-      setSavings(savingsGoal); // Establecemos el valor para mostrar
+    if (route.params?.amountAdded && !isNaN(Number(route.params.amountAdded))) {
+      const newSavingsGoal = parseFloat(savingsGoal) - parseFloat(route.params.amountAdded);
+      setSavingsGoal(newSavingsGoal.toString());
     }
-  }, [savingsGoal]);
+    if (route.params?.interval) {
+      setInterval(route.params.interval);
+    }
+  }, [route.params?.amountAdded, route.params?.interval]);
+
+  useEffect(() => {
+    if (route.params?.savingsGoal) {
+      setSavingsGoal(route.params.savingsGoal);
+    }
+  }, [route.params?.savingsGoal]);
 
   const handleButtonPress = (button: string) => {
-    if (!savings || isNaN(Number(savings))) {
+    if (!savingsGoal || isNaN(Number(savingsGoal))) {
       Alert.alert('Error', 'Primero necesitas configurar una meta financiera de ahorro');
     } else {
       console.log(`${button} Pressed`);
       if (button === 'Ingresar') {
-        navigation.navigate('SavingsAdd');
+        navigation.navigate('SavingsAdd', { savingsGoal, interval });
       }
     }
   };
@@ -95,7 +105,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         placeholder="Ahorro"
         placeholderTextColor={'black'}
         keyboardType="decimal-pad"
-        value={savings}
+        value={savingsGoal}
         onChangeText={handleSavingsChange}
         editable={!savingsGoal} // Solo editable si no hay valor programado
       />
@@ -115,7 +125,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         marginBottom={10}
         paddingHorizontal={85}
         paddingVertical={16}
-        disabled={!savings || isNaN(Number(savings))}
+        disabled={!savingsGoal || isNaN(Number(savingsGoal))}
       />
       <CustomButton
         title="Retirar"
@@ -124,7 +134,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         marginBottom={140}
         paddingHorizontal={85}
         paddingVertical={16}
-        disabled={!savings || isNaN(Number(savings))}
+        disabled={!savingsGoal || isNaN(Number(savingsGoal))}
       />
       {!isKeyboardVisible && (
         <FooterMenu navigation={navigation} onButtonPress={handleButtonPress} />

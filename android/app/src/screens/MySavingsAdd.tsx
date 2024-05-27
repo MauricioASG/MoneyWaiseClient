@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 // MySavingsAdd.tsx
 import React, { useState } from 'react';
-import {Text, StyleSheet, Image, TextInput } from 'react-native';
+import { Text, StyleSheet, Image, TextInput, Alert } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -9,10 +9,10 @@ import CustomButton from '../components/CustomButton';
 
 type RootStackParamList = {
   Home: undefined;
-  Savings: undefined;
+  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string };
   Schedule: undefined;
   Login: undefined;
-  SavingsAdd: undefined;
+  SavingsAdd: { savingsGoal: string, interval: string };
 };
 
 type SavingsAddProps = {
@@ -20,15 +20,20 @@ type SavingsAddProps = {
   route: RouteProp<RootStackParamList, 'SavingsAdd'>;
 };
 
-const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation }) => {
+const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation, route }) => {
   const [savings, setSavings] = useState('');
+  const { savingsGoal, interval } = route.params;
 
   const handleButtonPress = (button: string) => {
-    console.log(`${button} Pressed`);
+    if (!savings || isNaN(Number(savings))) {
+      Alert.alert('Error', 'Por favor, ingrese una cantidad válida');
+      return;
+    }
+
+    navigation.navigate('Savings', { amountAdded: savings, savingsGoal, interval });
   };
 
   const handleSavingsChange = (text: string) => {
-    // Permitir solo números y un punto decimal
     const numericText = text.replace(/[^0-9.]/g, '');
     const parts = numericText.split('.');
     if (parts.length <= 2) {
