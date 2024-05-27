@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable prettier/prettier */
 // MySavingsWithdawals.tsx
 import React, { useState } from 'react';
 import { Text, StyleSheet, Image, TextInput, Alert } from 'react-native';
