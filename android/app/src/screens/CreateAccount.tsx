@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-// LoginScreen.tsx
+// CreateAccountScreen.tsx
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import {
@@ -14,26 +14,26 @@ import {
 } from 'react-native';
 
 type RootStackParamList = {
-    Home: undefined;
     Login: undefined;
-    CreateAcount: undefined; // Corrección de nombre
-}
-
-type LogInProps = {
-    navigation: StackNavigationProp<RootStackParamList, 'Login'>; // Corrección de tipo
 };
 
-function Login({ navigation }: LogInProps): React.JSX.Element {
+type CreateAccountProps = {
+    navigation: StackNavigationProp<RootStackParamList, 'Login'>;
+};
+
+function CreateAccount({ navigation }: CreateAccountProps): React.JSX.Element {
     const [user, setUser] = React.useState('');
     const [password, setPassword] = React.useState('');
+    const [mail, setMail] = React.useState('');
+    const [salary, setSalary] = React.useState('');
 
-    const btnIngresaronPress = function () {
-        if (user && password) {
-            Alert.alert('Entraste', 'Iniciando sesión...');
-            navigation.navigate('Home');
+    const btnCreaarCuentaPress = function () {
+        if (user && password && mail && salary) {
+            Alert.alert('Haz creado tu cuenta', 'Regresando a login...');
+            navigation.navigate('Login');
             return;
         }
-        Alert.alert('Fallido', 'Datos incorrectos');
+        Alert.alert('Fallido', 'Datos incompletos');
     };
 
     return (
@@ -43,10 +43,16 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
                     source={require('../assets/MoneyWiseLogo.jpg')}
                     style={styles.image}
                 />
-                <Text style={styles.Text}>Inicio de sesión</Text>
+                <Text style={styles.Text}>Creación de usuario</Text>
                 <TextInput
                     style={styles.textInput}
-                    placeholder="Usuario"
+                    placeholder="Correo electrónico"
+                    placeholderTextColor={'#000000'}
+                    onChangeText={u => setMail(u)}
+                />
+                <TextInput
+                    style={styles.textInput}
+                    placeholder="Nombre de usuario"
                     placeholderTextColor={'#000000'}
                     onChangeText={u => setUser(u)}
                 />
@@ -57,14 +63,23 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
                     placeholderTextColor={'#000000'}
                     onChangeText={p => setPassword(p)}
                 />
-                <TouchableOpacity style={styles.button} onPress={btnIngresaronPress}>
-                    <Text style={styles.buttonText}>Iniciar sesión</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => navigation.navigate('CreateAcount')} // Corrección de navegación
-                >
+                <TextInput
+                    style={styles.textInput}
+                    placeholder="Confirmar contraseña"
+                    secureTextEntry={true}
+                    placeholderTextColor={'#000000'}
+                />
+                <TextInput
+                    style={styles.textInput}
+                    placeholder="Ingreso mensual aproximado"
+                    placeholderTextColor={'#000000'}
+                    onChangeText={p => setSalary(p)}
+                />
+                <TouchableOpacity style={styles.button} onPress={btnCreaarCuentaPress}>
                     <Text style={styles.buttonText}>Crear cuenta</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
+                    <Text style={styles.buttonText}>Cancelar</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -121,4 +136,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default Login;
+export default CreateAccount;
