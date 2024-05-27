@@ -16,6 +16,7 @@ type RootStackParamList = {
   Login: undefined;
   SavingsAdd: { savingsGoal: string, interval: string };
   SavingsConf: undefined;
+  MySavingsWithdawals: undefined;
 };
 
 type SavingsScreenProps = {
@@ -72,9 +73,11 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
     if (!savingsGoal || isNaN(Number(savingsGoal))) {
       Alert.alert('Error', 'Primero necesitas configurar una meta financiera de ahorro');
     } else {
-      console.log(`${button} Pressed`);
       if (button === 'Ingresar') {
         navigation.navigate('SavingsAdd', { savingsGoal, interval });
+      }
+      if (button === 'Retirar') {
+        navigation.navigate('MySavingsWithdawals', { savingsGoal, interval });
       }
     }
   };
