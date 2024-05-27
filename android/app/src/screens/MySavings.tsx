@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 // MySavings.tsx
 import React, { useState, useEffect } from 'react';
-import { Text, StyleSheet, Image, TextInput, Keyboard, Platform } from 'react-native';
+import { Text, StyleSheet, Image, TextInput, Keyboard, Platform, Alert } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useFocusEffect } from '@react-navigation/native';
@@ -59,7 +59,14 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   }, [savingsGoal]);
 
   const handleButtonPress = (button: string) => {
-    console.log(`${button} Pressed`);
+    if (!savings || isNaN(Number(savings))) {
+      Alert.alert('Error', 'Primero necesitas configurar una meta financiera de ahorro');
+    } else {
+      console.log(`${button} Pressed`);
+      if (button === 'Ingresar') {
+        navigation.navigate('SavingsAdd');
+      }
+    }
   };
 
   const handleSavingsChange = (text: string) => {
@@ -103,11 +110,12 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
       />
       <CustomButton
         title="Ingresar"
-        onPress={() => navigation.navigate('SavingsAdd')}
+        onPress={() => handleButtonPress('Ingresar')}
         backgroundColor="#80DA80"
         marginBottom={10}
         paddingHorizontal={85}
         paddingVertical={16}
+        disabled={!savings || isNaN(Number(savings))}
       />
       <CustomButton
         title="Retirar"
@@ -116,6 +124,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         marginBottom={140}
         paddingHorizontal={85}
         paddingVertical={16}
+        disabled={!savings || isNaN(Number(savings))}
       />
       {!isKeyboardVisible && (
         <FooterMenu navigation={navigation} onButtonPress={handleButtonPress} />
