@@ -28,9 +28,10 @@ type SavingsScreenProps = {
 const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [savingsGoal, setSavingsGoal] = useState(''); 
-  const [savings, setSavings] = useState(''); 
   const [interval, setInterval] = useState(''); 
+  const [timePeriod, setTimePeriod] = useState(''); 
   const [goalId, setGoalId] = useState<number | null>(null);
+  const [programmedSavings, setProgrammedSavings] = useState('');
   const { setSelectedButton } = useButton();
 
   useFocusEffect(
@@ -64,6 +65,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
           const goal = goalData[0];
           setSavingsGoal(goal.monto.toString());
           setInterval(goal.periodo);
+          setProgrammedSavings(goal.ahorro_programado.toString());
           setGoalId(goal.id);
         }
       } catch (error) {
@@ -121,7 +123,6 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
       contentContainerStyle={styles.container}
       extraScrollHeight={100}
     >
-      <Text style={styles.heading}>Savings Screen</Text>
       <Image
         source={require('../assets/MySavingsLogo.jpg')}
         style={styles.image}
@@ -137,6 +138,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         editable={!savingsGoal} // Solo editable si no hay valor programado
       />
       <Text style={styles.text}>Plan de Ahorro: {interval}</Text>
+      <Text style={styles.text}>Ahorro Programado: {programmedSavings}</Text>
       <CustomButton
         title="Ajustes"
         onPress={() => navigation.navigate('SavingsConf')}

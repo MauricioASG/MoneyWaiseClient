@@ -43,7 +43,8 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
           const goal = goalData[0];
           setSavingsGoal(goal.monto.toString());
           setInterval(goal.periodo);
-          setTimePeriod(''); // Set to a default or previous value if necessary
+          setTimePeriod(goal.timePeriod || ''); // Set to a default or previous value if necessary
+          setProgrammedSavings(goal.ahorro_programado.toString());
           setGoalId(goal.id);
         }
       } catch (error) {
@@ -88,7 +89,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
       const usuarioId = 1; // Reemplaza con el ID del usuario actual
       const ahorro_programado = parseFloat(programmedSavings);
 
-      await saveGoal(usuarioId, parseFloat(savingsGoal), interval, ahorro_programado);
+      await saveGoal(usuarioId, parseFloat(savingsGoal), interval, ahorro_programado, timePeriod);
       
       navigation.navigate('Savings', { savingsGoal, interval });
     } catch (error) {
@@ -134,7 +135,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
         value={timePeriod}
         onChangeText={handleTimePeriodChange}
       />
-      <Text style={styles.heading2}>Ahorro Programado (en dias)</Text>
+      <Text style={styles.heading2}>Ahorro Programado {interval === 'Diario' ? '(por día)' : '(por semana)'}</Text>
       <TextInput
         style={styles.textInput}
         placeholder="cantidad $"
