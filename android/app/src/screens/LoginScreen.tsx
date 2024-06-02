@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 // LoginScreen.tsx
 import { StackNavigationProp } from '@react-navigation/stack';
-import React from 'react';
+import React, { useState } from 'react';
 import {
     SafeAreaView,
     StyleSheet,
@@ -12,28 +12,34 @@ import {
     Image,
     TouchableOpacity,
 } from 'react-native';
+import { login } from '../api';
 
 type RootStackParamList = {
     Home: undefined;
     Login: undefined;
-    CreateAcount: undefined; // Corrección de nombre
+    CreateAcount: undefined;
 }
 
 type LogInProps = {
-    navigation: StackNavigationProp<RootStackParamList, 'Login'>; // Corrección de tipo
+    navigation: StackNavigationProp<RootStackParamList, 'Login'>;
 };
 
 function Login({ navigation }: LogInProps): React.JSX.Element {
-    const [user, setUser] = React.useState('');
-    const [password, setPassword] = React.useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
-    const btnIngresaronPress = function () {
-        if (user && password) {
-            Alert.alert('Entraste', 'Iniciando sesión...');
-            navigation.navigate('Home');
-            return;
+    const btnIngresaronPress = async () => {
+        try {
+            if (email && password) {
+                const data = await login(email, password);
+                Alert.alert('Entraste', 'Iniciando sesión...');
+                navigation.navigate('Home');
+            } else {
+                Alert.alert('Fallido', 'Datos incorrectos');
+            }
+        } catch (error) {
+            Alert.alert('Error', error.message);
         }
-        Alert.alert('Fallido', 'Datos incorrectos');
     };
 
     return (
@@ -46,9 +52,9 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
                 <Text style={styles.Text}>Inicio de sesión</Text>
                 <TextInput
                     style={styles.textInput}
-                    placeholder="Usuario"
+                    placeholder="Correo electrónico"
                     placeholderTextColor={'#000000'}
-                    onChangeText={u => setUser(u)}
+                    onChangeText={u => setEmail(u)}
                 />
                 <TextInput
                     style={styles.textInput}
@@ -62,7 +68,7 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
                 </TouchableOpacity>
                 <TouchableOpacity
                     style={styles.button}
-                    onPress={() => navigation.navigate('CreateAcount')} // Corrección de navegación
+                    onPress={() => navigation.navigate('CreateAcount')}
                 >
                     <Text style={styles.buttonText}>Crear cuenta</Text>
                 </TouchableOpacity>

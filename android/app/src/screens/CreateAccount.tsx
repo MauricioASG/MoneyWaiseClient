@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 // CreateAccountScreen.tsx
 import { StackNavigationProp } from '@react-navigation/stack';
-import React from 'react';
+import React, { useState } from 'react';
 import {
     SafeAreaView,
     StyleSheet,
@@ -12,6 +12,7 @@ import {
     Image,
     TouchableOpacity,
 } from 'react-native';
+import { register } from '../api';
 
 type RootStackParamList = {
     Login: undefined;
@@ -22,18 +23,23 @@ type CreateAccountProps = {
 };
 
 function CreateAccount({ navigation }: CreateAccountProps): React.JSX.Element {
-    const [user, setUser] = React.useState('');
-    const [password, setPassword] = React.useState('');
-    const [mail, setMail] = React.useState('');
-    const [salary, setSalary] = React.useState('');
+    const [email, setEmail] = useState('');
+    const [nombre, setNombre] = useState('');
+    const [password, setPassword] = useState('');
+    const [salary, setSalary] = useState('');
 
-    const btnCreaarCuentaPress = function () {
-        if (user && password && mail && salary) {
-            Alert.alert('Haz creado tu cuenta', 'Regresando a login...');
-            navigation.navigate('Login');
-            return;
+    const btnCreaarCuentaPress = async () => {
+        try {
+            if (email && nombre && password && salary) {
+                await register(nombre, email, password, parseFloat(salary));
+                Alert.alert('Haz creado tu cuenta', 'Regresando a login...');
+                navigation.navigate('Login');
+            } else {
+                Alert.alert('Fallido', 'Datos incompletos');
+            }
+        } catch (error) {
+            Alert.alert('Error', error.message);
         }
-        Alert.alert('Fallido', 'Datos incompletos');
     };
 
     return (
@@ -48,13 +54,13 @@ function CreateAccount({ navigation }: CreateAccountProps): React.JSX.Element {
                     style={styles.textInput}
                     placeholder="Correo electrónico"
                     placeholderTextColor={'#000000'}
-                    onChangeText={u => setMail(u)}
+                    onChangeText={u => setEmail(u)}
                 />
                 <TextInput
                     style={styles.textInput}
                     placeholder="Nombre de usuario"
                     placeholderTextColor={'#000000'}
-                    onChangeText={u => setUser(u)}
+                    onChangeText={u => setNombre(u)}
                 />
                 <TextInput
                     style={styles.textInput}
