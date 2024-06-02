@@ -8,6 +8,7 @@ import { RouteProp, useFocusEffect } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../components/CustomButton';
 import { useButton } from '../contexts/FooterMenuContext';
+import { getGoal, updateGoal } from '../api';
 
 type RootStackParamList = {
   Home: undefined;
@@ -26,9 +27,10 @@ type SavingsScreenProps = {
 
 const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [savingsGoal, setSavingsGoal] = useState(''); // Estado para la meta financiera
-  const [savings, setSavings] = useState(''); // Mantenemos el estado para nuevos ahorros
-  const [interval, setInterval] = useState(''); // Estado para el intervalo
+  const [savingsGoal, setSavingsGoal] = useState(''); 
+  const [savings, setSavings] = useState(''); 
+  const [interval, setInterval] = useState(''); 
+  const [goalId, setGoalId] = useState<number | null>(null);
   const { setSelectedButton } = useButton();
 
   useFocusEffect(
@@ -54,9 +56,31 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   }, []);
 
   useEffect(() => {
+    const fetchGoal = async () => {
+      try {
+        const usuarioId = 1; // Reemplaza con el ID del usuario actual
+        const goalData = await getGoal(usuarioId);
+        if (goalData.length > 0) {
+          const goal = goalData[0];
+          setSavingsGoal(goal.monto.toString());
+          setInterval(goal.periodo);
+          setGoalId(goal.id);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchGoal();
+  }, []);
+
+  useEffect(() => {
     if (route.params?.amountAdded && !isNaN(Number(route.params.amountAdded))) {
       const newSavingsGoal = parseFloat(savingsGoal) - parseFloat(route.params.amountAdded);
       setSavingsGoal(newSavingsGoal.toString());
+      if (goalId !== null) {
+        updateGoal(goalId, newSavingsGoal, interval, newSavingsGoal / 30); // Ahorro programado de ejemplo
+      }
     }
     if (route.params?.interval) {
       setInterval(route.params.interval);

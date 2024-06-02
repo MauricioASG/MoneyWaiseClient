@@ -1,4 +1,5 @@
 /* eslint-disable prettier/prettier */
+/* eslint-disable prettier/prettier */
 import axios from 'axios';
 import WebServiceParams from './WebServiceParams';
 
@@ -27,5 +28,41 @@ export const register = async (nombre: string, email: string, passw: string, sal
     } else {
       throw new Error('Error en la creación de cuenta');
     }
+  }
+};
+
+export const createGoal = async (usuario_id: number, monto: number, periodo: string, ahorro_programado: number) => {
+  try {
+    const response = await axios.post(`${API_URL}/metas`, { usuario_id, monto, periodo, ahorro_programado });
+    return response.data;
+  } catch (error) {
+    throw new Error('Error al crear la meta financiera');
+  }
+};
+
+export const getGoal = async (usuario_id: number) => {
+  try {
+    const response = await axios.get(`${API_URL}/metas/${usuario_id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Error al obtener la meta financiera');
+  }
+};
+
+export const updateGoal = async (id: number, monto: number, periodo: string, ahorro_programado: number) => {
+  try {
+    const response = await axios.put(`${API_URL}/metas`, { id, monto, periodo, ahorro_programado });
+    return response.data;
+  } catch (error) {
+    throw new Error('Error al actualizar la meta financiera');
+  }
+};
+
+export const deleteGoal = async (id: number) => {
+  try {
+    const response = await axios.delete(`${API_URL}/metas/${id}`);
+    return response.data;
+  } catch (error) {
+    throw new Error('Error al eliminar la meta financiera');
   }
 };

@@ -7,6 +7,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../components/CustomButton';
+import { createGoal, updateGoal } from '../api';
 
 type RootStackParamList = {
   Home: undefined;
@@ -27,6 +28,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
   const [programmedSavings, setProgrammedSavings] = useState('');
   const [interval, setInterval] = useState('Diario');
   const [timePeriod, setTimePeriod] = useState('');
+  const [goalId, setGoalId] = useState<number | null>(null);
 
   useEffect(() => {
     calculateProgrammedSavings();
@@ -51,9 +53,9 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
     if (!isNaN(goal) && !isNaN(period) && period > 0) {
       let savingsPerInterval = 0;
       if (interval === 'Diario') {
-        savingsPerInterval = goal / period; //Ahorro diario calculado en dias
+        savingsPerInterval = goal / period;
       } else if (interval === 'Semanal') {
-        savingsPerInterval = goal / (period * 7); //Ahorro diario, pero calculado en semanas.
+        savingsPerInterval = goal / (period * 7);
       }
       setProgrammedSavings(savingsPerInterval.toFixed(2));
     } else {
@@ -61,9 +63,22 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
     }
   };
 
-  const handleApply = () => {
-    navigation.navigate('Savings', { savingsGoal, interval });
-  };  
+  const handleApply = async () => {
+    try {
+      const usuarioId = 1; // Reemplaza con el ID del usuario actual
+      const ahorro_programado = parseFloat(programmedSavings);
+
+      if (goalId !== null) {
+        await updateGoal(goalId, parseFloat(savingsGoal), interval, ahorro_programado);
+      } else {
+        await createGoal(usuarioId, parseFloat(savingsGoal), interval, ahorro_programado);
+      }
+      
+      navigation.navigate('Savings', { savingsGoal, interval });
+    } catch (error) {
+      Alert.alert('Error', 'Error al aplicar la meta financiera');
+    }
+  };
 
   return (
     <KeyboardAwareScrollView
