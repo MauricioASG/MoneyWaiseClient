@@ -43,7 +43,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
           const goal = goalData[0];
           setSavingsGoal(goal.monto.toString());
           setInterval(goal.periodo);
-          setTimePeriod(goal.timePeriod || ''); // Set to a default or previous value if necessary
+          setTimePeriod(goal.timePeriod ? goal.timePeriod.toString() : ''); // Set to a default or previous value if necessary
           setProgrammedSavings(goal.ahorro_programado.toString());
           setGoalId(goal.id);
         }
@@ -76,7 +76,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
       if (interval === 'Diario') {
         savingsPerInterval = goal / period;
       } else if (interval === 'Semanal') {
-        savingsPerInterval = goal / (period * 7);
+        savingsPerInterval = (goal / period) / 7;
       }
       setProgrammedSavings(savingsPerInterval.toFixed(2));
     } else {
@@ -89,9 +89,9 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
       const usuarioId = 1; // Reemplaza con el ID del usuario actual
       const ahorro_programado = parseFloat(programmedSavings);
 
-      await saveGoal(usuarioId, parseFloat(savingsGoal), interval, ahorro_programado, timePeriod);
+      await saveGoal(usuarioId, parseFloat(savingsGoal), interval, ahorro_programado, parseInt(timePeriod, 10));
       
-      navigation.navigate('Savings', { savingsGoal, interval });
+      navigation.navigate('Savings', { savingsGoal, interval, timePeriod });
     } catch (error) {
       Alert.alert('Error', 'Error al aplicar la meta financiera');
     }
@@ -206,3 +206,4 @@ const styles = StyleSheet.create({
 });
 
 export default SavingsConf;
+

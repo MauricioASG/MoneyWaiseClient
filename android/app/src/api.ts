@@ -39,7 +39,7 @@ export const createGoal = async (usuario_id: number, monto: number, periodo: str
   }
 };
 
-export const getGoal = async (usuario_id: number) => {
+export const getGoal = async (usuario_id) => {
   try {
     const response = await axios.get(`${API_URL}/metaFinanciera/${usuario_id}`);
     return response.data;
@@ -49,13 +49,14 @@ export const getGoal = async (usuario_id: number) => {
   }
 };
 
-export const saveGoal = async (usuario_id: number, monto: number, periodo: string, ahorro_programado: number) => {
+export const saveGoal = async (usuario_id, monto, periodo, ahorro_programado, timePeriod) => {
   try {
     const response = await axios.post(`${API_URL}/metaFinanciera`, {
       usuario_id,
       monto,
       periodo,
-      ahorro_programado
+      ahorro_programado,
+      timePeriod
     });
     return response.data;
   } catch (error) {
@@ -63,6 +64,7 @@ export const saveGoal = async (usuario_id: number, monto: number, periodo: strin
     throw error;
   }
 };
+
 
 export const updateGoal = async (id: number, monto: number, periodo: string, ahorro_programado: number) => {
   try {

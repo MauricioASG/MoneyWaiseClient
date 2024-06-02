@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, Image, TextInput, Keyboard, Platform, Alert } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp, useFocusEffect } from '@react-navigation/native';
+import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../components/CustomButton';
 import { useButton } from '../contexts/FooterMenuContext';
@@ -12,7 +12,7 @@ import { getGoal, updateGoal } from '../api';
 
 type RootStackParamList = {
   Home: undefined;
-  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string };
+  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string, timePeriod?: string };
   Schedule: undefined;
   Login: undefined;
   SavingsAdd: { savingsGoal: string, interval: string };
@@ -28,11 +28,12 @@ type SavingsScreenProps = {
 const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [savingsGoal, setSavingsGoal] = useState(''); 
+  const [savings, setSavings] = useState(''); 
   const [interval, setInterval] = useState(''); 
-  const [timePeriod, setTimePeriod] = useState(''); 
+  const [timePeriod, setTimePeriod] = useState('');
   const [goalId, setGoalId] = useState<number | null>(null);
-  const [programmedSavings, setProgrammedSavings] = useState('');
   const { setSelectedButton } = useButton();
+  const isFocused = useIsFocused();
 
   useFocusEffect(
     React.useCallback(() => {
@@ -56,25 +57,25 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
     };
   }, []);
 
-  useEffect(() => {
-    const fetchGoal = async () => {
-      try {
-        const usuarioId = 1; // Reemplaza con el ID del usuario actual
-        const goalData = await getGoal(usuarioId);
-        if (goalData.length > 0) {
-          const goal = goalData[0];
-          setSavingsGoal(goal.monto.toString());
-          setInterval(goal.periodo);
-          setProgrammedSavings(goal.ahorro_programado.toString());
-          setGoalId(goal.id);
-        }
-      } catch (error) {
-        console.error(error);
+  const fetchGoal = async () => {
+    try {
+      const usuarioId = 1; // Reemplaza con el ID del usuario actual
+      const goalData = await getGoal(usuarioId);
+      if (goalData.length > 0) {
+        const goal = goalData[0];
+        setSavingsGoal(goal.monto.toString());
+        setInterval(goal.periodo);
+        setTimePeriod(goal.timePeriod.toString());
+        setGoalId(goal.id);
       }
-    };
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
+  useEffect(() => {
     fetchGoal();
-  }, []);
+  }, [isFocused]);
 
   useEffect(() => {
     if (route.params?.amountAdded && !isNaN(Number(route.params.amountAdded))) {
@@ -87,7 +88,10 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
     if (route.params?.interval) {
       setInterval(route.params.interval);
     }
-  }, [route.params?.amountAdded, route.params?.interval]);
+    if (route.params?.timePeriod) {
+      setTimePeriod(route.params.timePeriod);
+    }
+  }, [route.params?.amountAdded, route.params?.interval, route.params?.timePeriod]);
 
   useEffect(() => {
     if (route.params?.savingsGoal) {
@@ -123,6 +127,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
       contentContainerStyle={styles.container}
       extraScrollHeight={100}
     >
+      <Text style={styles.heading}>Savings Screen</Text>
       <Image
         source={require('../assets/MySavingsLogo.jpg')}
         style={styles.image}
@@ -138,7 +143,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         editable={!savingsGoal} // Solo editable si no hay valor programado
       />
       <Text style={styles.text}>Plan de Ahorro: {interval}</Text>
-      <Text style={styles.text}>Ahorro Programado: {programmedSavings}</Text>
+      <Text style={styles.text}>Periodo de Ahorro: {timePeriod}</Text>
       <CustomButton
         title="Ajustes"
         onPress={() => navigation.navigate('SavingsConf')}
@@ -223,3 +228,4 @@ const styles = StyleSheet.create({
 });
 
 export default SavingsScreen;
+
