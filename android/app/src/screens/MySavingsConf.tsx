@@ -43,7 +43,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
           const goal = goalData[0];
           setSavingsGoal(goal.monto.toString());
           setInterval(goal.periodo);
-          setTimePeriod(goal.timePeriod ? goal.timePeriod.toString() : ''); // Set to a default or previous value if necessary
+          setTimePeriod(goal.timePeriod.toString());
           setProgrammedSavings(goal.ahorro_programado.toString());
           setGoalId(goal.id);
         }
@@ -206,4 +206,3 @@ const styles = StyleSheet.create({
 });
 
 export default SavingsConf;
-
