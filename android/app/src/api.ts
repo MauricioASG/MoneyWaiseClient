@@ -40,12 +40,28 @@ export const createGoal = async (usuario_id: number, monto: number, periodo: str
   }
 };
 
-export const getGoal = async (usuario_id: number) => {
+export const getGoal = async (usuario_id) => {
   try {
-    const response = await axios.get(`${API_URL}/metas/${usuario_id}`);
+    const response = await axios.get(`${API_URL}/metaFinanciera/${usuario_id}`);
     return response.data;
   } catch (error) {
-    throw new Error('Error al obtener la meta financiera');
+    console.error('Error al obtener la meta financiera', error);
+    throw error;
+  }
+};
+
+export const saveGoal = async (usuario_id, monto, periodo, ahorro_programado) => {
+  try {
+    const response = await axios.post(`${API_URL}/metaFinanciera`, {
+      usuario_id,
+      monto,
+      periodo,
+      ahorro_programado
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al guardar la meta financiera', error);
+    throw error;
   }
 };
 

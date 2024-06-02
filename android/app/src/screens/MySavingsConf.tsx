@@ -1,13 +1,13 @@
 /* eslint-disable prettier/prettier */
 // MYSavingsConf.tsx
 import React, { useState, useEffect } from 'react';
-import { Text, StyleSheet, Image, TextInput, View } from 'react-native';
+import { Text, StyleSheet, Image, TextInput, View, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../components/CustomButton';
-import { createGoal, updateGoal } from '../api';
+import { getGoal, saveGoal } from '../api';
 
 type RootStackParamList = {
   Home: undefined;
@@ -33,6 +33,26 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
   useEffect(() => {
     calculateProgrammedSavings();
   }, [savingsGoal, interval, timePeriod]);
+
+  useEffect(() => {
+    const fetchGoal = async () => {
+      try {
+        const usuarioId = 1; // Reemplaza con el ID del usuario actual
+        const goalData = await getGoal(usuarioId);
+        if (goalData.length > 0) {
+          const goal = goalData[0];
+          setSavingsGoal(goal.monto.toString());
+          setInterval(goal.periodo);
+          setTimePeriod(''); // Set to a default or previous value if necessary
+          setGoalId(goal.id);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchGoal();
+  }, []);
 
   const handleSavingsGoalChange = (text: string) => {
     const numericText = text.replace(/[^0-9.]/g, '');
@@ -68,11 +88,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
       const usuarioId = 1; // Reemplaza con el ID del usuario actual
       const ahorro_programado = parseFloat(programmedSavings);
 
-      if (goalId !== null) {
-        await updateGoal(goalId, parseFloat(savingsGoal), interval, ahorro_programado);
-      } else {
-        await createGoal(usuarioId, parseFloat(savingsGoal), interval, ahorro_programado);
-      }
+      await saveGoal(usuarioId, parseFloat(savingsGoal), interval, ahorro_programado);
       
       navigation.navigate('Savings', { savingsGoal, interval });
     } catch (error) {
