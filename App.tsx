@@ -13,7 +13,8 @@ import LoginScreen from './android/app/src/screens/LoginScreen';
 import SavingsAdd from './android/app/src/screens/MySavingsAdd';
 import SavingsConf from './android/app/src/screens/MySavingsConf';
 import MySavingsWithdrawals from './android/app/src/screens/MySavingsWithdrawals';
-import CreateAcountScreen from './android/app/src/screens/CreateAccount';
+import CreateAccountScreen from './android/app/src/screens/CreateAccount';
+import AddTransactionScreen from './android/app/src/screens/AddTransactionScreen';
 import { UserProvider } from './android/app/src/contexts/UserContext';
 
 const Stack = createStackNavigator();
@@ -31,7 +32,8 @@ const App = () => {
             <Stack.Screen name="SavingsAdd" component={SavingsAdd} />
             <Stack.Screen name="SavingsConf" component={SavingsConf} />
             <Stack.Screen name="MySavingsWithdrawals" component={MySavingsWithdrawals} />
-            <Stack.Screen name="CreateAcount" component={CreateAcountScreen} />
+            <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
+            <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
           </Stack.Navigator>
         </ButtonProvider>
       </UserProvider>

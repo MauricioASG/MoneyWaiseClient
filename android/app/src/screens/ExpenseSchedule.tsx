@@ -1,18 +1,22 @@
 /* eslint-disable prettier/prettier */
-//EpenseSchedule
-import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
+// ScheduleScreen.tsx
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, StyleSheet, SafeAreaView, Button } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useFocusEffect } from '@react-navigation/native';
 import { useButton } from '../contexts/FooterMenuContext';
 import { Calendar } from 'react-native-calendars';
+import { UserContext } from '../contexts/UserContext';
+import { getTransactionsByDate } from '../api';
+import TransactionsList from '../components/TransactionsList';
 
 type RootStackParamList = {
   Home: undefined;
   Savings: undefined;
   Schedule: undefined;
   Login: undefined;
+  AddTransaction: { selectedDate: string };
 };
 
 type ScheduleScreenProps = {
@@ -22,12 +26,30 @@ type ScheduleScreenProps = {
 
 const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
   const { setSelectedButton } = useButton();
+  const { userId } = useContext(UserContext);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [transactions, setTransactions] = useState([]);
 
   useFocusEffect(
     React.useCallback(() => {
       setSelectedButton('right');
     }, [setSelectedButton])
   );
+
+  useEffect(() => {
+    if (selectedDate) {
+      fetchTransactions(selectedDate);
+    }
+  }, [selectedDate]);
+
+  const fetchTransactions = async (date: string) => {
+    try {
+      const data = await getTransactionsByDate(userId, date);
+      setTransactions(data);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -36,7 +58,7 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
         <View style={styles.calendarContainer}>
           <Calendar
             onDayPress={(day) => {
-              console.log('selected day', day);
+              setSelectedDate(day.dateString);
             }}
             monthFormat={'yyyy MM'}
             hideExtraDays={true}
@@ -68,6 +90,18 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
             style={styles.calendar}
           />
         </View>
+        {selectedDate ? (
+          <View style={styles.transactionsContainer}>
+            <Text style={styles.transactionsHeading}>Transacciones del {selectedDate}</Text>
+            <TransactionsList transactions={transactions} />
+            <Button
+              title="Agregar Transacción"
+              onPress={() => navigation.navigate('AddTransaction', { selectedDate })}
+            />
+          </View>
+        ) : (
+          <Text style={styles.noDateSelected}>Seleccione una fecha para ver las transacciones</Text>
+        )}
         <FooterMenu navigation={navigation} />
       </View>
     </SafeAreaView>
@@ -92,7 +126,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   calendarContainer: {
-    width: '90%', // Ajustar el ancho del contenedor del calendario
+    width: '90%',
     backgroundColor: '#fff',
     borderRadius: 10,
     shadowColor: '#000',
@@ -109,6 +143,20 @@ const styles = StyleSheet.create({
   },
   calendar: {
     borderRadius: 10,
+  },
+  transactionsContainer: {
+    width: '90%',
+    marginTop: 20,
+  },
+  transactionsHeading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  noDateSelected: {
+    fontSize: 16,
+    color: '#999',
+    marginTop: 20,
   },
 });
 

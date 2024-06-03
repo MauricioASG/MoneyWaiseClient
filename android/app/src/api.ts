@@ -86,3 +86,29 @@ export const deleteGoal = async (id) => {
   }
 };
 
+
+export const getTransactionsByDate = async (usuario_id, date) => {
+  try {
+    const response = await axios.get(`${API_URL}/transacciones/${usuario_id}/fecha/${date}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener las transacciones por fecha:', error);
+    throw error;
+  }
+};
+
+export const addTransaction = async (usuario_id, fecha, monto, categoria, tipo) => {
+  try {
+    const response = await axios.post(`${API_URL}/transacciones`, {
+      usuario_id,
+      fecha,
+      monto,
+      categoria,
+      tipo,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error adding transaction:', error);
+    throw error;
+  }
+};
