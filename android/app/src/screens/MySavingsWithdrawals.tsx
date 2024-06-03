@@ -25,7 +25,7 @@ const MySavingsWithdawals: React.FC<MySavingsWithdawalsProps> = ({ navigation, r
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
   const { savingsGoal, interval } = route.params;
 
-  const handleButtonPress = (button: string) => {
+  const handleButtonPress = () => {
     if (!withdrawalAmount || isNaN(Number(withdrawalAmount))) {
       Alert.alert('Error', 'Por favor, ingrese una cantidad válida');
       return;
@@ -63,7 +63,7 @@ const MySavingsWithdawals: React.FC<MySavingsWithdawalsProps> = ({ navigation, r
       />
       <CustomButton
         title="Retirar"
-        onPress={() => handleButtonPress('Retirar')}
+        onPress={handleButtonPress}
         backgroundColor="#FF5564"
         marginBottom={200}
         paddingHorizontal={85}

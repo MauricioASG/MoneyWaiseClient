@@ -24,7 +24,7 @@ const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation, route }) => {
   const [savings, setSavings] = useState('');
   const { savingsGoal, interval } = route.params;
 
-  const handleButtonPress = (button: string) => {
+  const handleButtonPress = () => {
     if (!savings || isNaN(Number(savings))) {
       Alert.alert('Error', 'Por favor, ingrese una cantidad válida');
       return;
@@ -62,7 +62,7 @@ const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation, route }) => {
       />
       <CustomButton
         title="Ingresar"
-        onPress={() => handleButtonPress('Ingresar')}
+        onPress={handleButtonPress}
         backgroundColor="#80DA80"
         marginBottom={200}
         paddingHorizontal={85}
@@ -114,3 +114,4 @@ const styles = StyleSheet.create({
 });
 
 export default SavingsAdd;
+

@@ -33,6 +33,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   const [interval, setInterval] = useState('');
   const [timePeriod, setTimePeriod] = useState('');
   const [programmedSavings, setProgrammedSavings] = useState('');
+  const [currentSavings, setCurrentSavings] = useState('');
   const [goalId, setGoalId] = useState<number | null>(null);
   const { setSelectedButton } = useButton();
   const isFocused = useIsFocused();
@@ -68,6 +69,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         setInterval(goal.periodo);
         setTimePeriod(goal.timePeriod.toString());
         setProgrammedSavings(goal.ahorro_programado.toString());
+        setCurrentSavings(goal.ahorro_actual.toString());
         setGoalId(goal.id);
       }
     } catch (error) {
@@ -82,9 +84,11 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   useEffect(() => {
     if (route.params?.amountAdded && !isNaN(Number(route.params.amountAdded))) {
       const newSavingsGoal = parseFloat(savingsGoal) + parseFloat(route.params.amountAdded);
+      const newCurrentSavings = parseFloat(currentSavings) + parseFloat(route.params.amountAdded);
       setSavingsGoal(newSavingsGoal.toString());
+      setCurrentSavings(newCurrentSavings.toString());
       if (goalId !== null) {
-        saveGoal(goalId, userId, newSavingsGoal, interval, newSavingsGoal / 30, parseInt(timePeriod, 10));
+        saveGoal(goalId, userId, newSavingsGoal, interval, newSavingsGoal / 30, parseInt(timePeriod, 10), newCurrentSavings);
       }
     }
     if (route.params?.interval) {
@@ -145,6 +149,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
       />
       <Text style={styles.text}>Plan de Ahorro: {interval}</Text>
       <Text style={styles.text}>Ahorro Programado: ${programmedSavings}</Text>
+      <Text style={styles.text}>Ahorro hasta ahora: ${currentSavings}</Text>
       <CustomButton
         title="Ajustes"
         onPress={() => navigation.navigate('SavingsConf')}

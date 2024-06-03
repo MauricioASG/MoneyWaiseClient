@@ -50,7 +50,7 @@ export const getGoal = async (usuario_id) => {
   }
 };
 
-export const saveGoal = async (id, usuario_id, monto, periodo, ahorro_programado, timePeriod) => {
+export const saveGoal = async (id, usuario_id, monto, periodo, ahorro_programado, timePeriod, ahorro_actual) => {
   try {
     const response = await axios.post(`${API_URL}/metaFinanciera`, {
       id,
@@ -59,6 +59,7 @@ export const saveGoal = async (id, usuario_id, monto, periodo, ahorro_programado
       periodo,
       ahorro_programado,
       timePeriod,
+      ahorro_actual,
     });
     return response.data;
   } catch (error) {
