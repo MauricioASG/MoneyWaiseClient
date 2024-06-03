@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
-// MySavings.tsx
-import React, { useState, useEffect } from 'react';
+// MySavingsScreen.tsx
+import React, { useState, useEffect, useContext } from 'react';
 import { Text, StyleSheet, Image, TextInput, Keyboard, Platform, Alert } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -8,7 +8,8 @@ import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/nativ
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../components/CustomButton';
 import { useButton } from '../contexts/FooterMenuContext';
-import { getGoal, updateGoal } from '../api';
+import { getGoal, saveGoal } from '../api';
+import { UserContext } from '../contexts/UserContext';
 
 type RootStackParamList = {
   Home: undefined;
@@ -26,11 +27,12 @@ type SavingsScreenProps = {
 };
 
 const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
+  const { userId } = useContext(UserContext);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [savingsGoal, setSavingsGoal] = useState(''); 
-  const [savings, setSavings] = useState(''); 
-  const [interval, setInterval] = useState(''); 
+  const [savingsGoal, setSavingsGoal] = useState('');
+  const [interval, setInterval] = useState('');
   const [timePeriod, setTimePeriod] = useState('');
+  const [programmedSavings, setProgrammedSavings] = useState('');
   const [goalId, setGoalId] = useState<number | null>(null);
   const { setSelectedButton } = useButton();
   const isFocused = useIsFocused();
@@ -59,13 +61,13 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
 
   const fetchGoal = async () => {
     try {
-      const usuarioId = 1; // Reemplaza con el ID del usuario actual
-      const goalData = await getGoal(usuarioId);
+      const goalData = await getGoal(userId);
       if (goalData.length > 0) {
         const goal = goalData[0];
         setSavingsGoal(goal.monto.toString());
         setInterval(goal.periodo);
         setTimePeriod(goal.timePeriod.toString());
+        setProgrammedSavings(goal.ahorro_programado.toString());
         setGoalId(goal.id);
       }
     } catch (error) {
@@ -79,10 +81,10 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
 
   useEffect(() => {
     if (route.params?.amountAdded && !isNaN(Number(route.params.amountAdded))) {
-      const newSavingsGoal = parseFloat(savingsGoal) - parseFloat(route.params.amountAdded);
+      const newSavingsGoal = parseFloat(savingsGoal) + parseFloat(route.params.amountAdded);
       setSavingsGoal(newSavingsGoal.toString());
       if (goalId !== null) {
-        updateGoal(goalId, newSavingsGoal, interval, newSavingsGoal / 30); // Ahorro programado de ejemplo
+        saveGoal(goalId, userId, newSavingsGoal, interval, newSavingsGoal / 30, parseInt(timePeriod, 10));
       }
     }
     if (route.params?.interval) {
@@ -127,7 +129,6 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
       contentContainerStyle={styles.container}
       extraScrollHeight={100}
     >
-      <Text style={styles.heading}>Savings Screen</Text>
       <Image
         source={require('../assets/MySavingsLogo.jpg')}
         style={styles.image}
@@ -143,7 +144,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         editable={!savingsGoal} // Solo editable si no hay valor programado
       />
       <Text style={styles.text}>Plan de Ahorro: {interval}</Text>
-      <Text style={styles.text}>Periodo de Ahorro: {timePeriod}</Text>
+      <Text style={styles.text}>Ahorro Programado: ${programmedSavings}</Text>
       <CustomButton
         title="Ajustes"
         onPress={() => navigation.navigate('SavingsConf')}
@@ -222,10 +223,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     marginTop: 10,
-    marginRight: 100,
     color: 'black',
   },
 });
 
 export default SavingsScreen;
-

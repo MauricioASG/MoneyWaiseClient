@@ -1,10 +1,11 @@
 /* eslint-disable prettier/prettier */
+//api.ts
 import axios from 'axios';
 import WebServiceParams from './WebServiceParams';
 
 const API_URL = `http://${WebServiceParams.host}:${WebServiceParams.port}`;
 
-export const login = async (email: string, passw: string) => {
+export const login = async (email, passw) => {
   try {
     const response = await axios.post(`${API_URL}/auth/login`, { email, passw });
     return response.data;
@@ -17,7 +18,7 @@ export const login = async (email: string, passw: string) => {
   }
 };
 
-export const register = async (nombre: string, email: string, passw: string, salario: number) => {
+export const register = async (nombre, email, passw, salario) => {
   try {
     const response = await axios.post(`${API_URL}/auth/register`, { nombre, email, passw, salario });
     return response.data;
@@ -30,7 +31,7 @@ export const register = async (nombre: string, email: string, passw: string, sal
   }
 };
 
-export const createGoal = async (usuario_id: number, monto: number, periodo: string, ahorro_programado: number) => {
+export const createGoal = async (usuario_id, monto, periodo, ahorro_programado) => {
   try {
     const response = await axios.post(`${API_URL}/metaFinanciera`, { usuario_id, monto, periodo, ahorro_programado });
     return response.data;
@@ -49,14 +50,15 @@ export const getGoal = async (usuario_id) => {
   }
 };
 
-export const saveGoal = async (usuario_id, monto, periodo, ahorro_programado, timePeriod) => {
+export const saveGoal = async (id, usuario_id, monto, periodo, ahorro_programado, timePeriod) => {
   try {
     const response = await axios.post(`${API_URL}/metaFinanciera`, {
+      id,
       usuario_id,
       monto,
       periodo,
       ahorro_programado,
-      timePeriod
+      timePeriod,
     });
     return response.data;
   } catch (error) {
@@ -65,17 +67,7 @@ export const saveGoal = async (usuario_id, monto, periodo, ahorro_programado, ti
   }
 };
 
-
-export const updateGoal = async (id: number, monto: number, periodo: string, ahorro_programado: number) => {
-  try {
-    const response = await axios.put(`${API_URL}/metaFinanciera`, { id, monto, periodo, ahorro_programado });
-    return response.data;
-  } catch (error) {
-    throw new Error('Error al actualizar la meta financiera');
-  }
-};
-
-export const deleteGoal = async (id: number) => {
+export const deleteGoal = async (id) => {
   try {
     const response = await axios.delete(`${API_URL}/metaFinanciera/${id}`);
     return response.data;

@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-
+//WebServiceParams.ts
 const host = '172.29.224.1';
 const port = 3050;
 

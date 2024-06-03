@@ -1,13 +1,14 @@
 /* eslint-disable prettier/prettier */
-// MYSavingsConf.tsx
-import React, { useState, useEffect } from 'react';
-import { Text, StyleSheet, Image, TextInput, View, Alert } from 'react-native';
+// MySavingsConf.tsx
+import React, { useState, useEffect, useContext } from 'react';
+import { Text, StyleSheet, Image, TextInput, View, Alert, Keyboard } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../components/CustomButton';
 import { getGoal, saveGoal } from '../api';
+import { UserContext } from '../contexts/UserContext';
 
 type RootStackParamList = {
   Home: undefined;
@@ -24,6 +25,7 @@ type SavingsConfProps = {
 };
 
 const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
+  const { userId } = useContext(UserContext);
   const [savingsGoal, setSavingsGoal] = useState('');
   const [programmedSavings, setProgrammedSavings] = useState('');
   const [interval, setInterval] = useState('Diario');
@@ -37,8 +39,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
   useEffect(() => {
     const fetchGoal = async () => {
       try {
-        const usuarioId = 1; // Reemplaza con el ID del usuario actual
-        const goalData = await getGoal(usuarioId);
+        const goalData = await getGoal(userId);
         if (goalData.length > 0) {
           const goal = goalData[0];
           setSavingsGoal(goal.monto.toString());
@@ -53,7 +54,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
     };
 
     fetchGoal();
-  }, []);
+  }, [userId]);
 
   const handleSavingsGoalChange = (text: string) => {
     const numericText = text.replace(/[^0-9.]/g, '');
@@ -76,7 +77,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
       if (interval === 'Diario') {
         savingsPerInterval = goal / period;
       } else if (interval === 'Semanal') {
-        savingsPerInterval = (goal / period) / 7;
+        savingsPerInterval = goal / (period * 7);
       }
       setProgrammedSavings(savingsPerInterval.toFixed(2));
     } else {
@@ -85,16 +86,35 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
   };
 
   const handleApply = async () => {
-    try {
-      const usuarioId = 1; // Reemplaza con el ID del usuario actual
-      const ahorro_programado = parseFloat(programmedSavings);
+    Alert.alert(
+      'Confirmación',
+      '¿Estás seguro de querer aplicar los cambios?',
+      [
+        {
+          text: 'No',
+          onPress: () => {
+            Keyboard.dismiss(); // Cierra el teclado
+            navigation.goBack(); // Regresa a la pantalla anterior
+          },
+          style: 'cancel',
+        },
+        {
+          text: 'Sí',
+          onPress: async () => {
+            try {
+              const ahorro_programado = parseFloat(programmedSavings);
 
-      await saveGoal(usuarioId, parseFloat(savingsGoal), interval, ahorro_programado, parseInt(timePeriod, 10));
-      
-      navigation.navigate('Savings', { savingsGoal, interval, timePeriod });
-    } catch (error) {
-      Alert.alert('Error', 'Error al aplicar la meta financiera');
-    }
+              await saveGoal(goalId, userId, parseFloat(savingsGoal), interval, ahorro_programado, parseInt(timePeriod, 10));
+              
+              navigation.navigate('Savings', { savingsGoal, interval, timePeriod });
+            } catch (error) {
+              Alert.alert('Error', 'Error al aplicar la meta financiera');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   return (
