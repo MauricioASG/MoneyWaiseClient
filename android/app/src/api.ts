@@ -50,7 +50,7 @@ export const getGoal = async (usuario_id) => {
   }
 };
 
-export const saveGoal = async (id, usuario_id, monto, periodo, ahorro_programado, timePeriod, ahorro_actual) => {
+export const saveGoal = async (id, usuario_id, monto, periodo, ahorro_programado, timePeriod) => {
   try {
     const response = await axios.post(`${API_URL}/metaFinanciera`, {
       id,
@@ -59,11 +59,20 @@ export const saveGoal = async (id, usuario_id, monto, periodo, ahorro_programado
       periodo,
       ahorro_programado,
       timePeriod,
-      ahorro_actual,
     });
     return response.data;
   } catch (error) {
     console.error('Error al guardar la meta financiera', error);
+    throw error;
+  }
+};
+
+export const updateSavings = async (id, ahorro_actual) => {
+  try {
+    const response = await axios.post(`${API_URL}/metaFinanciera/updateSavings`, { id, ahorro_actual });
+    return response.data;
+  } catch (error) {
+    console.error('Error al actualizar el ahorro actual', error);
     throw error;
   }
 };
@@ -76,3 +85,4 @@ export const deleteGoal = async (id) => {
     throw new Error('Error al eliminar la meta financiera');
   }
 };
+

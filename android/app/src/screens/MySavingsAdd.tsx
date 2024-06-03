@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
-// MySavingsAdd.tsx
+// SavingsAdd.tsx
+/* eslint-disable prettier/prettier */
+// SavingsAdd.tsx
 import React, { useState } from 'react';
 import { Text, StyleSheet, Image, TextInput, Alert } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -9,10 +11,10 @@ import CustomButton from '../components/CustomButton';
 
 type RootStackParamList = {
   Home: undefined;
-  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string };
+  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string, currentSavings?: string };
   Schedule: undefined;
   Login: undefined;
-  SavingsAdd: { savingsGoal: string, interval: string };
+  SavingsAdd: { savingsGoal: string, interval: string, currentSavings: string };
 };
 
 type SavingsAddProps = {
@@ -22,7 +24,7 @@ type SavingsAddProps = {
 
 const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation, route }) => {
   const [savings, setSavings] = useState('');
-  const { savingsGoal, interval } = route.params;
+  const { savingsGoal, interval, currentSavings } = route.params;
 
   const handleButtonPress = () => {
     if (!savings || isNaN(Number(savings))) {
@@ -30,7 +32,7 @@ const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation, route }) => {
       return;
     }
 
-    navigation.navigate('Savings', { amountAdded: savings, savingsGoal, interval });
+    navigation.navigate('Savings', { amountAdded: savings, savingsGoal, interval, currentSavings });
   };
 
   const handleSavingsChange = (text: string) => {

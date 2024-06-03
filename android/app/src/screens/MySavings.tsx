@@ -1,5 +1,7 @@
 /* eslint-disable prettier/prettier */
 // MySavingsScreen.tsx
+/* eslint-disable prettier/prettier */
+// MySavingsScreen.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import { Text, StyleSheet, Image, TextInput, Keyboard, Platform, Alert } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
@@ -8,17 +10,17 @@ import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/nativ
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../components/CustomButton';
 import { useButton } from '../contexts/FooterMenuContext';
-import { getGoal, saveGoal } from '../api';
+import { getGoal, updateSavings } from '../api';
 import { UserContext } from '../contexts/UserContext';
 
 type RootStackParamList = {
   Home: undefined;
-  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string, timePeriod?: string };
+  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string, currentSavings?: string };
   Schedule: undefined;
   Login: undefined;
-  SavingsAdd: { savingsGoal: string, interval: string };
+  SavingsAdd: { savingsGoal: string, interval: string, currentSavings: string };
   SavingsConf: undefined;
-  MySavingsWithdawals: undefined;
+  MySavingsWithdrawals: undefined;
 };
 
 type SavingsScreenProps = {
@@ -41,6 +43,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   useFocusEffect(
     React.useCallback(() => {
       setSelectedButton('left');
+      fetchGoal();
     }, [setSelectedButton])
   );
 
@@ -83,12 +86,10 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
 
   useEffect(() => {
     if (route.params?.amountAdded && !isNaN(Number(route.params.amountAdded))) {
-      const newSavingsGoal = parseFloat(savingsGoal) + parseFloat(route.params.amountAdded);
       const newCurrentSavings = parseFloat(currentSavings) + parseFloat(route.params.amountAdded);
-      setSavingsGoal(newSavingsGoal.toString());
       setCurrentSavings(newCurrentSavings.toString());
       if (goalId !== null) {
-        saveGoal(goalId, userId, newSavingsGoal, interval, newSavingsGoal / 30, parseInt(timePeriod, 10), newCurrentSavings);
+        updateSavings(goalId, newCurrentSavings);
       }
     }
     if (route.params?.interval) {
@@ -110,10 +111,10 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
       Alert.alert('Error', 'Primero necesitas configurar una meta financiera de ahorro');
     } else {
       if (button === 'Ingresar') {
-        navigation.navigate('SavingsAdd', { savingsGoal, interval });
+        navigation.navigate('SavingsAdd', { savingsGoal, interval, currentSavings });
       }
       if (button === 'Retirar') {
-        navigation.navigate('MySavingsWithdawals', { savingsGoal, interval });
+        navigation.navigate('MySavingsWithdrawals', { savingsGoal, interval, currentSavings });
       }
     }
   };
@@ -149,31 +150,31 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
       />
       <Text style={styles.text}>Plan de Ahorro: {interval}</Text>
       <Text style={styles.text}>Ahorro Programado: ${programmedSavings}</Text>
-      <Text style={styles.text}>Ahorro hasta ahora: ${currentSavings}</Text>
+      <Text style={styles.text}>Ahorro Actual: ${currentSavings}</Text>
       <CustomButton
         title="Ajustes"
         onPress={() => navigation.navigate('SavingsConf')}
         backgroundColor="#90CAF9"
-        marginBottom={10}
+        marginBottom={6}
         paddingHorizontal={85}
-        paddingVertical={16}
+        paddingVertical={14}
       />
       <CustomButton
         title="Ingresar"
         onPress={() => handleButtonPress('Ingresar')}
         backgroundColor="#80DA80"
-        marginBottom={10}
+        marginBottom={6}
         paddingHorizontal={85}
-        paddingVertical={16}
+        paddingVertical={14}
         disabled={!savingsGoal || isNaN(Number(savingsGoal))}
       />
       <CustomButton
         title="Retirar"
         onPress={() => handleButtonPress('Retirar')}
         backgroundColor="#FF5564"
-        marginBottom={140}
+        marginBottom={120}
         paddingHorizontal={85}
-        paddingVertical={16}
+        paddingVertical={14}
         disabled={!savingsGoal || isNaN(Number(savingsGoal))}
       />
       {!isKeyboardVisible && (
@@ -200,7 +201,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
-    marginTop: 10,
+    marginTop: 2,
     marginRight: 135,
     color: 'black',
   },
@@ -233,3 +234,4 @@ const styles = StyleSheet.create({
 });
 
 export default SavingsScreen;
+
