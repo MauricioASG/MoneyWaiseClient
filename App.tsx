@@ -1,7 +1,5 @@
 /* eslint-disable prettier/prettier */
 // App.tsx
-// App.tsx
-/* eslint-disable prettier/prettier */
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -15,6 +13,7 @@ import SavingsConf from './android/app/src/screens/MySavingsConf';
 import MySavingsWithdrawals from './android/app/src/screens/MySavingsWithdrawals';
 import CreateAccountScreen from './android/app/src/screens/CreateAccount';
 import AddTransactionScreen from './android/app/src/screens/AddTransactionScreen';
+import AllTransactionsScreen from './android/app/src/screens/AllTransactionsScreen';
 import { UserProvider } from './android/app/src/contexts/UserContext';
 
 const Stack = createStackNavigator();
@@ -34,6 +33,7 @@ const App = () => {
             <Stack.Screen name="MySavingsWithdrawals" component={MySavingsWithdrawals} />
             <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
             <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
+            <Stack.Screen name="AllTransactions" component={AllTransactionsScreen} />
           </Stack.Navigator>
         </ButtonProvider>
       </UserProvider>

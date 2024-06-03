@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 // ScheduleScreen.tsx
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Button } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Button, FlatList, TouchableOpacity } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useFocusEffect } from '@react-navigation/native';
@@ -17,6 +17,7 @@ type RootStackParamList = {
   Schedule: undefined;
   Login: undefined;
   AddTransaction: { selectedDate: string };
+  AllTransactions: { transactions: any[] };
 };
 
 type ScheduleScreenProps = {
@@ -54,7 +55,6 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <Text style={styles.heading}>Calendario de gastos</Text>
         <View style={styles.calendarContainer}>
           <Calendar
             onDayPress={(day) => {
@@ -93,7 +93,20 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
         {selectedDate ? (
           <View style={styles.transactionsContainer}>
             <Text style={styles.transactionsHeading}>Transacciones del {selectedDate}</Text>
-            <TransactionsList transactions={transactions} />
+            {transactions.slice(0, 2).map((transaction, index) => (
+              <View key={index} style={styles.transactionItem}>
+                <Text>{transaction.tipo}: ${transaction.monto}</Text>
+                <Text>{transaction.categoria}</Text>
+              </View>
+            ))}
+            {transactions.length > 2 && (
+              <TouchableOpacity
+                style={styles.viewAllButton}
+                onPress={() => navigation.navigate('AllTransactions', { transactions })}
+              >
+                <Text style={styles.viewAllText}>Ver todos los movimientos</Text>
+              </TouchableOpacity>
+            )}
             <Button
               title="Agregar Transacción"
               onPress={() => navigation.navigate('AddTransaction', { selectedDate })}
@@ -152,6 +165,21 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
+  },
+  transactionItem: {
+    backgroundColor: '#f0f0f0',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  viewAllButton: {
+    marginTop: 10,
+    marginBottom: 20,
+    alignItems: 'center',
+  },
+  viewAllText: {
+    color: '#00adf5',
+    fontWeight: 'bold',
   },
   noDateSelected: {
     fontSize: 16,
