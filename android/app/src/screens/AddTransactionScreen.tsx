@@ -1,36 +1,30 @@
 /* eslint-disable prettier/prettier */
-// AddTransactionScreen.tsx
 import React, { useState, useContext } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import { Picker } from '@react-native-picker/picker';  // Import the Picker
+import { createTransaction } from '../api';
 import { UserContext } from '../contexts/UserContext';
-import { addTransaction } from '../api';
 
 const AddTransactionScreen = ({ route, navigation }) => {
-  const { userId } = useContext(UserContext);
   const { selectedDate } = route.params;
+  const { userId } = useContext(UserContext);
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
-  const [type, setType] = useState('Gasto');
+  const [type, setType] = useState('Ingreso'); // or 'Gasto'
 
   const handleAddTransaction = async () => {
-    if (!amount || !category) {
-      Alert.alert('Error', 'Por favor, ingrese todos los campos');
-      return;
-    }
-
     try {
-      await addTransaction(userId, selectedDate, amount, category, type);
-      Alert.alert('Éxito', 'Transacción agregada correctamente');
+      await createTransaction(userId, category, parseFloat(amount), type, selectedDate);
       navigation.goBack();
     } catch (error) {
-      console.error('Error adding transaction:', error);
-      Alert.alert('Error', 'Hubo un problema al agregar la transacción');
+      console.error('Error creating transaction:', error);
     }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Agregar Transacción</Text>
+      <Text>Fecha: {selectedDate}</Text>
       <TextInput
         style={styles.input}
         placeholder="Monto"
@@ -44,12 +38,14 @@ const AddTransactionScreen = ({ route, navigation }) => {
         value={category}
         onChangeText={setCategory}
       />
-      <TextInput
+      <Picker
+        selectedValue={type}
         style={styles.input}
-        placeholder="Tipo (Ingreso/Gasto)"
-        value={type}
-        onChangeText={setType}
-      />
+        onValueChange={(itemValue) => setType(itemValue)}
+      >
+        <Picker.Item label="Ingreso" value="Ingreso" />
+        <Picker.Item label="Gasto" value="Gasto" />
+      </Picker>
       <Button title="Agregar" onPress={handleAddTransaction} />
     </View>
   );
@@ -58,8 +54,6 @@ const AddTransactionScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
   },
@@ -69,11 +63,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   input: {
-    width: '80%',
-    padding: 10,
     borderWidth: 1,
     borderColor: '#ccc',
-    borderRadius: 8,
+    padding: 10,
+    borderRadius: 5,
     marginBottom: 20,
   },
 });

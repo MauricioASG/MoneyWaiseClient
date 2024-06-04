@@ -13,12 +13,8 @@ import {
 } from 'react-native';
 import { login } from '../api';
 import { UserContext } from '../contexts/UserContext';
-
-type RootStackParamList = {
-  Home: undefined;
-  Login: undefined;
-  CreateAcount: undefined;
-}
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RootStackParamList } from './RootStackParamList'; // Asegúrate de importar RootStackParamList
 
 type LogInProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
@@ -70,7 +66,7 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate('CreateAcount')}
+          onPress={() => navigation.navigate('CreateAccount')} // Corregido aquí
         >
           <Text style={styles.buttonText}>Crear cuenta</Text>
         </TouchableOpacity>
