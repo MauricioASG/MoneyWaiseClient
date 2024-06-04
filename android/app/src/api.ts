@@ -113,17 +113,18 @@ export const addTransaction = async (usuario_id, fecha, monto, categoria, tipo) 
   }
 };
 
-export const createTransaction = async (usuario_id, categoria, monto, tipo, fecha) => {
+export const createTransaction = async (userId, categoryId, amount, type, date) => {
   try {
     const response = await axios.post(`${API_URL}/transacciones`, {
-      usuario_id,
-      categoria,
-      monto,
-      tipo,
-      fecha,
+      usuario_id: userId,
+      categoria_id: categoryId,
+      monto: amount,
+      tipo: type,
+      fecha: date,
     });
     return response.data;
   } catch (error) {
-    throw new Error('Error creating transaction');
+    console.error('Error creating transaction:', error);
+    throw error;
   }
 };
