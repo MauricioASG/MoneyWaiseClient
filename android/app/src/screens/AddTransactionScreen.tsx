@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-// AddTransactionScreen.tsx
 import React, { useState, useContext } from 'react';
 import {
   SafeAreaView,
@@ -15,7 +14,7 @@ import { UserContext } from '../contexts/UserContext';
 import { createTransaction } from '../api';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from './RootStackParamList'; // Asegúrate de importar RootStackParamList
+import { RootStackParamList } from './RootStackParamList';
 
 type AddTransactionProps = {
   navigation: StackNavigationProp<RootStackParamList, 'AddTransaction'>;
@@ -36,7 +35,11 @@ const AddTransactionScreen: React.FC<AddTransactionProps> = ({ navigation, route
 
     try {
       await createTransaction(userId, category, amount, type, route.params.selectedDate);
-      route.params.refreshTransactions();
+      const parentState = navigation.getParent()?.getState();
+      const refreshTransactions = parentState?.routes.find(route => route.name === 'Schedule')?.params?.refreshTransactions;
+      if (refreshTransactions) {
+        refreshTransactions();
+      }
       navigation.goBack();
     } catch (error) {
       console.error('Error creating transaction:', error);

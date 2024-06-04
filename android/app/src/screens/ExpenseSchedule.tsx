@@ -1,5 +1,4 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable prettier/prettier */
 // ScheduleScreen.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, Button, FlatList, TouchableOpacity } from 'react-native';
@@ -52,6 +51,18 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
       console.error('Error fetching transactions:', error);
     }
   };
+
+  const refreshTransactions = () => {
+    if (selectedDate) {
+      fetchTransactions(selectedDate);
+    }
+  };
+
+  useEffect(() => {
+    navigation.setOptions({
+      refreshTransactions: refreshTransactions,
+    });
+  }, [navigation, selectedDate]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
