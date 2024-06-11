@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-// MySavingsWithdawals.tsx
+// MySavingsWithdrawals.tsx
 import React, { useState } from 'react';
 import { Text, StyleSheet, Image, TextInput, Alert } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -9,21 +9,21 @@ import CustomButton from '../components/CustomButton';
 
 type RootStackParamList = {
   Home: undefined;
-  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string };
+  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string, currentSavings?: string };
   Schedule: undefined;
   Login: undefined;
-  SavingsAdd: { savingsGoal: string, interval: string };
-  MySavingsWithdawals: { savingsGoal: string, interval: string };
+  SavingsAdd: { savingsGoal: string, interval: string, currentSavings: string };
+  MySavingsWithdrawals: { savingsGoal: string, interval: string, currentSavings: string };
 };
 
-type MySavingsWithdawalsProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'MySavingsWithdawals'>;
-  route: RouteProp<RootStackParamList, 'MySavingsWithdawals'>;
+type MySavingsWithdrawalsProps = {
+  navigation: StackNavigationProp<RootStackParamList, 'MySavingsWithdrawals'>;
+  route: RouteProp<RootStackParamList, 'MySavingsWithdrawals'>;
 };
 
-const MySavingsWithdawals: React.FC<MySavingsWithdawalsProps> = ({ navigation, route }) => {
+const MySavingsWithdrawals: React.FC<MySavingsWithdrawalsProps> = ({ navigation, route }) => {
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
-  const { savingsGoal, interval } = route.params;
+  const { savingsGoal, interval, currentSavings } = route.params;
 
   const handleButtonPress = () => {
     if (!withdrawalAmount || isNaN(Number(withdrawalAmount))) {
@@ -31,7 +31,7 @@ const MySavingsWithdawals: React.FC<MySavingsWithdawalsProps> = ({ navigation, r
       return;
     }
 
-    navigation.navigate('Savings', { amountAdded: (-Number(withdrawalAmount)).toString(), savingsGoal, interval });
+    navigation.navigate('Savings', { amountAdded: (-Number(withdrawalAmount)).toString(), savingsGoal, interval, currentSavings });
   };
 
   const handleSavingsChange = (text: string) => {
@@ -52,7 +52,7 @@ const MySavingsWithdawals: React.FC<MySavingsWithdawalsProps> = ({ navigation, r
         source={require('../assets/MySavingsWithdrawalsLogo.jpg')}
         style={styles.image}
       />
-      <Text style={styles.heading2}>Meta financiera: {savingsGoal}</Text>
+      <Text style={styles.heading2}>Cantidad a Retirar</Text>
       <TextInput
         style={styles.textInput}
         placeholder="Cantidad a retirar"
@@ -114,4 +114,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MySavingsWithdawals;
+export default MySavingsWithdrawals;

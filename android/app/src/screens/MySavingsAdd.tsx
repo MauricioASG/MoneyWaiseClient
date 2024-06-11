@@ -1,7 +1,5 @@
 /* eslint-disable prettier/prettier */
 // SavingsAdd.tsx
-/* eslint-disable prettier/prettier */
-// SavingsAdd.tsx
 import React, { useState } from 'react';
 import { Text, StyleSheet, Image, TextInput, Alert } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -48,12 +46,12 @@ const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation, route }) => {
       contentContainerStyle={styles.container}
       extraScrollHeight={100}
     >
-      <Text style={styles.heading}>Savings Add Screen</Text>
+      <Text style={styles.heading}>Agregar Ahorro</Text>
       <Image
         source={require('../assets/MySavingsAddLogo.jpg')}
         style={styles.image}
       />
-      <Text style={styles.heading2}>Meta financiera</Text>
+      <Text style={styles.heading2}>Cantidad a Ingresar</Text>
       <TextInput
         style={styles.textInput}
         placeholder="Cantidad a ingresar"
@@ -116,4 +114,3 @@ const styles = StyleSheet.create({
 });
 
 export default SavingsAdd;
-

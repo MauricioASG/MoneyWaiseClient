@@ -1,7 +1,5 @@
 /* eslint-disable prettier/prettier */
 // MySavingsScreen.tsx
-/* eslint-disable prettier/prettier */
-// MySavingsScreen.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import { Text, StyleSheet, Image, TextInput, Keyboard, Platform, Alert } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
@@ -89,7 +87,13 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
       const newCurrentSavings = parseFloat(currentSavings) + parseFloat(route.params.amountAdded);
       setCurrentSavings(newCurrentSavings.toString());
       if (goalId !== null) {
-        updateSavings(goalId, newCurrentSavings);
+        updateSavings(goalId, newCurrentSavings)
+          .then(() => {
+            console.log('Ahorro actualizado correctamente');
+          })
+          .catch((error) => {
+            console.error('Error al actualizar el ahorro actual:', error);
+          });
       }
     }
     if (route.params?.interval) {
@@ -119,16 +123,6 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
     }
   };
 
-  const handleSavingsChange = (text: string) => {
-    if (!savingsGoal) {
-      const numericText = text.replace(/[^0-9.]/g, '');
-      const parts = numericText.split('.');
-      if (parts.length <= 2) {
-        setSavings(numericText);
-      }
-    }
-  };
-
   return (
     <KeyboardAwareScrollView
       contentContainerStyle={styles.container}
@@ -145,8 +139,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         placeholderTextColor={'black'}
         keyboardType="decimal-pad"
         value={savingsGoal}
-        onChangeText={handleSavingsChange}
-        editable={!savingsGoal} // Solo editable si no hay valor programado
+        editable={false} // Solo editable si no hay valor programado
       />
       <Text style={styles.text}>Plan de Ahorro: {interval}</Text>
       <Text style={styles.text}>Ahorro Programado: ${programmedSavings}</Text>
@@ -234,4 +227,3 @@ const styles = StyleSheet.create({
 });
 
 export default SavingsScreen;
-
