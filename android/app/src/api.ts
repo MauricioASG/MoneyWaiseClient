@@ -86,7 +86,6 @@ export const deleteGoal = async (id) => {
   }
 };
 
-
 export const getTransactionsByDate = async (usuario_id, date) => {
   try {
     const response = await axios.get(`${API_URL}/transacciones/${usuario_id}/fecha/${date}`);
@@ -125,6 +124,30 @@ export const createTransaction = async (userId, categoryId, amount, type, date) 
     return response.data;
   } catch (error) {
     console.error('Error creating transaction:', error);
+    throw error;
+  }
+};
+
+export const updateTransaction = async (id, transaction) => {
+  try {
+    // Formateamos la fecha antes de enviar la solicitud
+    const formattedDate = new Date(transaction.fecha).toISOString().slice(0, 19).replace('T', ' ');
+    transaction.fecha = formattedDate;
+
+    const response = await axios.put(`${API_URL}/transacciones/${id}`, transaction);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating transaction:', error);
+    throw error;
+  }
+};
+
+export const deleteTransaction = async (id) => {
+  try {
+    const response = await axios.delete(`${API_URL}/transacciones/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting transaction:', error);
     throw error;
   }
 };
