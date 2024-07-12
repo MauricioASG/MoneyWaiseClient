@@ -32,9 +32,9 @@ const AllTransactionsScreen = ({ route }) => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.transactionItem}>
-            <Text>{item.tipo}: ${item.monto}</Text>
-            <Text>{item.categoria}</Text>
-            <Text>{new Date(item.fecha).toLocaleDateString()}</Text>
+            <Text style={styles.transactionText}>{item.tipo}: ${item.monto}</Text>
+            <Text style={styles.transactionText}>{item.categoria}</Text>
+            <Text style={styles.transactionText}>{new Date(item.fecha).toLocaleDateString()}</Text>
             <View style={styles.buttonsContainer}>
               <TouchableOpacity
                 style={styles.editButton}
@@ -60,18 +60,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#fff',
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    backgroundColor: '#B2DFDF',
   },
   transactionItem: {
     backgroundColor: '#f0f0f0',
     padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
+    borderRadius: 10,
+    marginBottom: 25,
   },
   buttonsContainer: {
     flexDirection: 'row',
@@ -81,16 +76,33 @@ const styles = StyleSheet.create({
   editButton: {
     backgroundColor: '#4CAF50',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 8,
+    paddingHorizontal: 55,
+    paddingVertical: 15,
   },
   deleteButton: {
     backgroundColor: '#F44336',
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 8,
+    paddingHorizontal: 55,
+    paddingVertical: 15,
+  },
+  heading: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    color: '#121313',
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
+    fontSize: 20,
+  },
+  transactionText: {
+    fontSize: 20,
+    color: '#333',
+    marginBottom: 1,
   },
 });
 
