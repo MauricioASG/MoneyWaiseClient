@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 // ScheduleScreen.tsx
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Button, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Button, TouchableOpacity } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useFocusEffect } from '@react-navigation/native';
@@ -34,14 +34,11 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
   useFocusEffect(
     React.useCallback(() => {
       setSelectedButton('right');
-    }, [setSelectedButton])
+      if (selectedDate) {
+        fetchTransactions(selectedDate);
+      }
+    }, [setSelectedButton, selectedDate])
   );
-
-  useEffect(() => {
-    if (selectedDate) {
-      fetchTransactions(selectedDate);
-    }
-  }, [selectedDate]);
 
   const fetchTransactions = async (date: string) => {
     try {
@@ -51,18 +48,6 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
       console.error('Error fetching transactions:', error);
     }
   };
-
-  const refreshTransactions = () => {
-    if (selectedDate) {
-      fetchTransactions(selectedDate);
-    }
-  };
-
-  useEffect(() => {
-    navigation.setOptions({
-      refreshTransactions: refreshTransactions,
-    });
-  }, [navigation, selectedDate]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -201,3 +186,4 @@ const styles = StyleSheet.create({
 });
 
 export default ScheduleScreen;
+

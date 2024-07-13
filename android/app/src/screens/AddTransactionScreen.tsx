@@ -1,11 +1,11 @@
 /* eslint-disable prettier/prettier */
+// AddTransactionScreen.tsx
 import React, { useState, useContext } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
   Text,
   TextInput,
-  View,
   Alert,
   TouchableOpacity,
 } from 'react-native';
