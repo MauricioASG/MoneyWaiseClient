@@ -1,19 +1,28 @@
 /* eslint-disable prettier/prettier */
 // AllTransactionsScreen.tsx
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { deleteTransaction } from '../api';
+import { deleteTransaction, getTransactionsByDate } from '../api';
+import { UserContext } from '../contexts/UserContext';
 
 const AllTransactionsScreen = ({ route }) => {
-  const { transactions } = route.params;
+  const { transactions: initialTransactions } = route.params;
+  const [transactions, setTransactions] = useState(initialTransactions);
   const navigation = useNavigation();
+  const { userId } = useContext(UserContext);
+
+  useEffect(() => {
+    setTransactions(initialTransactions);
+  }, [initialTransactions]);
 
   const handleDelete = async (id) => {
     try {
       await deleteTransaction(id);
       Alert.alert('Transacción eliminada', 'La transacción ha sido eliminada exitosamente.');
-      // Puedes agregar lógica adicional aquí para actualizar la lista de transacciones si es necesario
+      // Actualiza el estado eliminando la transacción borrada
+      const updatedTransactions = transactions.filter(transaction => transaction.id !== id);
+      setTransactions(updatedTransactions);
     } catch (error) {
       Alert.alert('Error', 'Hubo un problema al eliminar la transacción.');
       console.error('Error deleting transaction:', error);
