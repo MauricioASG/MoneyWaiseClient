@@ -1,9 +1,21 @@
 /* eslint-disable prettier/prettier */
 // EditTransactionScreen.tsx
+// EditTransactionScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { Picker } from '@react-native-picker/picker';
 import { updateTransaction } from '../api';
+
+// Asumiendo que los IDs de las categorías son números
+const categories = [
+  { label: 'Ingreso', value: 1 },
+  { label: 'Gasto', value: 2 },
+  { label: 'Prioritario', value: 3 },
+  { label: 'Recreativo', value: 4 },
+  { label: 'Hormiga', value: 5 },
+  { label: 'Servicios', value: 6 },
+];
 
 const EditTransactionScreen = () => {
   const navigation = useNavigation();
@@ -12,7 +24,7 @@ const EditTransactionScreen = () => {
 
   const [amount, setAmount] = useState(transaction.monto.toString());
   const [type, setType] = useState(transaction.tipo);
-  const [category, setCategory] = useState(transaction.categoria_id.toString());
+  const [category, setCategory] = useState(transaction.categoria_id);  // <-- Aquí usamos el ID
 
   const handleSave = async () => {
     if (!amount || isNaN(Number(amount)) || !category) {
@@ -21,13 +33,13 @@ const EditTransactionScreen = () => {
     }
 
     try {
-      const updatedTransaction = { ...transaction, monto: parseFloat(amount), tipo: type, categoria: category };
+      const updatedTransaction = { ...transaction, monto: parseFloat(amount), tipo: type, categoria_id: category };  // <-- Aquí enviamos el ID
       await updateTransaction(transaction.id, updatedTransaction);
       Alert.alert('Transacción actualizada', 'La transacción ha sido actualizada exitosamente.');
-      navigation.navigate('AllTransactions', { updatedTransaction }); // Navega con el parámetro actualizado
+      navigation.navigate('AllTransactions', { updatedTransaction });
     } catch (error) {
-      Alert.alert('Error', 'Hubo un problema al actualizar la transacción.');
       console.error('Error updating transaction:', error);
+      Alert.alert('Error', 'Hubo un problema al actualizar la transacción.');
     }
   };
 
@@ -41,12 +53,15 @@ const EditTransactionScreen = () => {
         value={amount}
         onChangeText={setAmount}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Categoría"
-        value={category}
-        onChangeText={setCategory}
-      />
+      <Picker
+        selectedValue={category}
+        onValueChange={(itemValue) => setCategory(itemValue)}
+        style={styles.picker}
+      >
+        {categories.map((cat) => (
+          <Picker.Item key={cat.value} label={cat.label} value={cat.value} />
+        ))}
+      </Picker>
       <TextInput
         style={styles.input}
         placeholder="Tipo"
@@ -87,6 +102,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
   },
+  picker: {
+    height: 50,
+    width: '80%',
+    marginBottom: 20,
+    alignSelf: 'center',
+  },
   button: {
     backgroundColor: '#2C5FC2',
     paddingVertical: 12,
@@ -104,3 +125,4 @@ const styles = StyleSheet.create({
 });
 
 export default EditTransactionScreen;
+
