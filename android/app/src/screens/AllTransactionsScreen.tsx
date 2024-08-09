@@ -2,8 +2,8 @@
 // AllTransactionsScreen.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { deleteTransaction, getTransactionsByDate } from '../api';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { deleteTransaction } from '../api';
 import { UserContext } from '../contexts/UserContext';
 
 const AllTransactionsScreen = ({ route }) => {
@@ -15,6 +15,20 @@ const AllTransactionsScreen = ({ route }) => {
   useEffect(() => {
     setTransactions(initialTransactions);
   }, [initialTransactions]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      // Verifica si hay una transacción actualizada en los parámetros
+      if (route.params?.updatedTransaction) {
+        const updatedTransaction = route.params.updatedTransaction;
+        const updatedTransactions = transactions.map(transaction =>
+          transaction.id === updatedTransaction.id ? updatedTransaction : transaction
+        );
+        setTransactions(updatedTransactions);
+        navigation.setParams({ updatedTransaction: null }); // Reset the param
+      }
+    }, [route.params?.updatedTransaction])
+  );
 
   const handleDelete = async (id) => {
     try {

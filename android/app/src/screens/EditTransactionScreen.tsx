@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-
+// EditTransactionScreen.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -21,10 +21,10 @@ const EditTransactionScreen = () => {
     }
 
     try {
-      const updatedTransaction = { monto: amount, tipo: type, categoria: category, fecha: transaction.fecha };
+      const updatedTransaction = { ...transaction, monto: parseFloat(amount), tipo: type, categoria: category };
       await updateTransaction(transaction.id, updatedTransaction);
       Alert.alert('Transacción actualizada', 'La transacción ha sido actualizada exitosamente.');
-      navigation.goBack();
+      navigation.navigate('AllTransactions', { updatedTransaction }); // Navega con el parámetro actualizado
     } catch (error) {
       Alert.alert('Error', 'Hubo un problema al actualizar la transacción.');
       console.error('Error updating transaction:', error);
