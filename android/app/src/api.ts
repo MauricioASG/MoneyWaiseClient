@@ -151,3 +151,15 @@ export const deleteTransaction = async (id) => {
     throw error;
   }
 };
+
+// obtener transacciones por mes para la grafica
+export const getTransactionsByMonth = async (usuario_id, year, month) => {
+  try {
+    console.log(`Solicitando transacciones del mes ${month}-${year} para el usuario ${usuario_id}`);
+    const response = await axios.get(`${API_URL}/transacciones/${usuario_id}/mes/${year}/${month}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener las transacciones por mes:', error);
+    throw error;
+  }
+};

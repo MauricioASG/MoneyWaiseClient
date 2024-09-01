@@ -24,16 +24,16 @@ const EditTransactionScreen = () => {
 
   const [amount, setAmount] = useState(transaction.monto.toString());
   const [type, setType] = useState(transaction.tipo);
-  const [category, setCategory] = useState(transaction.categoria_id);  // <-- Aquí usamos el ID
+  const [categoryId, setCategoryId] = useState(transaction.categoria_id);
 
   const handleSave = async () => {
-    if (!amount || isNaN(Number(amount)) || !category) {
+    if (!amount || isNaN(Number(amount)) || !categoryId) {
       Alert.alert('Error', 'Por favor, ingrese una cantidad válida y seleccione una categoría');
       return;
     }
 
     try {
-      const updatedTransaction = { ...transaction, monto: parseFloat(amount), tipo: type, categoria_id: category };  // <-- Aquí enviamos el ID
+      const updatedTransaction = { ...transaction, monto: parseFloat(amount), tipo: type, categoria_id: categoryId };
       await updateTransaction(transaction.id, updatedTransaction);
       Alert.alert('Transacción actualizada', 'La transacción ha sido actualizada exitosamente.');
       navigation.navigate('AllTransactions', { updatedTransaction });
@@ -54,8 +54,8 @@ const EditTransactionScreen = () => {
         onChangeText={setAmount}
       />
       <Picker
-        selectedValue={category}
-        onValueChange={(itemValue) => setCategory(itemValue)}
+        selectedValue={categoryId}
+        onValueChange={(itemValue) => setCategoryId(itemValue)}
         style={styles.picker}
       >
         {categories.map((cat) => (
@@ -74,6 +74,7 @@ const EditTransactionScreen = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

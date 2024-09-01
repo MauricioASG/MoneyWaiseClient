@@ -24,17 +24,17 @@ type AddTransactionProps = {
 const AddTransactionScreen: React.FC<AddTransactionProps> = ({ navigation, route }) => {
   const { userId } = useContext(UserContext);
   const [amount, setAmount] = useState('');
-  const [type, setType] = useState('Ingreso');
-  const [category, setCategory] = useState('');
+  const [type, setType] = useState('');  // No se asigna ningún valor por defecto
+  const [categoryId, setCategoryId] = useState(''); // Usamos el ID de categoría
 
   const handleAddTransaction = async () => {
-    if (!amount || isNaN(Number(amount)) || !category) {
-      Alert.alert('Error', 'Por favor, ingrese una cantidad válida y seleccione una categoría');
+    if (!amount || isNaN(Number(amount)) || !categoryId || !type) {
+      Alert.alert('Error', 'Por favor, ingrese una cantidad válida, seleccione una categoría y un tipo de transacción');
       return;
     }
 
     try {
-      await createTransaction(userId, category, amount, type, route.params.selectedDate);
+      await createTransaction(userId, categoryId, amount, type, route.params.selectedDate);
       const parentState = navigation.getParent()?.getState();
       const refreshTransactions = parentState?.routes.find(route => route.name === 'Schedule')?.params?.refreshTransactions;
       if (refreshTransactions) {
@@ -57,17 +57,23 @@ const AddTransactionScreen: React.FC<AddTransactionProps> = ({ navigation, route
         value={amount}
         onChangeText={setAmount}
       />
-      <TextInput
-        style={styles.input}
-        placeholder="Descripción corta"
-        value={category}
-        onChangeText={setCategory}
-      />
+      <Picker
+        selectedValue={categoryId}
+        onValueChange={(itemValue) => setCategoryId(itemValue)}
+        style={styles.picker}
+      >
+        <Picker.Item label="Selecciona categoría" value="" />
+        <Picker.Item label="Comida" value="1" />
+        <Picker.Item label="Transporte" value="3" />
+        <Picker.Item label="Entretenimiento" value="4" />
+        {/* Agrega más categorías según corresponda */}
+      </Picker>
       <Picker
         selectedValue={type}
         onValueChange={(itemValue) => setType(itemValue)}
         style={styles.picker}
       >
+        <Picker.Item label="Selecciona tipo" value="" />
         <Picker.Item label="Ingreso" value="Ingreso" />
         <Picker.Item label="Gasto" value="Gasto" />
         <Picker.Item label="Prioritario" value="Prioritario" />
@@ -81,6 +87,7 @@ const AddTransactionScreen: React.FC<AddTransactionProps> = ({ navigation, route
     </SafeAreaView>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

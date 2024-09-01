@@ -47,7 +47,7 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
     } catch (error) {
       console.error('Error fetching transactions:', error);
     }
-  };
+};
 
   return (
     <SafeAreaView style={styles.safeArea}>

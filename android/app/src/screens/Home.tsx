@@ -1,57 +1,126 @@
 /* eslint-disable prettier/prettier */
-// Home.tsx
-import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+// HomeScreen.tsx
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp, useFocusEffect } from '@react-navigation/native';
-import { useButton } from '../contexts/FooterMenuContext';
 import PieChart from 'react-native-pie-chart';
+import { getTransactionsByMonth } from '../api';
+import { UserContext } from '../contexts/UserContext';
+import { useFocusEffect } from '@react-navigation/native';
+import { useButton } from '../contexts/FooterMenuContext';
 
-type RootStackParamList = {
-  Home: undefined;
-  Savings: undefined;
-  Schedule: undefined;
-  Login: undefined;
-};
-
-type HomeScreenProps = {
-  navigation: StackNavigationProp<RootStackParamList, 'Home'>;
-  route: RouteProp<RootStackParamList, 'Home'>;
-};
-
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+const HomeScreen: React.FC = ({ navigation }) => {
   const { setSelectedButton } = useButton();
+  const { userId } = useContext(UserContext);
+  const [chartData, setChartData] = useState([]);
+  const [currentMonth, setCurrentMonth] = useState('');
+  const [currentYear, setCurrentYear] = useState('');
 
   useFocusEffect(
     React.useCallback(() => {
       setSelectedButton('center');
-    }, [setSelectedButton])
+
+      const fetchData = async () => {
+        try {
+          const date = new Date();
+          const year = date.getFullYear();
+          const month = date.getMonth() + 1; // Enero es 0, así que sumamos 1
+          setCurrentMonth(month);
+          setCurrentYear(year);
+          console.log(`Obteniendo datos para el gráfico de ${month}-${year}`);
+          
+          const transactions = await getTransactionsByMonth(userId, year, month);
+          console.log("Transacciones obtenidas:", transactions);
+
+          if (transactions.length === 0) {
+            console.log("No hay transacciones para este mes.");
+            setChartData([]);
+            return;
+          }
+
+          const categories = {};
+          transactions.forEach((transaction) => {
+            if (!categories[transaction.categoria_id]) {
+              categories[transaction.categoria_id] = 0;
+            }
+            categories[transaction.categoria_id] += parseFloat(transaction.monto);
+          });
+
+          console.log("Datos de categorías procesados:", categories);
+
+          const data = Object.keys(categories).map((categoria_id) => ({
+            value: categories[categoria_id],
+            color: getColorForCategory(categoria_id),
+            label: getLabelForCategory(categoria_id),
+          }));
+
+          console.log("Datos para el gráfico:", data);
+          setChartData(data);
+        } catch (error) {
+          console.error('Error al cargar los datos para el gráfico:', error);
+        }
+      };
+
+      fetchData();
+    }, [userId])
   );
 
-  const data = [
-    { value: 45, color: '#c70039', label: 'Prioritarios o fijos' },
-    { value: 25, color: '#008000', label: 'Hormiga' },
-    { value: 15, color: '#808080', label: 'Otros' },
-    { value: 15, color: '#00CED4', label: 'Ahorro' },
-  ];
+  const getColorForCategory = (categoria_id) => {
+    const colors = {
+      1: '#c70039',
+      2: '#008000',
+      3: '#808080',
+      4: '#00CED4',
+      5: '#FFD700',
+      6: '#FF4500',
+    };
+    return colors[categoria_id] || '#000000';
+  };
+
+  const getLabelForCategory = (categoria_id) => {
+    const labels = {
+      1: 'Ingreso',
+      2: 'Gasto',
+      3: 'Prioritario',
+      4: 'Recreativo',
+      5: 'Hormiga',
+      6: 'Servicios',
+    };
+    return labels[categoria_id] || 'Otro';
+  };
+
+  const calculatePercentages = () => {
+    const total = chartData.reduce((sum, item) => sum + item.value, 0);
+    return chartData.map((item) => ({
+      ...item,
+      percentage: ((item.value / total) * 100).toFixed(2),
+    }));
+  };
+
+  const dataWithPercentages = calculatePercentages();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Gráfica de gastos</Text>
-      <PieChart
-        widthAndHeight={200}
-        series={data.map(item => item.value)}
-        sliceColor={data.map(item => item.color)}
-        doughnut={false}
-        coverRadius={0.45}
-        coverFill={'#FFF'}
-      />
+      <Text style={styles.heading}>
+        Gráfica de gastos - {currentMonth}/{currentYear}
+      </Text>
+      {chartData.length > 0 ? (
+        <PieChart
+          widthAndHeight={200}
+          series={chartData.map(item => item.value)}
+          sliceColor={chartData.map(item => item.color)}
+          doughnut={false}
+          coverRadius={0.45}
+          coverFill={'#FFF'}
+        />
+      ) : (
+        <Text>No hay datos para este mes</Text>
+      )}
       <View style={styles.legendContainer}>
-        {data.map((item, index) => (
+        {dataWithPercentages.map((item, index) => (
           <View key={index} style={styles.legendItem}>
             <View style={[styles.legendColor, { backgroundColor: item.color }]} />
-            <Text style={styles.legendText}>{item.label}</Text>
+            <Text style={styles.legendText}>{item.label}: {item.percentage}%</Text>
           </View>
         ))}
       </View>
@@ -92,3 +161,4 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+

@@ -18,14 +18,13 @@ const AllTransactionsScreen = ({ route }) => {
 
   useFocusEffect(
     React.useCallback(() => {
-      // Verifica si hay una transacción actualizada en los parámetros
       if (route.params?.updatedTransaction) {
         const updatedTransaction = route.params.updatedTransaction;
         const updatedTransactions = transactions.map(transaction =>
           transaction.id === updatedTransaction.id ? updatedTransaction : transaction
         );
         setTransactions(updatedTransactions);
-        navigation.setParams({ updatedTransaction: null }); // Reset the param
+        navigation.setParams({ updatedTransaction: null });
       }
     }, [route.params?.updatedTransaction])
   );
@@ -34,7 +33,6 @@ const AllTransactionsScreen = ({ route }) => {
     try {
       await deleteTransaction(id);
       Alert.alert('Transacción eliminada', 'La transacción ha sido eliminada exitosamente.');
-      // Actualiza el estado eliminando la transacción borrada
       const updatedTransactions = transactions.filter(transaction => transaction.id !== id);
       setTransactions(updatedTransactions);
     } catch (error) {
@@ -47,6 +45,18 @@ const AllTransactionsScreen = ({ route }) => {
     navigation.navigate('EditTransaction', { transaction });
   };
 
+  const getLabelForCategory = (categoria_id) => {
+    const labels = {
+      1: 'Ingreso',
+      2: 'Gasto',
+      3: 'Prioritario',
+      4: 'Recreativo',
+      5: 'Hormiga',
+      6: 'Servicios',
+    };
+    return labels[categoria_id] || 'Otro';
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Todos los movimientos</Text>
@@ -56,7 +66,7 @@ const AllTransactionsScreen = ({ route }) => {
         renderItem={({ item }) => (
           <View style={styles.transactionItem}>
             <Text style={styles.transactionText}>{item.tipo}: ${item.monto}</Text>
-            <Text style={styles.transactionText}>{item.categoria}</Text>
+            <Text style={styles.transactionText}>{getLabelForCategory(item.categoria_id)}</Text>
             <Text style={styles.transactionText}>{new Date(item.fecha).toLocaleDateString()}</Text>
             <View style={styles.buttonsContainer}>
               <TouchableOpacity
