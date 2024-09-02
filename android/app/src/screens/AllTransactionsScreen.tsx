@@ -45,16 +45,22 @@ const AllTransactionsScreen = ({ route }) => {
     navigation.navigate('EditTransaction', { transaction });
   };
 
-  const getLabelForCategory = (categoria_id) => {
-    const labels = {
-      1: 'Ingreso',
-      2: 'Gasto',
-      3: 'Prioritario',
-      4: 'Recreativo',
-      5: 'Hormiga',
-      6: 'Servicios',
+  const getCategoryLabel = (categoria_id) => {
+    const categories = {
+      1: 'Vivienda',
+      2: 'Transporte',
+      3: 'Alimentación',
+      4: 'Salud',
+      5: 'Educación',
+      6: 'Entretenimiento',
+      7: 'Ropa y calzado',
+      8: 'Regalos',
+      9: 'Ahorro e inversión',
+      10: 'Deudas',
+      11: 'Otros',
+      12: 'Mascotas',
     };
-    return labels[categoria_id] || 'Otro';
+    return categories[categoria_id] || 'Otro';
   };
 
   return (
@@ -65,9 +71,10 @@ const AllTransactionsScreen = ({ route }) => {
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.transactionItem}>
-            <Text style={styles.transactionText}>{item.tipo}: ${item.monto}</Text>
-            <Text style={styles.transactionText}>{getLabelForCategory(item.categoria_id)}</Text>
-            <Text style={styles.transactionText}>{new Date(item.fecha).toLocaleDateString()}</Text>
+            <Text style={styles.transactionText}>Categoría: {getCategoryLabel(item.categoria_id)}</Text>
+            <Text style={styles.transactionText}>Subcategoría: {item.tipo}</Text>
+            <Text style={styles.transactionText}>Monto: ${item.monto}</Text>
+            <Text style={styles.transactionText}>Fecha: {new Date(item.fecha).toLocaleDateString()}</Text>
             <View style={styles.buttonsContainer}>
               <TouchableOpacity
                 style={styles.editButton}
