@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 // HomeScreen.tsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import PieChart from 'react-native-pie-chart';
@@ -40,13 +40,10 @@ const HomeScreen: React.FC = ({ navigation }) => {
 
           const categories = {};
           transactions.forEach((transaction) => {
-            // Solo contabilizamos las categorías principales (1-12)
-            if (transaction.categoria_id >= 1 && transaction.categoria_id <= 12) {
-              if (!categories[transaction.categoria_id]) {
-                categories[transaction.categoria_id] = 0;
-              }
-              categories[transaction.categoria_id] += parseFloat(transaction.monto);
+            if (!categories[transaction.categoria_id]) {
+              categories[transaction.categoria_id] = 0;
             }
+            categories[transaction.categoria_id] += parseFloat(transaction.monto);
           });
 
           console.log("Datos de categorías procesados:", categories);
@@ -65,23 +62,24 @@ const HomeScreen: React.FC = ({ navigation }) => {
       };
 
       fetchData();
+
     }, [userId])
   );
 
   const getColorForCategory = (categoria_id) => {
     const colors = {
-      1: '#c70039', // Vivienda
-      2: '#008000', // Transporte
-      3: '#808080', // Alimentación
-      4: '#00CED4', // Salud
-      5: '#FFD700', // Educación
-      6: '#FF4500', // Entretenimiento
-      7: '#FFA500', // Ropa y calzado
-      8: '#9400D3', // Regalos
-      9: '#FFD700', // Ahorro e inversión
-      10: '#A52A2A', // Deudas
-      11: '#696969', // Otros
-      12: '#DAA520', // Mascotas
+      1: '#c70039',
+      2: '#008000',
+      3: '#808080',
+      4: '#00CED4',
+      5: '#FFD700',
+      6: '#FF4500',
+      7: '#800080',
+      8: '#FFA500',
+      9: '#0000FF',
+      10: '#A52A2A',
+      11: '#708090',
+      12: '#D2691E',
     };
     return colors[categoria_id] || '#000000';
   };
@@ -147,14 +145,15 @@ const HomeScreen: React.FC = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: 20,
+    padding: 50,
   },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
+    color: '#000000',
   },
   legendContainer: {
     marginTop: 20,
@@ -171,7 +170,8 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   legendText: {
-    fontSize: 16,
+    fontSize: 18,
+    color: '#000000',
   },
 });
 
