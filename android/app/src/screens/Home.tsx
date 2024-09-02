@@ -40,10 +40,13 @@ const HomeScreen: React.FC = ({ navigation }) => {
 
           const categories = {};
           transactions.forEach((transaction) => {
-            if (!categories[transaction.categoria_id]) {
-              categories[transaction.categoria_id] = 0;
+            // Solo contabilizamos las categorías principales (1-12)
+            if (transaction.categoria_id >= 1 && transaction.categoria_id <= 12) {
+              if (!categories[transaction.categoria_id]) {
+                categories[transaction.categoria_id] = 0;
+              }
+              categories[transaction.categoria_id] += parseFloat(transaction.monto);
             }
-            categories[transaction.categoria_id] += parseFloat(transaction.monto);
           });
 
           console.log("Datos de categorías procesados:", categories);
@@ -67,24 +70,36 @@ const HomeScreen: React.FC = ({ navigation }) => {
 
   const getColorForCategory = (categoria_id) => {
     const colors = {
-      1: '#c70039',
-      2: '#008000',
-      3: '#808080',
-      4: '#00CED4',
-      5: '#FFD700',
-      6: '#FF4500',
+      1: '#c70039', // Vivienda
+      2: '#008000', // Transporte
+      3: '#808080', // Alimentación
+      4: '#00CED4', // Salud
+      5: '#FFD700', // Educación
+      6: '#FF4500', // Entretenimiento
+      7: '#FFA500', // Ropa y calzado
+      8: '#9400D3', // Regalos
+      9: '#FFD700', // Ahorro e inversión
+      10: '#A52A2A', // Deudas
+      11: '#696969', // Otros
+      12: '#DAA520', // Mascotas
     };
     return colors[categoria_id] || '#000000';
   };
 
   const getLabelForCategory = (categoria_id) => {
     const labels = {
-      1: 'Ingreso',
-      2: 'Gasto',
-      3: 'Prioritario',
-      4: 'Recreativo',
-      5: 'Hormiga',
-      6: 'Servicios',
+      1: 'Vivienda',
+      2: 'Transporte',
+      3: 'Alimentación',
+      4: 'Salud',
+      5: 'Educación',
+      6: 'Entretenimiento',
+      7: 'Ropa y calzado',
+      8: 'Regalos',
+      9: 'Ahorro e inversión',
+      10: 'Deudas',
+      11: 'Otros',
+      12: 'Mascotas',
     };
     return labels[categoria_id] || 'Otro';
   };
@@ -161,4 +176,3 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-
