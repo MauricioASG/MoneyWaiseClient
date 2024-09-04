@@ -96,7 +96,7 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
                 <Text>{transaction.categoria}</Text>
               </View>
             ))}
-            {transactions.length > 2 && (
+            {transactions.length > 0 && (
               <TouchableOpacity
                 style={styles.viewAllButton}
                 onPress={() => navigation.navigate('AllTransactions', { transactions })}

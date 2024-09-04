@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 // AddTransactionScreen.tsx
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -111,6 +111,13 @@ const AddTransactionScreen: React.FC<AddTransactionProps> = ({ navigation, route
     ]
   };
 
+  useEffect(() => {
+    // Actualizar el tipo cuando se cambia la categoría
+    if (categoryId !== '0') {
+      setType(categoryTypes[categoryId][0].value);
+    }
+  }, [categoryId]);
+
   const handleAddTransaction = async () => {
     if (!amount || isNaN(Number(amount)) || categoryId === '0' || type === 'Selecciona un tipo de gasto') {
       Alert.alert('Error', 'Por favor, ingrese una cantidad válida, seleccione una categoría y un tipo de transacción');
@@ -145,7 +152,6 @@ const AddTransactionScreen: React.FC<AddTransactionProps> = ({ navigation, route
         selectedValue={categoryId}
         onValueChange={(itemValue) => {
           setCategoryId(itemValue);
-          setType('Selecciona un tipo de gasto'); // Reset type when category changes
         }}
         style={styles.picker}
       >
@@ -232,3 +238,4 @@ const styles = StyleSheet.create({
 });
 
 export default AddTransactionScreen;
+
