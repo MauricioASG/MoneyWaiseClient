@@ -1,6 +1,8 @@
 /* eslint-disable prettier/prettier */
 //WebServiceParams.ts
-const host = '172.29.224.1';
+
+//Aqui debemos tener la dirección ip de nuestra computadora local
+const host = '192.168.137.1';
 const port = 3050;
 
 export default {host, port};
