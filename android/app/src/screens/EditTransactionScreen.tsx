@@ -117,9 +117,9 @@ const EditTransactionScreen = () => {
   };
 
   useEffect(() => {
-    // Actualiza el tipo automáticamente si se cambia la categoría
+    // Actualiza el tipo automáticamente si se cambia la categoría y reinicia el tipo si cambia la categoría
     if (!categoryTypes[categoryId]?.find(item => item.value === type)) {
-      setType('Selecciona un tipo de gasto');
+      setType(categoryTypes[categoryId]?.[0]?.value || 'Selecciona un tipo de gasto');
     }
   }, [categoryId]);
 
@@ -137,6 +137,7 @@ const EditTransactionScreen = () => {
         selectedValue={categoryId}
         onValueChange={(itemValue) => {
           setCategoryId(itemValue);
+          setType(categoryTypes[itemValue][0].value); // Reiniciar el tipo cuando se cambia la categoría
         }}
         style={styles.picker}
       >
