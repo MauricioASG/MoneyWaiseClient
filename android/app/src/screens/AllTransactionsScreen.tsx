@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 // AllTransactionsScreen.tsx
+/* eslint-disable prettier/prettier */
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -42,6 +43,7 @@ const AllTransactionsScreen = ({ route }) => {
   };
 
   const handleEdit = (transaction) => {
+    // Navegar a la pantalla de edición, pasando la transacción completa
     navigation.navigate('EditTransaction', { transaction });
   };
 

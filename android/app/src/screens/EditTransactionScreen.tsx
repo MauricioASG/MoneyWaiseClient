@@ -1,5 +1,6 @@
 /* eslint-disable prettier/prettier */
 // EditTransactionScreen.tsx
+/* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -11,8 +12,9 @@ const EditTransactionScreen = () => {
   const route = useRoute();
   const { transaction } = route.params;
 
+  // Estado inicial basado en la transacción
   const [amount, setAmount] = useState(transaction.monto.toString());
-  const [categoryId, setCategoryId] = useState(transaction.categoria_id);
+  const [categoryId, setCategoryId] = useState(transaction.categoria_id?.toString() || '0');
   const [type, setType] = useState(transaction.tipo);
 
   // Mapa de tipos de subcategorías por categoría
@@ -94,11 +96,21 @@ const EditTransactionScreen = () => {
       { label: 'Accesorios', value: 'Mascotas_Accesorios' },
       { label: 'Adiestramiento', value: 'Mascotas_Adiestramiento' },
     ],
-    '0': [
-      { label: 'Selecciona un tipo de gasto', value: 'Selecciona un tipo de gasto' },
-    ]
   };
 
+  // Sincronizar los valores iniciales
+  useEffect(() => {
+    if (categoryTypes[categoryId]) {
+      const subcategories = categoryTypes[categoryId];
+      const hasValidType = subcategories.some(subcategory => subcategory.value === type);
+      
+      if (!hasValidType) {
+        setType(subcategories[0]?.value || 'Selecciona un tipo de gasto');
+      }
+    }
+  }, [categoryId]);
+
+  // Guardar la transacción actualizada
   const handleSave = async () => {
     if (!amount || isNaN(Number(amount)) || categoryId === '0' || type === 'Selecciona un tipo de gasto') {
       Alert.alert('Error', 'Por favor, ingrese una cantidad válida, seleccione una categoría y un tipo de transacción');
@@ -116,12 +128,11 @@ const EditTransactionScreen = () => {
     }
   };
 
-  useEffect(() => {
-    // Actualiza el tipo automáticamente si se cambia la categoría y reinicia el tipo si cambia la categoría
-    if (!categoryTypes[categoryId]?.find(item => item.value === type)) {
-      setType(categoryTypes[categoryId]?.[0]?.value || 'Selecciona un tipo de gasto');
-    }
-  }, [categoryId]);
+  // Controlador de cambio de categoría
+  const handleCategoryChange = (itemValue) => {
+    setCategoryId(itemValue);
+    setType(categoryTypes[itemValue]?.[0]?.value || 'Selecciona un tipo de gasto');
+  };
 
   return (
     <View style={styles.container}>
@@ -135,36 +146,29 @@ const EditTransactionScreen = () => {
       />
       <Picker
         selectedValue={categoryId}
-        onValueChange={(itemValue) => {
-          setCategoryId(itemValue);
-          setType(categoryTypes[itemValue][0].value); // Reiniciar el tipo cuando se cambia la categoría
-        }}
+        onValueChange={handleCategoryChange}
         style={styles.picker}
       >
         <Picker.Item label="Selecciona categoría" value="0" />
-        <Picker.Item label="Vivienda" value="1" />
-        <Picker.Item label="Transporte" value="2" />
-        <Picker.Item label="Alimentación" value="3" />
-        <Picker.Item label="Salud" value="4" />
-        <Picker.Item label="Educación" value="5" />
-        <Picker.Item label="Entretenimiento" value="6" />
-        <Picker.Item label="Ropa y calzado" value="7" />
-        <Picker.Item label="Regalos" value="8" />
-        <Picker.Item label="Ahorro e inversión" value="9" />
-        <Picker.Item label="Deudas" value="10" />
-        <Picker.Item label="Otros" value="11" />
-        <Picker.Item label="Mascotas" value="12" />
+        {/* Agregar todas las categorías en el Picker */}
+        {Object.keys(categoryTypes).map((key) => (
+          <Picker.Item key={key} label={getCategoryLabel(key)} value={key} />
+        ))}
       </Picker>
 
       <Picker
         selectedValue={type}
         onValueChange={(itemValue) => setType(itemValue)}
         style={styles.picker}
-        enabled={categoryId !== '0'} // Disable if no valid category is selected
+        enabled={categoryId !== '0'}
       >
-        {categoryTypes[categoryId]?.map((typeItem) => (
-          <Picker.Item key={typeItem.value} label={typeItem.label} value={typeItem.value} />
-        ))}
+        {categoryTypes[categoryId]?.length ? (
+          categoryTypes[categoryId].map((typeItem) => (
+            <Picker.Item key={typeItem.value} label={typeItem.label} value={typeItem.value} />
+          ))
+        ) : (
+          <Picker.Item label="No hay subcategorías disponibles" value="Selecciona un tipo de gasto" />
+        )}
       </Picker>
 
       <TouchableOpacity style={styles.button} onPress={handleSave}>
@@ -172,6 +176,24 @@ const EditTransactionScreen = () => {
       </TouchableOpacity>
     </View>
   );
+};
+
+const getCategoryLabel = (categoria_id) => {
+  const categories = {
+    '1': 'Vivienda',
+    '2': 'Transporte',
+    '3': 'Alimentación',
+    '4': 'Salud',
+    '5': 'Educación',
+    '6': 'Entretenimiento',
+    '7': 'Ropa y calzado',
+    '8': 'Regalos',
+    '9': 'Ahorro e inversión',
+    '10': 'Deudas',
+    '11': 'Otros',
+    '12': 'Mascotas',
+  };
+  return categories[categoria_id] || 'Otro';
 };
 
 const styles = StyleSheet.create({
