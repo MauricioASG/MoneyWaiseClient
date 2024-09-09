@@ -11,7 +11,6 @@ type CustomButtonProps = {
     paddingHorizontal?: number;
     paddingVertical?: number;
 };
-
 const CustomButton: React.FC<CustomButtonProps> = ({
     title,
     onPress,
@@ -19,6 +18,7 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     marginBottom = 16,
     paddingHorizontal = 50,
     paddingVertical = 12,
+
 }) => {
     return (
         <TouchableOpacity
@@ -36,11 +36,11 @@ const CustomButton: React.FC<CustomButtonProps> = ({
 const styles = StyleSheet.create({
     button: {
         borderRadius: 8,
-        marginTop: 16,
+        marginTop: 10,
     },
     buttonText: {
         color: '#000000',
-        fontSize: 20,
+        fontSize: 16,
         fontWeight: '600',
         textAlign: 'center',
     },

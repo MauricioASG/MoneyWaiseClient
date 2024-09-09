@@ -107,7 +107,7 @@ const FooterMenu: React.FC<FooterMenuProps> = ({ navigation, onButtonPress }) =>
 
 const styles = StyleSheet.create({
   button: {
-    padding: 10,
+    padding: 7,
     borderRadius: 10,
     borderWidth: 2,
     borderColor: 'black',
@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: '#1671CF',
-    height: 120, // ajusta el tamaño según sea necesario
+    height: 105, // ajusta el tamaño según sea necesario
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around', // Distribute buttons evenly
     alignItems: 'center', // Align buttons to center vertically
-    width: '100%',
+    width: '95%',
   },
 });
 

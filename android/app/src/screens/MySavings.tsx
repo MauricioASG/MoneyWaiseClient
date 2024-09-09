@@ -1,11 +1,12 @@
 /* eslint-disable prettier/prettier */
 // MySavingsScreen.tsx
+/* eslint-disable prettier/prettier */
+// MySavingsScreen.tsx
 import React, { useState, useEffect, useContext } from 'react';
-import { Text, StyleSheet, Image, TextInput, Keyboard, Platform, Alert } from 'react-native';
+import { Text, StyleSheet, Image, Keyboard, Platform, Alert, View } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useFocusEffect, useIsFocused } from '@react-navigation/native';
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../components/CustomButton';
 import { useButton } from '../contexts/FooterMenuContext';
 import { getGoal, updateSavings } from '../api';
@@ -124,23 +125,12 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   };
 
   return (
-    <KeyboardAwareScrollView
-      contentContainerStyle={styles.container}
-      extraScrollHeight={100}
-    >
+    <View style={styles.container}>
       <Image
         source={require('../assets/MySavingsLogo.jpg')}
         style={styles.image}
       />
-      <Text style={styles.heading2}>Meta financiera</Text>
-      <TextInput
-        style={styles.textInput}
-        placeholder="Ahorro"
-        placeholderTextColor={'black'}
-        keyboardType="decimal-pad"
-        value={savingsGoal}
-        editable={false} // Solo editable si no hay valor programado
-      />
+      <Text style={styles.goalText}>Meta: ${savingsGoal}</Text>
       <Text style={styles.text}>Plan de Ahorro: {interval}</Text>
       <Text style={styles.text}>Ahorro Programado: ${programmedSavings}</Text>
       <Text style={styles.text}>Ahorro Actual: ${currentSavings}</Text>
@@ -173,7 +163,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
       {!isKeyboardVisible && (
         <FooterMenu navigation={navigation} onButtonPress={handleButtonPress} />
       )}
-    </KeyboardAwareScrollView>
+    </View>
   );
 };
 
@@ -185,43 +175,32 @@ const styles = StyleSheet.create({
     padding: 30,
     backgroundColor: '#FFFFFF',
   },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 5,
-  },
   heading2: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
     marginTop: 2,
     marginRight: 135,
     color: 'black',
   },
+  goalText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: 'black',
+  },
   image: {
     width: 200,
     height: 200,
     resizeMode: 'contain',
-    marginBottom: 10,
-  },
-  textInput: {
-    color: 'black',
-    borderBottomWidth: 2,
-    borderColor: 'black',
-    borderRadius: 8,
-    backgroundColor: '#E3F2FD',
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    width: '65%',
-    marginBottom: 10,
-    textAlign: 'center',
-    fontSize: 25,
+    marginBottom: 5,
+    marginTop: -50,
   },
   text: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
-    marginTop: 10,
+    marginBottom: 5,
+    marginTop: 5,
     color: 'black',
   },
 });
