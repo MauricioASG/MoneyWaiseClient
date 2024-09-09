@@ -17,6 +17,10 @@ const EditTransactionScreen = () => {
   const [categoryId, setCategoryId] = useState(transaction.categoria_id?.toString() || '0');
   const [type, setType] = useState(transaction.tipo);
 
+  // Guardamos los valores originales para comparar si hubo cambios
+  const originalAmount = transaction.monto.toString();
+  const originalCategoryId = transaction.categoria_id?.toString();
+  const originalType = transaction.tipo;
   // Mapa de tipos de subcategorías por categoría
   const categoryTypes = {
     '1': [
@@ -96,6 +100,9 @@ const EditTransactionScreen = () => {
       { label: 'Accesorios', value: 'Mascotas_Accesorios' },
       { label: 'Adiestramiento', value: 'Mascotas_Adiestramiento' },
     ],
+    '0': [
+      { label: 'Selecciona un tipo de gasto', value: 'Selecciona un tipo de gasto' },
+    ]
   };
 
   // Sincronizar los valores iniciales
@@ -109,6 +116,38 @@ const EditTransactionScreen = () => {
       }
     }
   }, [categoryId]);
+
+  // Confirmar guardar la transacción editada si hubo cambios
+  const confirmSave = () => {
+    if (
+      amount === originalAmount &&
+      categoryId === originalCategoryId &&
+      type === originalType
+    ) {
+      // Si no hubo cambios, mostrar la alerta y regresar a la pantalla anterior
+      Alert.alert('Sin cambios', 'No se han realizado cambios en la transacción.', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
+    } else {
+      // Si hubo cambios, mostrar la alerta de confirmación
+      Alert.alert(
+        'Confirmar guardado',
+        '¿Está seguro de que desea guardar esta transacción?',
+        [
+          {
+            text: 'Cancelar',
+            onPress: () => console.log('Guardado cancelado'),
+            style: 'cancel',
+          },
+          {
+            text: 'Guardar',
+            onPress: handleSave,
+          },
+        ],
+        { cancelable: true }
+      );
+    }
+  };
 
   // Guardar la transacción actualizada
   const handleSave = async () => {
@@ -150,7 +189,6 @@ const EditTransactionScreen = () => {
         style={styles.picker}
       >
         <Picker.Item label="Selecciona categoría" value="0" />
-        {/* Agregar todas las categorías en el Picker */}
         {Object.keys(categoryTypes).map((key) => (
           <Picker.Item key={key} label={getCategoryLabel(key)} value={key} />
         ))}
@@ -171,7 +209,7 @@ const EditTransactionScreen = () => {
         )}
       </Picker>
 
-      <TouchableOpacity style={styles.button} onPress={handleSave}>
+      <TouchableOpacity style={styles.button} onPress={confirmSave}>
         <Text style={styles.buttonText}>Guardar</Text>
       </TouchableOpacity>
     </View>

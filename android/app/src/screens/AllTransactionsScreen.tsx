@@ -30,6 +30,28 @@ const AllTransactionsScreen = ({ route }) => {
     }, [route.params?.updatedTransaction])
   );
 
+  // Confirmación de eliminación de la transacción
+  const confirmDelete = (id) => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Está seguro de que desea eliminar esta transacción?',
+      [
+        {
+          text: 'Cancelar',
+          onPress: () => console.log('Eliminación cancelada'),
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          onPress: () => handleDelete(id),
+          style: 'destructive', // Estilo para llamar la atención
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  // Función para eliminar la transacción
   const handleDelete = async (id) => {
     try {
       await deleteTransaction(id);
@@ -86,7 +108,7 @@ const AllTransactionsScreen = ({ route }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.deleteButton}
-                onPress={() => handleDelete(item.id)}
+                onPress={() => confirmDelete(item.id)}
               >
                 <Text style={styles.buttonText}>Eliminar</Text>
               </TouchableOpacity>
