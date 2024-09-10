@@ -115,7 +115,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>
-        Gráfica de gastos - {currentMonth}/{currentYear}
+        Gráfica de gastos {currentMonth}/{currentYear}
       </Text>
       {chartData.length > 0 ? (
         <PieChart
@@ -147,13 +147,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
-    padding: 50,
+    padding: 20,
+    paddingTop: 10,
   },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#000000',
+    justifyContent: 'center',
   },
   legendContainer: {
     marginTop: 20,

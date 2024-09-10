@@ -69,6 +69,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
     setTimePeriod(numericText);
   };
 
+  // Se va amodificar esta parte
   const calculateProgrammedSavings = () => {
     const goal = parseFloat(savingsGoal);
     const period = parseInt(timePeriod, 10);
@@ -77,7 +78,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
       if (interval === 'Diario') {
         savingsPerInterval = goal / period;
       } else if (interval === 'Semanal') {
-        savingsPerInterval = goal / (period * 7);
+        savingsPerInterval = goal/period;
       }
       setProgrammedSavings(savingsPerInterval.toFixed(2));
     } else {
@@ -122,7 +123,6 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
       contentContainerStyle={styles.container}
       extraScrollHeight={100}
     >
-      <Text style={styles.heading}>Configuración de Ahorro</Text>
       <Image
         source={require('../assets/MySavingsConfLogo.jpg')}
         style={styles.image}

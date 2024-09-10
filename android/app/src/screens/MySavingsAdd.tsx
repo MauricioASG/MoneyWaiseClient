@@ -46,7 +46,6 @@ const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation, route }) => {
       contentContainerStyle={styles.container}
       extraScrollHeight={100}
     >
-      <Text style={styles.heading}>Agregar Ahorro</Text>
       <Image
         source={require('../assets/MySavingsAddLogo.jpg')}
         style={styles.image}

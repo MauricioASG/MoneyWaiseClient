@@ -89,7 +89,6 @@ const AllTransactionsScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.heading}>Todos los movimientos</Text>
       <FlatList
         data={transactions}
         keyExtractor={(item) => item.id.toString()}
@@ -141,30 +140,23 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     padding: 10,
     borderRadius: 8,
-    paddingHorizontal: 55,
+    paddingHorizontal: 45,
     paddingVertical: 15,
   },
   deleteButton: {
     backgroundColor: '#F44336',
     padding: 10,
     borderRadius: 8,
-    paddingHorizontal: 55,
+    paddingHorizontal: 30,
     paddingVertical: 15,
-  },
-  heading: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#121313',
   },
   buttonText: {
     color: '#fff',
     fontWeight: 'bold',
-    fontSize: 20,
+    fontSize: 16,
   },
   transactionText: {
-    fontSize: 20,
+    fontSize: 18,
     color: '#333',
     marginBottom: 1,
   },

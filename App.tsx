@@ -18,24 +18,23 @@ import EditTransactionScreen from './android/app/src/screens/EditTransactionScre
 import { UserProvider } from './android/app/src/contexts/UserContext';
 
 const Stack = createStackNavigator();
-
 const App = () => {
   return (
     <NavigationContainer>
       <UserProvider>
         <ButtonProvider>
           <Stack.Navigator initialRouteName="Login">
-            <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Home' }} />
-            <Stack.Screen name="Savings" component={SavingsScreen} options={{ title: 'Mis Ahorros' }} />
-            <Stack.Screen name="Schedule" component={ScheduleScreen} />
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="SavingsAdd" component={SavingsAdd} />
-            <Stack.Screen name="SavingsConf" component={SavingsConf} />
-            <Stack.Screen name="MySavingsWithdrawals" component={MySavingsWithdrawals} />
-            <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
-            <Stack.Screen name="AddTransaction" component={AddTransactionScreen} />
-            <Stack.Screen name="AllTransactions" component={AllTransactionsScreen} />
-            <Stack.Screen name="EditTransaction" component={EditTransactionScreen} />
+            <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Grafica mensual' }} />
+            <Stack.Screen name="Savings" component={SavingsScreen} options={{ title: 'Mis ahorros' }} />
+            <Stack.Screen name="Schedule" component={ScheduleScreen} options={{ title: 'Registro de gastos' }}/>
+            <Stack.Screen name="Login" component={LoginScreen}options={{ title: 'Inicio de sesión' }}/>
+            <Stack.Screen name="SavingsAdd" component={SavingsAdd} options={{ title: 'Agregar ahorro' }}/>
+            <Stack.Screen name="SavingsConf" component={SavingsConf} options={{ title: 'Retirar ahorro' }}/>
+            <Stack.Screen name="MySavingsWithdrawals" component={MySavingsWithdrawals} options={{ title: 'Configuración de ahorro' }}/>
+            <Stack.Screen name="CreateAccount" component={CreateAccountScreen} options={{ title: 'Crear nueva cuenta' }}/>
+            <Stack.Screen name="AddTransaction" component={AddTransactionScreen} options={{ title: 'Registrar nuevo gasto' }}/>
+            <Stack.Screen name="AllTransactions" component={AllTransactionsScreen} options={{ title: 'Registro de gastos' }}/>
+            <Stack.Screen name="EditTransaction" component={EditTransactionScreen} options={{ title: 'Actualizar detalles' }}/>
           </Stack.Navigator>
         </ButtonProvider>
       </UserProvider>

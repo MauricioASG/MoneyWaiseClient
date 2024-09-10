@@ -9,7 +9,7 @@ import { useButton } from '../contexts/FooterMenuContext';
 import { Calendar } from 'react-native-calendars';
 import { UserContext } from '../contexts/UserContext';
 import { getTransactionsByDate } from '../api';
-import TransactionsList from '../components/TransactionsList';
+
 
 type RootStackParamList = {
   Home: undefined;
@@ -89,7 +89,7 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
         </View>
         {selectedDate ? (
           <View style={styles.transactionsContainer}>
-            <Text style={styles.transactionsHeading}>Transacciones del {selectedDate}</Text>
+            <Text style={styles.transactionsHeading}>Gastos del {selectedDate}</Text>
             {transactions.slice(0, 2).map((transaction, index) => (
               <View key={index} style={styles.transactionItem}>
                 <Text>{transaction.tipo}: ${transaction.monto}</Text>
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   calendarContainer: {
-    width: '90%',
+    width: '95%',
     backgroundColor: '#fff',
     borderRadius: 10,
     shadowColor: '#000',
@@ -146,9 +146,9 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
-    elevation: 5,
+    elevation: 8,
     padding: 10,
-    marginVertical: 20,
+    marginVertical: -10,
     alignSelf: 'center',
   },
   calendar: {
@@ -159,20 +159,21 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   transactionsHeading: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
   },
   transactionItem: {
-    backgroundColor: '#f0f0f0',
-    padding: 10,
+    backgroundColor: '#A7F7DA',
+    padding: 2,
     borderRadius: 5,
-    marginBottom: 10,
+    marginBottom: 2,
   },
   viewAllButton: {
     marginTop: 10,
     marginBottom: 20,
     alignItems: 'center',
+    
   },
   viewAllText: {
     color: '#00adf5',
