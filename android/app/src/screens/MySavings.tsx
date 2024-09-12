@@ -9,12 +9,9 @@ import { getGoal, updateSavings } from '../api';
 import { UserContext } from '../contexts/UserContext';
 import { ProgressBar } from 'react-native-paper';
 
-
-
-
 type RootStackParamList = {
   Home: undefined;
-  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string, currentSavings?: string };
+  Savings: { amountAdded?: string, savingsGoal?: string, interval?: string, currentSavings?: string, selectedDate?: string };
   Schedule: undefined;
   Login: undefined;
   SavingsAdd: { savingsGoal: string, interval: string, currentSavings: string };
@@ -30,14 +27,25 @@ type SavingsScreenProps = {
 const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   const { userId } = useContext(UserContext);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const [savingsGoal, setSavingsGoal] = useState('0'); // Inicializa en '0'
-  const [interval, setInterval] = useState('Mensual'); // Ejemplo de valor por defecto
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]); // Fecha actual por defecto
-  const [programmedSavings, setProgrammedSavings] = useState('0'); // Inicializa en '0'
-  const [currentSavings, setCurrentSavings] = useState('0'); // Inicializa en '0'  
+  const [savingsGoal, setSavingsGoal] = useState('0');
+  const [interval, setInterval] = useState('Mensual');
+  const [selectedDate, setSelectedDate] = useState(route.params?.selectedDate || new Date().toISOString().split('T')[0]);
+  const [programmedSavings, setProgrammedSavings] = useState('0');
+  const [currentSavings, setCurrentSavings] = useState('0');
   const [goalId, setGoalId] = useState<number | null>(null);
   const { setSelectedButton } = useButton();
   const isFocused = useIsFocused();
+
+  // Función para formatear la fecha
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    // Formato dd-mm-yyyy o dd/mm/yyyy
+    return date.toLocaleDateString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
 
   useFocusEffect(
     React.useCallback(() => {
@@ -73,14 +81,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         setProgrammedSavings(goal.ahorro_programado.toString());
         setCurrentSavings(goal.ahorro_actual.toString());
         setGoalId(goal.id);
-      } 
-      else {
-      // Inicializa con valores por defecto
-      setSavingsGoal('0');
-      setCurrentSavings('0');
-      setInterval('Mensual');
-      setSelectedDate(new Date().toISOString().split('T')[0]);
-    }
+      }
     } catch (error) {
       console.error(error);
     }
@@ -90,50 +91,22 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
     fetchGoal();
   }, [isFocused]);
 
-  useEffect(() => {
-    if (route.params?.amountAdded && !isNaN(Number(route.params.amountAdded))) {
-      const newCurrentSavings = parseFloat(currentSavings) + parseFloat(route.params.amountAdded);
-      setCurrentSavings(newCurrentSavings.toString());
-      if (goalId !== null) {
-        updateSavings(goalId, newCurrentSavings)
-          .then(() => {
-            console.log('Ahorro actualizado correctamente');
-          })
-          .catch((error) => {
-            console.error('Error al actualizar el ahorro actual:', error);
-          });
-      }
-    }
-    if (route.params?.interval) {
-      setInterval(route.params.interval);
-    }
-    if (route.params?.selectedDate) {
-      setSelectedDate(route.params.selectedDate);
-    }
-  }, [route.params?.amountAdded, route.params?.interval, route.params?.selectedDate]);
-
-  useEffect(() => {
-    if (route.params?.savingsGoal) {
-      setSavingsGoal(route.params.savingsGoal);
-    }
-  }, [route.params?.savingsGoal]);
-
   // Calcula los días restantes en función de la fecha límite
   const calculateDaysRemaining = () => {
     const today = new Date();
     const endDate = new Date(selectedDate);
     const diffTime = endDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    console.log(`Días restantes calculados: ${diffDays}`);
     return diffDays > 0 ? diffDays : 0;
   };
 
   // Calcula el porcentaje de avance del ahorro
   const calculateProgress = () => {
-    const goal = parseFloat(savingsGoal) || 0; // Asegurarse de que no sea NaN
+    const goal = parseFloat(savingsGoal) || 0;
     const current = parseFloat(currentSavings) || 0;
-    return goal > 0 ? (current / goal) : 0;
+    return goal > 0 ? current / goal : 0;
   };
-
 
   const handleButtonPress = (button: string) => {
     if (!savingsGoal || isNaN(Number(savingsGoal))) {
@@ -151,23 +124,20 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <Image source={require('../assets/MySavingsLogo.jpg')} style={styles.image} />
-      <Text style={styles.goalText}>Meta: ${savingsGoal}</Text>
-      <Text style={styles.text}>Plan de Ahorro: {interval}</Text>
-      <Text style={styles.text}>Ahorro Programado: ${programmedSavings}</Text>
-      <Text style={styles.text}>Ahorro Actual: ${currentSavings}</Text>
-      <Text style={styles.text}>Fecha Límite: {selectedDate}</Text>
-      <Text style={styles.text}>Días Restantes: {calculateDaysRemaining()}</Text>
+      <View style={styles.textContainer}>
+        <Text style={styles.goalText}>- Meta de ahorro: ${savingsGoal}</Text>
+        <Text style={styles.text}>- Ahorro actual: ${currentSavings}</Text>
+        <Text style={styles.text}>- Ahorro recomendado: ${programmedSavings}</Text>
+        {/* Usa la función formatDate para formatear la fecha */}
+        <Text style={styles.text}>- Fecha límite: {formatDate(selectedDate)}</Text>
+        <Text style={styles.text}>- Días restantes: {calculateDaysRemaining()}</Text>
+      </View>
 
       {/* Barra de progreso */}
       <View style={styles.progressBarContainer}>
-        <ProgressBar
-          progress={calculateProgress()} // Usar el progreso calculado
-          color="#80DA80"
-        />
+        <ProgressBar progress={calculateProgress()} color="#80DA80" />
         <Text style={styles.text}>{(calculateProgress() * 100).toFixed(2)}% completado</Text>
       </View>
-
-
 
       <CustomButton
         title="Ajustes"
@@ -195,9 +165,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         paddingVertical={14}
         disabled={!savingsGoal || isNaN(Number(savingsGoal))}
       />
-      {!isKeyboardVisible && (
-        <FooterMenu navigation={navigation} onButtonPress={handleButtonPress} />
-      )}
+      {!isKeyboardVisible && <FooterMenu navigation={navigation} onButtonPress={handleButtonPress} />}
     </View>
   );
 };
@@ -210,19 +178,23 @@ const styles = StyleSheet.create({
     padding: 30,
     backgroundColor: '#FFFFFF',
   },
-  heading2: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    marginTop: 2,
-    marginRight: 135,
-    color: 'black',
+  textContainer: {
+    alignSelf: 'stretch',
+    marginLeft: 20,
   },
   goalText: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
     color: 'black',
+    textAlign: 'left',
+  },
+  text: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: 'black',
+    textAlign: 'left',
   },
   image: {
     width: 200,
@@ -230,13 +202,6 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     marginBottom: 5,
     marginTop: -50,
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 5,
-    marginTop: 5,
-    color: 'black',
   },
   progressBarContainer: {
     width: '80%',

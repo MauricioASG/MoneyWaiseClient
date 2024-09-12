@@ -40,6 +40,8 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
         const goalData = await getGoal(userId);
         if (goalData.length > 0) {
           const goal = goalData[0];
+          console.log('Meta financiera cargada:', goal);
+
           setSavingsGoal(goal.monto.toString());
           setInterval(goal.periodo);
           setProgrammedSavings(goal.ahorro_programado.toString());
@@ -47,7 +49,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
           setSelectedDate(goal.fecha_limite);
         }
       } catch (error) {
-        console.error(error);
+        console.error('Error al cargar la meta financiera:', error);
       }
     };
 
@@ -57,6 +59,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
   const handleSavingsGoalChange = (text: string) => {
     const numericText = text.replace(/[^0-9.]/g, '');
     setSavingsGoal(numericText);
+    console.log('Nueva meta de ahorro ingresada:', numericText);
   };
 
   // Calcular el ahorro programado en función de la fecha seleccionada y el objetivo
@@ -99,9 +102,17 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
           onPress: async () => {
             try {
               const ahorro_programado = parseFloat(programmedSavings);
-              await saveGoal(goalId, userId, parseFloat(savingsGoal), interval, ahorro_programado, selectedDate);
-              navigation.navigate('Savings', { savingsGoal, interval, selectedDate });
+              const formattedDate = new Date(selectedDate).toISOString().split('T')[0]; // Asegúrate del formato YYYY-MM-DD
+  
+              console.log('Fecha límite seleccionada (formato YYYY-MM-DD):', formattedDate);
+              console.log('Meta financiera guardada:', { savingsGoal, interval, ahorro_programado, fecha_limite: formattedDate });
+  
+              await saveGoal(goalId, userId, parseFloat(savingsGoal), interval, ahorro_programado, formattedDate);
+  
+              console.log('Meta financiera actualizada correctamente');
+              navigation.navigate('Savings', { savingsGoal, interval, selectedDate: formattedDate });
             } catch (error) {
+              console.error('Error al aplicar la meta financiera:', error);
               Alert.alert('Error', 'Error al aplicar la meta financiera');
             }
           },
@@ -110,7 +121,8 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
       { cancelable: false }
     );
   };
-
+  
+  
   return (
     <KeyboardAwareScrollView contentContainerStyle={styles.container} extraScrollHeight={100}>
       <Image source={require('../assets/MySavingsConfLogo.jpg')} style={styles.image} />
