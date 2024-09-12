@@ -1,19 +1,17 @@
-/* eslint-disable prettier/prettier */
-// MySavingsWithdrawals.tsx
 import React, { useState } from 'react';
 import { Text, StyleSheet, Image, TextInput, Alert } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../components/CustomButton';
+import { updateSavings } from '../api';  // Importa la función de la API
 
 type RootStackParamList = {
   Home: undefined;
   Savings: { amountAdded?: string, savingsGoal?: string, interval?: string, currentSavings?: string };
   Schedule: undefined;
   Login: undefined;
-  SavingsAdd: { savingsGoal: string, interval: string, currentSavings: string };
-  MySavingsWithdrawals: { savingsGoal: string, interval: string, currentSavings: string };
+  MySavingsWithdrawals: { savingsGoal: string, interval: string, currentSavings: string, goalId: number | null };
 };
 
 type MySavingsWithdrawalsProps = {
@@ -23,15 +21,24 @@ type MySavingsWithdrawalsProps = {
 
 const MySavingsWithdrawals: React.FC<MySavingsWithdrawalsProps> = ({ navigation, route }) => {
   const [withdrawalAmount, setWithdrawalAmount] = useState('');
-  const { savingsGoal, interval, currentSavings } = route.params;
+  const { savingsGoal, interval, currentSavings, goalId } = route.params;  // Asegúrate de que goalId esté presente
 
-  const handleButtonPress = () => {
+  const handleButtonPress = async () => {
     if (!withdrawalAmount || isNaN(Number(withdrawalAmount))) {
       Alert.alert('Error', 'Por favor, ingrese una cantidad válida');
       return;
     }
 
-    navigation.navigate('Savings', { amountAdded: (-Number(withdrawalAmount)).toString(), savingsGoal, interval, currentSavings });
+    // Actualizar el ahorro actual en la base de datos
+    try {
+      const newSavings = (parseFloat(currentSavings) - parseFloat(withdrawalAmount)).toString();
+      await updateSavings(goalId, newSavings);  // Llamada a la API con goalId
+
+      navigation.navigate('Savings', { amountAdded: (-Number(withdrawalAmount)).toString(), savingsGoal, interval, currentSavings: newSavings });
+    } catch (error) {
+      console.error('Error al actualizar el ahorro actual:', error);
+      Alert.alert('Error', 'No se pudo actualizar el ahorro');
+    }
   };
 
   const handleSavingsChange = (text: string) => {
@@ -92,7 +99,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     marginTop: 10,
-    marginRight: 135,
     color: 'black',
   },
   image: {

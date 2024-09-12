@@ -14,9 +14,9 @@ type RootStackParamList = {
   Savings: { amountAdded?: string, savingsGoal?: string, interval?: string, currentSavings?: string, selectedDate?: string };
   Schedule: undefined;
   Login: undefined;
-  SavingsAdd: { savingsGoal: string, interval: string, currentSavings: string };
+  SavingsAdd: { savingsGoal: string, interval: string, currentSavings: string, goalId: number | null };
   SavingsConf: undefined;
-  MySavingsWithdrawals: undefined;
+  MySavingsWithdrawals: { savingsGoal: string, interval: string, currentSavings: string, goalId: number | null };
 };
 
 type SavingsScreenProps = {
@@ -39,7 +39,6 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
   // Función para formatear la fecha
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    // Formato dd-mm-yyyy o dd/mm/yyyy
     return date.toLocaleDateString('es-ES', {
       day: '2-digit',
       month: '2-digit',
@@ -47,28 +46,24 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
     });
   };
 
+  // Manejador para el estado del teclado
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
+
+  // Efecto para recargar la meta financiera cuando la pantalla se enfoca
   useFocusEffect(
     React.useCallback(() => {
       setSelectedButton('left');
       fetchGoal();
     }, [setSelectedButton])
   );
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      Platform.OS === 'android' ? 'keyboardDidShow' : 'keyboardWillShow',
-      () => setKeyboardVisible(true)
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      Platform.OS === 'android' ? 'keyboardDidHide' : 'keyboardWillHide',
-      () => setKeyboardVisible(false)
-    );
-
-    return () => {
-      keyboardDidHideListener.remove();
-      keyboardDidShowListener.remove();
-    };
-  }, []);
 
   const fetchGoal = async () => {
     try {
@@ -80,16 +75,14 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         setSelectedDate(goal.fecha_limite);
         setProgrammedSavings(goal.ahorro_programado.toString());
         setCurrentSavings(goal.ahorro_actual.toString());
-        setGoalId(goal.id);
+        setGoalId(goal.id); // Asegúrate de que se esté definiendo correctamente
+        console.log("Goal ID:", goal.id); // Verificación de que el ID es correcto
       }
     } catch (error) {
       console.error(error);
     }
   };
-
-  useEffect(() => {
-    fetchGoal();
-  }, [isFocused]);
+  
 
   // Calcula los días restantes en función de la fecha límite
   const calculateDaysRemaining = () => {
@@ -97,7 +90,6 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
     const endDate = new Date(selectedDate);
     const diffTime = endDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    console.log(`Días restantes calculados: ${diffDays}`);
     return diffDays > 0 ? diffDays : 0;
   };
 
@@ -113,10 +105,10 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
       Alert.alert('Error', 'Primero necesitas configurar una meta financiera de ahorro');
     } else {
       if (button === 'Ingresar') {
-        navigation.navigate('SavingsAdd', { savingsGoal, interval, currentSavings });
+        navigation.navigate('SavingsAdd', { savingsGoal, interval, currentSavings, goalId });
       }
       if (button === 'Retirar') {
-        navigation.navigate('MySavingsWithdrawals', { savingsGoal, interval, currentSavings });
+        navigation.navigate('MySavingsWithdrawals', { savingsGoal, interval, currentSavings, goalId });
       }
     }
   };
@@ -131,11 +123,9 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         <ProgressBar progress={calculateProgress()} color="#80DA80" />
         <Text style={styles.text}>{(calculateProgress() * 100).toFixed(2)}% completado</Text>
       </View>
-      {/* Contenedor para el texto de la pantalla */}
       <View style={styles.textContainer}>
         <Text style={styles.text}>- Ahorro actual: ${currentSavings}</Text>
         <Text style={styles.text}>- Ahorro sugerido: ${programmedSavings}</Text>
-        {/* Usa la función formatDate para formatear la fecha */}
         <Text style={styles.text}>- Fecha límite: {formatDate(selectedDate)}</Text>
         <Text style={styles.text}>- Días restantes: {calculateDaysRemaining()}</Text>
       </View>

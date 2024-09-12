@@ -1,18 +1,17 @@
-/* eslint-disable prettier/prettier */
-// SavingsAdd.tsx
 import React, { useState } from 'react';
 import { Text, StyleSheet, Image, TextInput, Alert } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import CustomButton from '../components/CustomButton';
+import { updateSavings } from '../api';  // Importa la función de la API
 
 type RootStackParamList = {
   Home: undefined;
   Savings: { amountAdded?: string, savingsGoal?: string, interval?: string, currentSavings?: string };
   Schedule: undefined;
   Login: undefined;
-  SavingsAdd: { savingsGoal: string, interval: string, currentSavings: string };
+  SavingsAdd: { savingsGoal: string, interval: string, currentSavings: string, goalId: number | null };
 };
 
 type SavingsAddProps = {
@@ -22,15 +21,25 @@ type SavingsAddProps = {
 
 const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation, route }) => {
   const [savings, setSavings] = useState('');
-  const { savingsGoal, interval, currentSavings } = route.params;
+  const { savingsGoal, interval, currentSavings, goalId } = route.params; // Asegúrate de que goalId esté presente
 
-  const handleButtonPress = () => {
+  const handleButtonPress = async () => {
     if (!savings || isNaN(Number(savings))) {
       Alert.alert('Error', 'Por favor, ingrese una cantidad válida');
       return;
     }
 
-    navigation.navigate('Savings', { amountAdded: savings, savingsGoal, interval, currentSavings });
+    // Actualizar el ahorro actual en la base de datos
+    try {
+      const newSavings = (parseFloat(currentSavings) + parseFloat(savings)).toString();
+      await updateSavings(goalId, newSavings);  // Llamada a la API con goalId
+
+      // Navegar de nuevo a la pantalla de Savings y pasar el nuevo ahorro
+      navigation.navigate('Savings', { amountAdded: savings, savingsGoal, interval, currentSavings: newSavings });
+    } catch (error) {
+      console.error('Error al actualizar el ahorro actual:', error);
+      Alert.alert('Error', 'No se pudo actualizar el ahorro');
+    }
   };
 
   const handleSavingsChange = (text: string) => {
@@ -42,14 +51,8 @@ const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation, route }) => {
   };
 
   return (
-    <KeyboardAwareScrollView
-      contentContainerStyle={styles.container}
-      extraScrollHeight={100}
-    >
-      <Image
-        source={require('../assets/MySavingsAddLogo.jpg')}
-        style={styles.image}
-      />
+    <KeyboardAwareScrollView contentContainerStyle={styles.container} extraScrollHeight={100}>
+      <Image source={require('../assets/MySavingsAddLogo.jpg')} style={styles.image} />
       <Text style={styles.heading2}>Cantidad a Ingresar</Text>
       <TextInput
         style={styles.textInput}
@@ -79,18 +82,11 @@ const styles = StyleSheet.create({
     padding: 30,
     backgroundColor: '#FFFFFF',
   },
-  heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    marginTop: 10,
-  },
   heading2: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
     marginTop: 10,
-    marginRight: 135,
     color: 'black',
   },
   image: {
