@@ -123,20 +123,21 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.goalText}>- Meta de ahorro: ${savingsGoal}</Text>
       <Image source={require('../assets/MySavingsLogo.jpg')} style={styles.image} />
-      <View style={styles.textContainer}>
-        <Text style={styles.goalText}>- Meta de ahorro: ${savingsGoal}</Text>
-        <Text style={styles.text}>- Ahorro actual: ${currentSavings}</Text>
-        <Text style={styles.text}>- Ahorro recomendado: ${programmedSavings}</Text>
-        {/* Usa la función formatDate para formatear la fecha */}
-        <Text style={styles.text}>- Fecha límite: {formatDate(selectedDate)}</Text>
-        <Text style={styles.text}>- Días restantes: {calculateDaysRemaining()}</Text>
-      </View>
 
       {/* Barra de progreso */}
       <View style={styles.progressBarContainer}>
         <ProgressBar progress={calculateProgress()} color="#80DA80" />
         <Text style={styles.text}>{(calculateProgress() * 100).toFixed(2)}% completado</Text>
+      </View>
+      {/* Contenedor para el texto de la pantalla */}
+      <View style={styles.textContainer}>
+        <Text style={styles.text}>- Ahorro actual: ${currentSavings}</Text>
+        <Text style={styles.text}>- Ahorro sugerido: ${programmedSavings}</Text>
+        {/* Usa la función formatDate para formatear la fecha */}
+        <Text style={styles.text}>- Fecha límite: {formatDate(selectedDate)}</Text>
+        <Text style={styles.text}>- Días restantes: {calculateDaysRemaining()}</Text>
       </View>
 
       <CustomButton
@@ -145,7 +146,7 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         backgroundColor="#90CAF9"
         marginBottom={6}
         paddingHorizontal={85}
-        paddingVertical={14}
+        paddingVertical={12}
       />
       <CustomButton
         title="Ingresar"
@@ -160,9 +161,9 @@ const SavingsScreen: React.FC<SavingsScreenProps> = ({ navigation, route }) => {
         title="Retirar"
         onPress={() => handleButtonPress('Retirar')}
         backgroundColor="#FF5564"
-        marginBottom={120}
+        marginBottom={80}
         paddingHorizontal={85}
-        paddingVertical={14}
+        paddingVertical={12}
         disabled={!savingsGoal || isNaN(Number(savingsGoal))}
       />
       {!isKeyboardVisible && <FooterMenu navigation={navigation} onButtonPress={handleButtonPress} />}
@@ -180,32 +181,33 @@ const styles = StyleSheet.create({
   },
   textContainer: {
     alignSelf: 'stretch',
-    marginLeft: 20,
+    marginLeft: 5,
   },
   goalText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 30,
+    marginTop: -50,
     color: 'black',
     textAlign: 'left',
   },
   text: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
     color: 'black',
     textAlign: 'left',
   },
   image: {
-    width: 200,
-    height: 200,
+    width: 180,
+    height: 180,
     resizeMode: 'contain',
-    marginBottom: 5,
-    marginTop: -50,
+    marginBottom: -20,
+    marginTop: -40,
   },
   progressBarContainer: {
     width: '80%',
-    marginVertical: 10,
+    marginVertical: 25,
   },
 });
 

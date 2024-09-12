@@ -122,11 +122,10 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
     );
   };
   
-  
   return (
     <KeyboardAwareScrollView contentContainerStyle={styles.container} extraScrollHeight={100}>
       <Image source={require('../assets/MySavingsConfLogo.jpg')} style={styles.image} />
-      <Text style={styles.heading2}>Meta de Ahorro</Text>
+      <Text style={styles.heading1}>Meta de Ahorro</Text>
       <TextInput
         style={styles.textInput}
         placeholder="cantidad $"
@@ -140,7 +139,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
         onDayPress={(day) => setSelectedDate(day.dateString)}
         markedDates={{ [selectedDate]: { selected: true, marked: true } }}
       />
-      <Text style={styles.heading2}>Ahorro Programado {interval === 'Diario' ? '(por día)' : '(por semana)'}</Text>
+      <Text style={styles.heading2}>Ahorro sugerido {interval === 'Diario' ? '(por día)' : '(por semana)'}</Text>
       <TextInput
         style={styles.textInput}
         placeholder="cantidad $"
@@ -153,7 +152,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
         title="Aplicar"
         onPress={handleApply}
         backgroundColor="#80DA80"
-        marginBottom={200}
+        marginBottom={40} //Esta propiedad altera es espacio que hay en separación de pantalla abajo y boton
         paddingHorizontal={85}
         paddingVertical={16}
       />
@@ -166,20 +165,28 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 30,
+    padding: 20,
     backgroundColor: '#FFFFFF',
   },
-  heading2: {
-    fontSize: 24,
+    heading1: {
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
     marginTop: 10,
-    color: 'black',
-    alignSelf: 'flex-start',
+    color: '#0056AD',
+    textAlign: 'center',
+  },
+  heading2: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    marginTop: 40,
+    color: '#0056AD',
+    textAlign: 'center',
   },
   image: {
-    width: 200,
-    height: 200,
+    width: 150,
+    height: 150,
     resizeMode: 'contain',
     marginBottom: 10,
   },
@@ -194,7 +201,7 @@ const styles = StyleSheet.create({
     width: '80%',
     marginBottom: 10,
     textAlign: 'center',
-    fontSize: 25,
+    fontSize: 18,
   },
 });
 
