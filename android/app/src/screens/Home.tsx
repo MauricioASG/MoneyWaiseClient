@@ -1,8 +1,6 @@
 /* eslint-disable prettier/prettier */
 // HomeScreen.tsx
-/* eslint-disable prettier/prettier */
-// HomeScreen.tsx
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import PieChart from 'react-native-pie-chart';
@@ -21,50 +19,50 @@ const HomeScreen: React.FC = ({ navigation }) => {
   const [showMonthPicker, setShowMonthPicker] = useState(false);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
       setSelectedButton('center');
     }, [setSelectedButton])
   );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        console.log(`Obteniendo datos para el gráfico de ${currentMonth}-${currentYear}`);
-        
-        const transactions = await getTransactionsByMonth(userId, currentYear, currentMonth);
-        console.log("Transacciones obtenidas:", transactions);
+  const fetchData = async (month, year) => {
+    try {
+      console.log(`Obteniendo datos para el gráfico de ${month}-${year}`);
 
-        if (transactions.length === 0) {
-          console.log("No hay transacciones para este mes.");
-          setChartData([]);
-          return;
-        }
+      const transactions = await getTransactionsByMonth(userId, year, month);
+      console.log("Transacciones obtenidas:", transactions);
 
-        const categories = {};
-        transactions.forEach((transaction) => {
-          if (!categories[transaction.categoria_id]) {
-            categories[transaction.categoria_id] = 0;
-          }
-          categories[transaction.categoria_id] += parseFloat(transaction.monto);
-        });
-
-        console.log("Datos de categorías procesados:", categories);
-
-        const data = Object.keys(categories).map((categoria_id) => ({
-          value: categories[categoria_id],
-          color: getColorForCategory(categoria_id),
-          label: getLabelForCategory(categoria_id),
-        }));
-
-        console.log("Datos para el gráfico:", data);
-        setChartData(data);
-      } catch (error) {
-        console.error('Error al cargar los datos para el gráfico:', error);
+      if (transactions.length === 0) {
+        console.log("No hay transacciones para este mes.");
+        setChartData([]);
+        return;
       }
-    };
 
-    fetchData();
-  }, [userId, currentMonth, currentYear]);
+      const categories = {};
+      transactions.forEach((transaction) => {
+        if (!categories[transaction.categoria_id]) {
+          categories[transaction.categoria_id] = 0;
+        }
+        categories[transaction.categoria_id] += parseFloat(transaction.monto);
+      });
+
+      console.log("Datos de categorías procesados:", categories);
+
+      const data = Object.keys(categories).map((categoria_id) => ({
+        value: categories[categoria_id],
+        color: getColorForCategory(categoria_id),
+        label: getLabelForCategory(categoria_id),
+      }));
+
+      console.log("Datos para el gráfico:", data);
+      setChartData(data);
+    } catch (error) {
+      console.error('Error al cargar los datos para el gráfico:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData(currentMonth, currentYear);
+  }, [currentMonth, currentYear]);
 
   const getColorForCategory = (categoria_id) => {
     const colors = {
@@ -116,12 +114,23 @@ const HomeScreen: React.FC = ({ navigation }) => {
     setShowMonthPicker(true);
   };
 
-  const onValueChange = (event, newDate) => {
-    setShowMonthPicker(false);
-    if (newDate) {
-      const selectedDate = newDate;
-      setCurrentMonth(selectedDate.getMonth() + 1); // Enero es 0
-      setCurrentYear(selectedDate.getFullYear());
+  const onValueChange = (event, selectedDate) => {
+    if (event === 'dateSetAction') {
+      setShowMonthPicker(false);
+      if (selectedDate) {
+        const newDate = new Date(selectedDate);
+        const newMonth = newDate.getMonth() + 1;
+        const newYear = newDate.getFullYear();
+
+        setCurrentMonth(newMonth);
+        setCurrentYear(newYear);
+
+        // Llamamos a fetchData inmediatamente después de actualizar el estado
+        fetchData(newMonth, newYear);
+      }
+    } else {
+      // Si se cancela la selección
+      setShowMonthPicker(false);
     }
   };
 
@@ -138,7 +147,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
     <View style={styles.container}>
       <TouchableOpacity onPress={showPicker}>
         <Text style={styles.heading}>
-          Gráfica de gastos {getMonthName(currentMonth)} {currentYear}
+          Gastos de {getMonthName(currentMonth)} {currentYear}
         </Text>
       </TouchableOpacity>
       {showMonthPicker && (
@@ -213,4 +222,3 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
-
