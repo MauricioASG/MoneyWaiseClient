@@ -1,5 +1,5 @@
 /* eslint-disable prettier/prettier */
-// ScheduleScreen.tsx
+// ExpenseSchedule.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, Button, TouchableOpacity } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
