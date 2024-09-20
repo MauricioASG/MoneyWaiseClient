@@ -1,14 +1,35 @@
 /* eslint-disable prettier/prettier */
 // HomeScreen.tsx
 import React, { useState, useContext, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import FooterMenu from '../components/FooterMenu';
 import PieChart from 'react-native-pie-chart';
 import { getTransactionsByMonth } from '../api';
 import { UserContext } from '../contexts/UserContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { useButton } from '../contexts/FooterMenuContext';
-import MonthPicker from 'react-native-month-year-picker';
+
+const months = [
+  { label: 'Ene', value: 1 },
+  { label: 'Feb', value: 2 },
+  { label: 'Mar', value: 3 },
+  { label: 'Abr', value: 4 },
+  { label: 'May', value: 5 },
+  { label: 'Jun', value: 6 },
+  { label: 'Jul', value: 7 },
+  { label: 'Ago', value: 8 },
+  { label: 'Sep', value: 9 },
+  { label: 'Oct', value: 10 },
+  { label: 'Nov', value: 11 },
+  { label: 'Dic', value: 12 },
+];
+
+const years = [];
+const currentYearValue = new Date().getFullYear();
+for (let i = currentYearValue - 5; i <= currentYearValue + 5; i++) {
+  years.push(i);
+}
 
 const HomeScreen: React.FC = ({ navigation }) => {
   const { setSelectedButton } = useButton();
@@ -16,7 +37,9 @@ const HomeScreen: React.FC = ({ navigation }) => {
   const [chartData, setChartData] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1); // Enero es 0
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [showMonthPicker, setShowMonthPicker] = useState(false);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedYear, setSelectedYear] = useState(currentYear);
 
   useFocusEffect(
     useCallback(() => {
@@ -29,10 +52,10 @@ const HomeScreen: React.FC = ({ navigation }) => {
       console.log(`Obteniendo datos para el gráfico de ${month}-${year}`);
 
       const transactions = await getTransactionsByMonth(userId, year, month);
-      console.log("Transacciones obtenidas:", transactions);
+      console.log('Transacciones obtenidas:', transactions);
 
       if (transactions.length === 0) {
-        console.log("No hay transacciones para este mes.");
+        console.log('No hay transacciones para este mes.');
         setChartData([]);
         return;
       }
@@ -45,7 +68,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
         categories[transaction.categoria_id] += parseFloat(transaction.monto);
       });
 
-      console.log("Datos de categorías procesados:", categories);
+      console.log('Datos de categorías procesados:', categories);
 
       const data = Object.keys(categories).map((categoria_id) => ({
         value: categories[categoria_id],
@@ -53,7 +76,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
         label: getLabelForCategory(categoria_id),
       }));
 
-      console.log("Datos para el gráfico:", data);
+      console.log('Datos para el gráfico:', data);
       setChartData(data);
     } catch (error) {
       console.error('Error al cargar los datos para el gráfico:', error);
@@ -110,74 +133,125 @@ const HomeScreen: React.FC = ({ navigation }) => {
 
   const dataWithPercentages = calculatePercentages();
 
-  const showPicker = () => {
-    setShowMonthPicker(true);
+  const openModal = () => {
+    setSelectedMonth(currentMonth);
+    setSelectedYear(currentYear);
+    setModalVisible(true);
   };
 
-  const onValueChange = (event, selectedDate) => {
-    if (event === 'dateSetAction') {
-      setShowMonthPicker(false);
-      if (selectedDate) {
-        const newDate = new Date(selectedDate);
-        const newMonth = newDate.getMonth() + 1;
-        const newYear = newDate.getFullYear();
-
-        setCurrentMonth(newMonth);
-        setCurrentYear(newYear);
-
-        // Llamamos a fetchData inmediatamente después de actualizar el estado
-        fetchData(newMonth, newYear);
-      }
-    } else {
-      // Si se cancela la selección
-      setShowMonthPicker(false);
-    }
+  const confirmSelection = () => {
+    setCurrentMonth(selectedMonth);
+    setCurrentYear(selectedYear);
+    setModalVisible(false);
+    fetchData(selectedMonth, selectedYear);
   };
 
-  // Función para obtener el nombre del mes
   const getMonthName = (monthNumber) => {
-    const months = [
-      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+    const monthNames = [
+      'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic',
     ];
-    return months[monthNumber - 1];
+    return monthNames[monthNumber - 1];
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={showPicker}>
+      <TouchableOpacity onPress={openModal}>
         <Text style={styles.heading}>
-          Gastos de {getMonthName(currentMonth)} {currentYear}
+          Gráfica de gastos {getMonthName(currentMonth)} {currentYear}
         </Text>
       </TouchableOpacity>
-      {showMonthPicker && (
-        <MonthPicker
-          onChange={onValueChange}
-          value={new Date(currentYear, currentMonth - 1)}
-          minimumDate={new Date(2000, 0)}
-          maximumDate={new Date(2100, 11)}
-          locale="es"
-          cancelButton="Cancelar"
-          okButton="Aceptar"
-        />
-      )}
+
+      <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>Seleccione Mes y Año</Text>
+            <View style={styles.pickerContainer}>
+              <View style={styles.pickerWrapperMonth}>
+                <Text style={styles.pickerLabel}>Mes</Text>
+                <View style={styles.pickerInner}>
+                  <Picker
+                    key={`picker-month-${selectedMonth}`}
+                    selectedValue={selectedMonth}
+                    style={styles.picker}
+                    onValueChange={(itemValue) => setSelectedMonth(itemValue)}
+                    dropdownIconColor="#2C5FC2"
+                  >
+                    {months.map((month) => (
+                      <Picker.Item
+                        key={`${month.value}-${month.label}`}
+                        label={month.label}
+                        value={month.value}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+              </View>
+              <View style={styles.pickerWrapperYear}>
+                <Text style={styles.pickerLabel}>Año</Text>
+                <View style={styles.pickerInner}>
+                  <Picker
+                    key={`picker-year-${selectedYear}`}
+                    selectedValue={selectedYear}
+                    style={styles.picker}
+                    onValueChange={(itemValue) => setSelectedYear(itemValue)}
+                    dropdownIconColor="#2C5FC2"
+                  >
+                    {years.map((year) => (
+                      <Picker.Item
+                        key={`year-${year}`}
+                        label={year.toString()}
+                        value={year}
+                      />
+                    ))}
+                  </Picker>
+                </View>
+              </View>
+            </View>
+            <View style={styles.modalButtons}>
+              <TouchableOpacity
+                onPress={() => setModalVisible(false)}
+                style={styles.modalButton}
+              >
+                <Text style={styles.modalButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={confirmSelection}
+                style={styles.modalButton}
+              >
+                <Text style={styles.modalButtonText}>Aceptar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {chartData.length > 0 ? (
         <PieChart
           widthAndHeight={200}
-          series={chartData.map(item => item.value)}
-          sliceColor={chartData.map(item => item.color)}
+          series={chartData.map((item) => item.value)}
+          sliceColor={chartData.map((item) => item.color)}
           doughnut={false}
           coverRadius={0.45}
           coverFill={'#FFF'}
         />
       ) : (
-        <Text>No hay datos para este mes</Text>
+        <Text style={styles.noDataText}>No hay datos para este mes</Text>
       )}
       <View style={styles.legendContainer}>
         {dataWithPercentages.map((item, index) => (
           <View key={index} style={styles.legendItem}>
-            <View style={[styles.legendColor, { backgroundColor: item.color }]} />
-            <Text style={styles.legendText}>{item.label}: {item.percentage}%</Text>
+            <View
+              style={[styles.legendColor, { backgroundColor: item.color }]}
+            />
+            <Text style={styles.legendText}>
+              {item.label}: {item.percentage}%
+            </Text>
           </View>
         ))}
       </View>
@@ -187,20 +261,100 @@ const HomeScreen: React.FC = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
+  // Estilos de la pantalla principal
   container: {
     flex: 1,
     justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 20,
     paddingTop: 10,
+    backgroundColor: '#FFFFFF',
   },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    color: '#000000',
+    color: '#0056AD',
     textAlign: 'center',
   },
+  noDataText: {
+    fontSize: 18,
+    color: '#999',
+    marginTop: 20,
+    textAlign: 'center',
+  },
+  // Estilos del modal y pickers
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fondo semi-transparente
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '85%', // Ajusta el ancho según tus necesidades
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#0056AD',
+  },
+  pickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  pickerWrapperMonth: {
+    flex: 1, // Asigna más espacio al picker del mes
+    marginHorizontal: 10,
+  },
+  pickerWrapperYear: {
+    flex: 1, // Mantiene el tamaño original para el picker del año
+    marginHorizontal: 5,
+  },
+  pickerLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#2C5FC2',
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  pickerInner: {
+    backgroundColor: '#E3F2FD',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#2C5FC2',
+    overflow: 'hidden',
+  },
+  picker: {
+    width: '100%',
+    color: '#2C5FC2',
+    ...Platform.select({
+      android: {
+        backgroundColor: 'transparent',
+      },
+    }),
+  },
+  modalButtons: {
+    marginTop: 30,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  modalButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: '#2C5FC2',
+    borderRadius: 8,
+  },
+  modalButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  // Estilos de la leyenda y gráfica
   legendContainer: {
     marginTop: 20,
     alignItems: 'center',

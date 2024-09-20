@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 // AllTransactionsScreen.tsx
-/* eslint-disable prettier/prettier */
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
@@ -58,6 +57,11 @@ const AllTransactionsScreen = ({ route }) => {
       Alert.alert('Transacción eliminada', 'La transacción ha sido eliminada exitosamente.');
       const updatedTransactions = transactions.filter(transaction => transaction.id !== id);
       setTransactions(updatedTransactions);
+
+      // Verificar si ya no hay transacciones y regresar a la pantalla anterior
+      if (updatedTransactions.length === 0) {
+        navigation.goBack();
+      }
     } catch (error) {
       Alert.alert('Error', 'Hubo un problema al eliminar la transacción.');
       console.error('Error deleting transaction:', error);
@@ -89,32 +93,36 @@ const AllTransactionsScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={transactions}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.transactionItem}>
-            <Text style={styles.transactionText}>Categoría: {getCategoryLabel(item.categoria_id)}</Text>
-            <Text style={styles.transactionText}>Subcategoría: {item.tipo}</Text>
-            <Text style={styles.transactionText}>Monto: ${item.monto}</Text>
-            <Text style={styles.transactionText}>Fecha: {new Date(item.fecha).toLocaleDateString()}</Text>
-            <View style={styles.buttonsContainer}>
-              <TouchableOpacity
-                style={styles.editButton}
-                onPress={() => handleEdit(item)}
-              >
-                <Text style={styles.buttonText}>Editar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => confirmDelete(item.id)}
-              >
-                <Text style={styles.buttonText}>Eliminar</Text>
-              </TouchableOpacity>
+      {transactions.length > 0 ? (
+        <FlatList
+          data={transactions}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.transactionItem}>
+              <Text style={styles.transactionText}>Categoría: {getCategoryLabel(item.categoria_id)}</Text>
+              <Text style={styles.transactionText}>Subcategoría: {item.tipo}</Text>
+              <Text style={styles.transactionText}>Monto: ${item.monto}</Text>
+              <Text style={styles.transactionText}>Fecha: {new Date(item.fecha).toLocaleDateString()}</Text>
+              <View style={styles.buttonsContainer}>
+                <TouchableOpacity
+                  style={styles.editButton}
+                  onPress={() => handleEdit(item)}
+                >
+                  <Text style={styles.buttonText}>Editar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteButton}
+                  onPress={() => confirmDelete(item.id)}
+                >
+                  <Text style={styles.buttonText}>Eliminar</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        )}
-      />
+          )}
+        />
+      ) : (
+        <Text style={styles.noTransactionsText}>No hay transacciones disponibles.</Text>
+      )}
     </View>
   );
 };
@@ -159,6 +167,12 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#333',
     marginBottom: 1,
+  },
+  noTransactionsText: {
+    fontSize: 20,
+    color: '#333',
+    textAlign: 'center',
+    marginTop: 50,
   },
 });
 
