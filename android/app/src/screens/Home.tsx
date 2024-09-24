@@ -253,7 +253,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
                   style={[styles.legendColor, { backgroundColor: item.color }]}
                 />
                 <Text style={styles.legendText}>
-                  {item.label}: {item.percentage}%
+                  {item.label}: {item.percentage}% (${item.value.toFixed(2)})
                 </Text>
               </View>
             ))}
@@ -386,7 +386,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   legendText: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#000000',
   },
 });
