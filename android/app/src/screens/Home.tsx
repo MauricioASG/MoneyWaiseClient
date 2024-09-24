@@ -373,7 +373,7 @@ const styles = StyleSheet.create({
     borderColor: '#2C5FC2',
   },
   legendContainer: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
   },
   legendItem: {
     flexDirection: 'row',
