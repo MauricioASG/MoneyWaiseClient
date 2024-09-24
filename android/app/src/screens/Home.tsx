@@ -1,7 +1,8 @@
 /* eslint-disable prettier/prettier */
 // HomeScreen.tsx
+
 import React, { useState, useContext, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform, ScrollView } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import FooterMenu from '../components/FooterMenu';
 import PieChart from 'react-native-pie-chart';
@@ -44,7 +45,8 @@ const HomeScreen: React.FC = ({ navigation }) => {
   useFocusEffect(
     useCallback(() => {
       setSelectedButton('center');
-    }, [setSelectedButton])
+      fetchData(currentMonth, currentYear); // Actualizar los datos al enfocar la pantalla
+    }, [setSelectedButton, currentMonth, currentYear])
   );
 
   const fetchData = async (month, year) => {
@@ -158,7 +160,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
     <View style={styles.container}>
       <TouchableOpacity onPress={openModal}>
         <Text style={styles.heading}>
-          Gráfica de gastos {getMonthName(currentMonth)} {currentYear}
+          Gastos {getMonthName(currentMonth)} {currentYear}
         </Text>
       </TouchableOpacity>
 
@@ -232,29 +234,34 @@ const HomeScreen: React.FC = ({ navigation }) => {
       </Modal>
 
       {chartData.length > 0 ? (
-        <PieChart
-          widthAndHeight={200}
-          series={chartData.map((item) => item.value)}
-          sliceColor={chartData.map((item) => item.color)}
-          doughnut={false}
-          coverRadius={0.45}
-          coverFill={'#FFF'}
-        />
+        <>
+          <PieChart
+            widthAndHeight={200}
+            series={chartData.map((item) => item.value)}
+            sliceColor={chartData.map((item) => item.color)}
+            doughnut={false}
+            coverRadius={0.45}
+            coverFill={'#FFF'}
+          />
+          <ScrollView
+            style={styles.legendScrollContainer}
+            contentContainerStyle={styles.legendContainer}
+          >
+            {dataWithPercentages.map((item, index) => (
+              <View key={index} style={styles.legendItem}>
+                <View
+                  style={[styles.legendColor, { backgroundColor: item.color }]}
+                />
+                <Text style={styles.legendText}>
+                  {item.label}: {item.percentage}%
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+        </>
       ) : (
         <Text style={styles.noDataText}>No hay datos para este mes</Text>
       )}
-      <View style={styles.legendContainer}>
-        {dataWithPercentages.map((item, index) => (
-          <View key={index} style={styles.legendItem}>
-            <View
-              style={[styles.legendColor, { backgroundColor: item.color }]}
-            />
-            <Text style={styles.legendText}>
-              {item.label}: {item.percentage}%
-            </Text>
-          </View>
-        ))}
-      </View>
       <FooterMenu navigation={navigation} />
     </View>
   );
@@ -308,11 +315,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   pickerWrapperMonth: {
-    flex: 1, // Asigna más espacio al picker del mes
+    flex: 1,
     marginHorizontal: 10,
   },
   pickerWrapperYear: {
-    flex: 1, // Mantiene el tamaño original para el picker del año
+    flex: 1,
     marginHorizontal: 5,
   },
   pickerLabel: {
@@ -355,8 +362,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   // Estilos de la leyenda y gráfica
+  legendScrollContainer: {
+    maxHeight: 250, // Puedes ajustar la altura según tus necesidades
+    width: '100%',
+    marginTop: 60,
+    backgroundColor: '#F0F8FF', // Fondo para distinguir del fondo general
+    borderRadius: 10,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#2C5FC2',
+  },
   legendContainer: {
-    marginTop: 20,
     alignItems: 'center',
   },
   legendItem: {
