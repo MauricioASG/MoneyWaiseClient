@@ -163,3 +163,14 @@ export const getTransactionsByMonth = async (usuario_id, year, month) => {
     throw error;
   }
 };
+
+// Agrega esta función
+export const getTransactionsByCategory = async (usuario_id, categoria_id, year, month) => {
+  try {
+    const response = await axios.get(`${API_URL}/transacciones/${usuario_id}/categoria/${categoria_id}/mes/${year}/${month}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener las transacciones por categoría:', error);
+    throw error;
+  }
+};

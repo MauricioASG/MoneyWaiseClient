@@ -2,7 +2,15 @@
 // HomeScreen.tsx
 
 import React, { useState, useContext, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, Platform, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Platform,
+  ScrollView,
+} from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import FooterMenu from '../components/FooterMenu';
 import PieChart from 'react-native-pie-chart';
@@ -73,6 +81,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
       console.log('Datos de categorías procesados:', categories);
 
       const data = Object.keys(categories).map((categoria_id) => ({
+        categoria_id: parseInt(categoria_id), // Aseguramos que sea un número
         value: categories[categoria_id],
         color: getColorForCategory(categoria_id),
         label: getLabelForCategory(categoria_id),
@@ -130,6 +139,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
     return chartData.map((item) => ({
       ...item,
       percentage: ((item.value / total) * 100).toFixed(2),
+      categoria_id: item.categoria_id, // Aseguramos que categoria_id esté incluido
     }));
   };
 
@@ -150,17 +160,37 @@ const HomeScreen: React.FC = ({ navigation }) => {
 
   const getMonthName = (monthNumber) => {
     const monthNames = [
-      'Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
-      'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic',
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
     ];
     return monthNames[monthNumber - 1];
+  };
+
+  // Función para manejar la navegación al seleccionar un elemento de la leyenda
+  const handleLegendItemPress = (categoria_id, label) => {
+    navigation.navigate('GraphDetails', {
+      categoria_id,
+      label,
+      month: currentMonth,
+      year: currentYear,
+    });
   };
 
   return (
     <View style={styles.container}>
       <TouchableOpacity onPress={openModal}>
         <Text style={styles.heading}>
-          Gastos {getMonthName(currentMonth)} {currentYear}
+          {getMonthName(currentMonth)} {currentYear}
         </Text>
       </TouchableOpacity>
 
@@ -248,14 +278,18 @@ const HomeScreen: React.FC = ({ navigation }) => {
             contentContainerStyle={styles.legendContainer}
           >
             {dataWithPercentages.map((item, index) => (
-              <View key={index} style={styles.legendItem}>
+              <TouchableOpacity
+                key={index}
+                style={styles.legendItem}
+                onPress={() => handleLegendItemPress(item.categoria_id, item.label)}
+              >
                 <View
                   style={[styles.legendColor, { backgroundColor: item.color }]}
                 />
                 <Text style={styles.legendText}>
                   {item.label}: {item.percentage}% (${item.value.toFixed(2)})
                 </Text>
-              </View>
+              </TouchableOpacity>
             ))}
           </ScrollView>
         </>
