@@ -24,10 +24,14 @@ const GraphDetails = ({ route, navigation }) => {
     }
   };
 
+  // Nueva función formatDate
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
+    // Extraer solo la parte de la fecha
+    const datePart = dateString.split('T')[0]; // Obtiene 'YYYY-MM-DD'
+    const [year, month, day] = datePart.split('-');
+    return `${day}/${month}/${year}`; // Formato 'DD/MM/YYYY'
   };
+
 
   return (
     <View style={styles.container}>

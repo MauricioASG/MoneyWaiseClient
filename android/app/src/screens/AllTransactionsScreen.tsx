@@ -73,6 +73,15 @@ const AllTransactionsScreen = ({ route }) => {
     navigation.navigate('EditTransaction', { transaction });
   };
 
+  const formatDate = (dateString) => {
+    // Extraer solo la parte de la fecha si hay información adicional
+    const datePart = dateString.split('T')[0]; // Esto toma solo 'YYYY-MM-DD'
+    const [year, month, day] = datePart.split('-');
+    const date = new Date(year, month - 1, day);
+    return date.toLocaleDateString();
+  };
+  
+
   const getCategoryLabel = (categoria_id) => {
     const categories = {
       1: 'Vivienda',
@@ -102,7 +111,7 @@ const AllTransactionsScreen = ({ route }) => {
               <Text style={styles.transactionText}>Categoría: {getCategoryLabel(item.categoria_id)}</Text>
               <Text style={styles.transactionText}>Subcategoría: {item.tipo}</Text>
               <Text style={styles.transactionText}>Monto: ${item.monto}</Text>
-              <Text style={styles.transactionText}>Fecha: {new Date(item.fecha).toLocaleDateString()}</Text>
+              <Text style={styles.transactionText}>Fecha: {formatDate(item.fecha)}</Text>
               <View style={styles.buttonsContainer}>
                 <TouchableOpacity
                   style={styles.editButton}
