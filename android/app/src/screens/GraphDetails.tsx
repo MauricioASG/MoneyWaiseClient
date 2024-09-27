@@ -2,7 +2,7 @@
 // GraphDetails.tsx
 
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
 import { getTransactionsByCategory, getTransactionsByDate } from '../api';
 import { UserContext } from '../contexts/UserContext';
 import { useNavigation } from '@react-navigation/native';
@@ -59,40 +59,47 @@ const GraphDetails = ({ route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Detalles de {label}</Text>
-      <FlatList
-        data={transactions}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.transactionItem}>
-            <Text style={styles.transactionText}>Tipo: {item.tipo}</Text>
-            <Text style={styles.transactionText}>Monto: ${item.monto}</Text>
-            <Text style={styles.transactionText}>Fecha: {formatDate(item.fecha)}</Text>
-            <TouchableOpacity
-              style={styles.viewButton}
-              onPress={() => handleTransactionPress(item)}
-            >
-              <Text style={styles.viewButtonText}>Ver</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-    </View>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.container}>
+        <Text style={styles.title}> {label}</Text>
+        <FlatList
+          data={transactions}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.transactionItem}>
+              <Text style={styles.transactionText}>Tipo: {item.tipo}</Text>
+              <Text style={styles.transactionText}>Monto: ${item.monto}</Text>
+              <Text style={styles.transactionText}>Fecha: {formatDate(item.fecha)}</Text>
+              <TouchableOpacity
+                style={styles.viewButton}
+                onPress={() => handleTransactionPress(item)}
+              >
+                <Text style={styles.viewButtonText}>Ver</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          contentContainerStyle={styles.listContent}
+        />
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 20,
+    paddingBottom: 20,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
     color: '#0056AD',
-    marginBottom: 20,
+    marginVertical: 20,
     textAlign: 'center',
   },
   transactionItem: {
@@ -118,6 +125,9 @@ const styles = StyleSheet.create({
   viewButtonText: {
     color: '#fff',
     fontSize: 16,
+  },
+  listContent: {
+    paddingBottom: 20,
   },
 });
 

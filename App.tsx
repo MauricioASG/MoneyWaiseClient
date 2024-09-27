@@ -42,7 +42,7 @@ const App = () => {
             <Stack.Screen
               name="GraphDetails"
               component={GraphDetails}
-              options={{ title: 'Detalles de la Categoría' }}
+              options={{ title: 'Detalles de gastos' }}
             />
           </Stack.Navigator>
         </ButtonProvider>
