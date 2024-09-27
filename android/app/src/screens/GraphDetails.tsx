@@ -2,14 +2,16 @@
 // GraphDetails.tsx
 
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { getTransactionsByCategory } from '../api'; // Necesitaremos crear esta función en nuestra API
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { getTransactionsByCategory, getTransactionsByDate } from '../api';
 import { UserContext } from '../contexts/UserContext';
+import { useNavigation } from '@react-navigation/native';
 
-const GraphDetails = ({ route, navigation }) => {
+const GraphDetails = ({ route }) => {
   const { categoria_id, label, month, year } = route.params;
   const { userId } = useContext(UserContext);
   const [transactions, setTransactions] = useState([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     fetchTransactions();
@@ -24,14 +26,37 @@ const GraphDetails = ({ route, navigation }) => {
     }
   };
 
-  // Nueva función formatDate
   const formatDate = (dateString) => {
-    // Extraer solo la parte de la fecha
     const datePart = dateString.split('T')[0]; // Obtiene 'YYYY-MM-DD'
     const [year, month, day] = datePart.split('-');
     return `${day}/${month}/${year}`; // Formato 'DD/MM/YYYY'
   };
 
+  const handleTransactionPress = (transaction) => {
+    Alert.alert(
+      'Confirmación',
+      '¿Deseas ver el gasto seleccionado?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Sí',
+          onPress: async () => {
+            try {
+              const datePart = transaction.fecha.split('T')[0]; // Obtener la fecha del gasto seleccionado
+              const transactionsByDate = await getTransactionsByDate(userId, datePart);
+              navigation.navigate('AllTransactions', { transactions: transactionsByDate });
+            } catch (error) {
+              console.error('Error al obtener transacciones por fecha:', error);
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -44,6 +69,12 @@ const GraphDetails = ({ route, navigation }) => {
             <Text style={styles.transactionText}>Tipo: {item.tipo}</Text>
             <Text style={styles.transactionText}>Monto: ${item.monto}</Text>
             <Text style={styles.transactionText}>Fecha: {formatDate(item.fecha)}</Text>
+            <TouchableOpacity
+              style={styles.viewButton}
+              onPress={() => handleTransactionPress(item)}
+            >
+              <Text style={styles.viewButtonText}>Ver</Text>
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -69,10 +100,24 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
+    position: 'relative',
   },
   transactionText: {
     fontSize: 16,
     color: '#333',
+  },
+  viewButton: {
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    backgroundColor: '#2C5FC2',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 5,
+  },
+  viewButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 
