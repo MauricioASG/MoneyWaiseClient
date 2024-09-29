@@ -14,7 +14,7 @@ import {
 import { login } from '../api';
 import { UserContext } from '../contexts/UserContext';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { RootStackParamList } from './RootStackParamList'; // Asegúrate de importar RootStackParamList
+import { RootStackParamList } from './RootStackParamList';
 
 type LogInProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
@@ -44,31 +44,32 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
     <SafeAreaView style={styles.screen}>
       <View style={styles.container}>
         <Image
-          source={require('../assets/MoneyWiseLogo.jpg')}
+          source={require('../assets/MoneyWiseLogo2.jpg')}
           style={styles.image}
         />
-        <Text style={styles.Text}>Inicio de sesión</Text>
+        <Text style={styles.titleText}>Inicio de sesión</Text>
+        <Text style={styles.subTitleText}>Inicia sesión para continuar</Text>
         <TextInput
           style={styles.textInput}
           placeholder="Correo electrónico"
-          placeholderTextColor={'#000000'}
+          placeholderTextColor={'#aaa'}
           onChangeText={u => setEmail(u)}
         />
         <TextInput
           style={styles.textInput}
           placeholder="Contraseña"
           secureTextEntry={true}
-          placeholderTextColor={'#000000'}
+          placeholderTextColor={'#aaa'}
           onChangeText={p => setPassword(p)}
         />
-        <TouchableOpacity style={styles.button} onPress={btnIngresaronPress}>
-          <Text style={styles.buttonText}>Iniciar sesión</Text>
+        <TouchableOpacity style={styles.buttonPrimary} onPress={btnIngresaronPress}>
+          <Text style={styles.buttonTextPrimary}>Iniciar sesión</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => navigation.navigate('CreateAccount')} // Corregido aquí
+          style={styles.buttonSecondary}
+          onPress={() => navigation.navigate('CreateAccount')}
         >
-          <Text style={styles.buttonText}>Crear cuenta</Text>
+          <Text style={styles.buttonTextSecondary}>Crear cuenta</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -78,50 +79,74 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
 const styles = StyleSheet.create({
   screen: {
     height: '100%',
-    backgroundColor: '#0073AB',
+    backgroundColor: '#F5F5F5', // Fondo suave
     justifyContent: 'center',
     alignItems: 'center',
   },
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#64B5F6',
-    width: '100%',
-    padding: 16,
+    backgroundColor: '#FFFFFF',
+    width: '90%',
+    padding: 10,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5, // Sombra para efecto de profundidad
   },
   textInput: {
-    color: 'black',
+    color: '#333',
     borderBottomWidth: 1,
+    borderBottomColor: '#0073AB',
     borderRadius: 8,
-    backgroundColor: 'white',
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    width: '70%',
-    margin: 8,
+    backgroundColor: '#FFF',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    width: '85%',
+    margin: 10,
+    fontSize: 16,
   },
-  Text: {
-    color: 'black',
-    fontSize: 20,
+  titleText: {
+    color: '#333',
+    fontSize: 24,
+    fontWeight: '700',
     marginBottom: 10,
-    fontWeight: '500',
+    marginTop: -110 , 
+  },
+  subTitleText: {
+    color: '#666',
+    fontSize: 16,
+    marginBottom: 20,
   },
   image: {
     width: 200,
-    height: 200,
-    resizeMode: 'contain',
-    marginBottom: 20,
+    height: 400,
+    resizeMode: 'cover',
   },
-  button: {
-    backgroundColor: '#E3F2FD',
+  buttonPrimary: {
+    backgroundColor: '#0073AB',
     paddingVertical: 12,
-    paddingHorizontal: 50,
+    paddingHorizontal: 60,
     borderRadius: 8,
-    marginTop: 16,
+    marginTop: 20,
   },
-  buttonText: {
-    color: '#000000',
-    fontSize: 16,
+  buttonTextPrimary: {
+    color: '#FFFFFF',
+    fontSize: 18,
     fontWeight: '600',
+  },
+  buttonSecondary: {
+    backgroundColor: '#E0E0E0',
+    paddingVertical: 12,
+    paddingHorizontal: 60,
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  buttonTextSecondary: {
+    color: '#0073AB',
+    fontSize: 16,
+    fontWeight: '500',
   },
 });
 
