@@ -48,7 +48,6 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
           style={styles.image}
         />
         <Text style={styles.titleText}>Inicio de sesión</Text>
-        <Text style={styles.subTitleText}>Inicia sesión para continuar</Text>
         <TextInput
           style={styles.textInput}
           placeholder="Correo electrónico"
@@ -112,12 +111,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     marginBottom: 10,
-    marginTop: -110 , 
-  },
-  subTitleText: {
-    color: '#666',
-    fontSize: 16,
-    marginBottom: 20,
+    marginTop: -70 , 
   },
   image: {
     width: 200,
@@ -127,7 +121,7 @@ const styles = StyleSheet.create({
   buttonPrimary: {
     backgroundColor: '#0073AB',
     paddingVertical: 12,
-    paddingHorizontal: 60,
+    paddingHorizontal: 50,
     borderRadius: 8,
     marginTop: 20,
   },
@@ -142,6 +136,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 60,
     borderRadius: 8,
     marginTop: 10,
+    marginBottom: 80, 
   },
   buttonTextSecondary: {
     color: '#0073AB',

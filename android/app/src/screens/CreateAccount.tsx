@@ -45,47 +45,47 @@ function CreateAccount({ navigation }: CreateAccountProps): React.JSX.Element {
     return (
         <SafeAreaView style={styles.screen}>
             <View style={styles.container}>
+            <Text style={styles.titleText}>Crear una cuenta</Text>
                 <Image
-                    source={require('../assets/MoneyWiseLogo.jpg')}
+                    source={require('../assets/MoneyWiseLogo2.jpg')}
                     style={styles.image}
                 />
-                <Text style={styles.Text}>Creación de usuario</Text>
                 <TextInput
                     style={styles.textInput}
                     placeholder="Correo electrónico"
-                    placeholderTextColor={'#000000'}
+                    placeholderTextColor={'#aaa'}
                     onChangeText={u => setEmail(u)}
                 />
                 <TextInput
                     style={styles.textInput}
                     placeholder="Nombre de usuario"
-                    placeholderTextColor={'#000000'}
+                    placeholderTextColor={'#aaa'}
                     onChangeText={u => setNombre(u)}
                 />
                 <TextInput
                     style={styles.textInput}
                     placeholder="Contraseña"
                     secureTextEntry={true}
-                    placeholderTextColor={'#000000'}
+                    placeholderTextColor={'#aaa'}
                     onChangeText={p => setPassword(p)}
                 />
                 <TextInput
                     style={styles.textInput}
                     placeholder="Confirmar contraseña"
                     secureTextEntry={true}
-                    placeholderTextColor={'#000000'}
+                    placeholderTextColor={'#aaa'}
                 />
                 <TextInput
                     style={styles.textInput}
                     placeholder="Ingreso mensual aproximado"
-                    placeholderTextColor={'#000000'}
+                    placeholderTextColor={'#aaa'}
                     onChangeText={p => setSalary(p)}
                 />
-                <TouchableOpacity style={styles.button} onPress={btnCreaarCuentaPress}>
-                    <Text style={styles.buttonText}>Crear cuenta</Text>
+                <TouchableOpacity style={styles.buttonPrimary} onPress={btnCreaarCuentaPress}>
+                    <Text style={styles.buttonTextPrimary}>Crear cuenta</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.button} onPress={() => navigation.goBack()}>
-                    <Text style={styles.buttonText}>Cancelar</Text>
+                <TouchableOpacity style={styles.buttonSecondary} onPress={() => navigation.goBack()}>
+                    <Text style={styles.buttonTextSecondary}>Cancelar</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -95,50 +95,71 @@ function CreateAccount({ navigation }: CreateAccountProps): React.JSX.Element {
 const styles = StyleSheet.create({
     screen: {
         height: '100%',
-        backgroundColor: '#0073AB',
+        backgroundColor: '#F5F5F5', // Fondo suave
         justifyContent: 'center',
         alignItems: 'center',
     },
     container: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#64B5F6',
-        width: '100%',
-        padding: 16,
+        backgroundColor: '#FFFFFF',
+        width: '90%',
+        height: '95%',
+        padding: 20,
+        borderRadius: 20,
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5, // Sombra para profundidad
     },
     textInput: {
-        color: 'black',
+        color: '#333',
         borderBottomWidth: 1,
+        borderBottomColor: '#0073AB',
         borderRadius: 8,
-        backgroundColor: 'white',
-        paddingVertical: 8,
-        paddingHorizontal: 20,
-        width: '70%',
-        margin: 8,
+        backgroundColor: '#FFF',
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        width: '85%',
+        margin: 10,
+        fontSize: 16,
     },
-    Text: {
-        color: 'black',
-        fontSize: 20,
-        marginBottom: 10,
-        fontWeight: '500',
+    titleText: {
+        color: '#333',
+        fontSize: 24,
+        fontWeight: '700', 
+        marginTop: 40,
     },
     image: {
-        width: 200,
-        height: 200,
-        resizeMode: 'contain',
-        marginBottom: 20,
+        width: 300,
+        height: 220,
+        resizeMode: 'cover',
+        marginBottom: -50,
     },
-    button: {
-        backgroundColor: '#E3F2FD',
+    buttonPrimary: {
+        backgroundColor: '#0073AB',
         paddingVertical: 12,
         paddingHorizontal: 50,
         borderRadius: 8,
-        marginTop: 16,
+        marginTop: 20,
     },
-    buttonText: {
-        color: '#000000',
-        fontSize: 16,
+    buttonTextPrimary: {
+        color: '#FFFFFF',
+        fontSize: 18,
         fontWeight: '600',
+    },
+    buttonSecondary: {
+        backgroundColor: '#E0E0E0',
+        paddingVertical: 12,
+        paddingHorizontal: 60,
+        borderRadius: 8,
+        marginTop: 10,
+        marginBottom: 40, 
+    },
+    buttonTextSecondary: {
+        color: '#0073AB',
+        fontSize: 16,
+        fontWeight: '500',
     },
 });
 

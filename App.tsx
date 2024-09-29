@@ -35,7 +35,7 @@ const App = () => {
             <Stack.Screen name="SavingsAdd" component={SavingsAdd} options={{ title: 'Agregar Ahorro' }} />
             <Stack.Screen name="SavingsConf" component={SavingsConf} options={{ title: 'Retirar Ahorro' }} />
             <Stack.Screen name="MySavingsWithdrawals" component={MySavingsWithdrawals} options={{ title: 'Configuración de Ahorro' }} />
-            <Stack.Screen name="CreateAccount" component={CreateAccountScreen} options={{ title: 'Crear Nueva Cuenta' }} />
+            <Stack.Screen name="CreateAccount" component={CreateAccountScreen} options={{ headerShown: false }} />
             <Stack.Screen name="AddTransaction" component={AddTransactionScreen} options={{ title: 'Registrar Nuevo Gasto' }} />
             <Stack.Screen name="AllTransactions" component={AllTransactionsScreen} options={{ title: 'Registro de Gastos' }} />
             <Stack.Screen name="EditTransaction" component={EditTransactionScreen} options={{ title: 'Actualizar Detalles' }} />
