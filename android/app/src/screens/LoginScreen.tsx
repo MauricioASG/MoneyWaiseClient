@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 // LoginScreen.tsx
-import React, { useState, useContext } from 'react';
+// LoginScreen.tsx
+import React, { useState, useContext, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -15,6 +16,7 @@ import { login } from '../api';
 import { UserContext } from '../contexts/UserContext';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './RootStackParamList';
+import * as Keychain from 'react-native-keychain';
 
 type LogInProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
@@ -24,6 +26,13 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
   const { setUserId } = useContext(UserContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [biometryType, setBiometryType] = useState<string | null>(null);
+
+  useEffect(() => {
+    Keychain.getSupportedBiometryType().then(biometryType => {
+      setBiometryType(biometryType);
+    });
+  }, []);
 
   const btnIngresaronPress = async () => {
     try {
@@ -31,12 +40,46 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
         const data = await login(email, password);
         setUserId(data.id);
         Alert.alert('Entraste', 'Iniciando sesión...');
+
+        // Guardar credenciales en el llavero
+        await Keychain.setGenericPassword(email, password, {
+          accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
+          accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED,
+          authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+        });
+
         navigation.navigate('Home');
       } else {
         Alert.alert('Fallido', 'Datos incorrectos');
       }
     } catch (error) {
       Alert.alert('Error', error.message);
+    }
+  };
+
+  const handleBiometricLogin = async () => {
+    try {
+      const credentials = await Keychain.getGenericPassword({
+        authenticationPrompt: {
+          title: 'Autenticación requerida',
+          subtitle: 'Iniciar sesión con biometría',
+          description: 'Usa tu huella digital o Face ID para iniciar sesión',
+          cancel: 'Cancelar',
+        },
+        authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+      });
+
+      if (credentials) {
+        const { username, password } = credentials;
+        const data = await login(username, password);
+        setUserId(data.id);
+        Alert.alert('Autenticación exitosa', 'Bienvenido de nuevo');
+        navigation.navigate('Home');
+      } else {
+        Alert.alert('No se encontraron credenciales', 'Por favor, inicia sesión primero con tu correo y contraseña');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Autenticación fallida o cancelada');
     }
   };
 
@@ -70,6 +113,13 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
         >
           <Text style={styles.buttonTextSecondary}>Crear cuenta</Text>
         </TouchableOpacity>
+        {biometryType && (
+          <TouchableOpacity style={styles.buttonBiometric} onPress={handleBiometricLogin}>
+            <Text style={styles.buttonTextBiometric}>
+              Iniciar con {biometryType === 'FaceID' ? 'Face ID' : 'Huella Digital'}
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -107,6 +157,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   titleText: {
+    color: '#333',
+    fontSize: 24,
+    fontWeight: '700',
+    marginBottom: 10,
+    marginTop: -70 , 
+  },
+  buttonBiometric: {
     color: '#333',
     fontSize: 24,
     fontWeight: '700',
