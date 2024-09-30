@@ -17,6 +17,7 @@ import AddTransactionScreen from './android/app/src/screens/AddTransactionScreen
 import AllTransactionsScreen from './android/app/src/screens/AllTransactionsScreen';
 import EditTransactionScreen from './android/app/src/screens/EditTransactionScreen';
 import GraphDetails from './android/app/src/screens/GraphDetails';
+import FingerprintScreen from './android/app/src/screens/FingerprintScreen';
 import { UserProvider } from './android/app/src/contexts/UserContext';
 
 const Stack = createStackNavigator();
@@ -40,6 +41,7 @@ const App = () => {
             <Stack.Screen name="AllTransactions" component={AllTransactionsScreen} options={{ title: 'Registro de Gastos' }} />
             <Stack.Screen name="EditTransaction" component={EditTransactionScreen} options={{ title: 'Actualizar Detalles' }} />
             <Stack.Screen name="GraphDetails" component={GraphDetails} options={{ title: 'Detalles de gastos' }} />
+            <Stack.Screen name="FingerprintScreen" component={FingerprintScreen} options={{ headerShown: false }}  />
           </Stack.Navigator>
         </ButtonProvider>
       </UserProvider>

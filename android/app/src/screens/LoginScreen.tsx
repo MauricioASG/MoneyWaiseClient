@@ -1,6 +1,3 @@
-/* eslint-disable prettier/prettier */
-// LoginScreen.tsx
-// LoginScreen.tsx
 import React, { useState, useContext, useEffect } from 'react';
 import {
   SafeAreaView,
@@ -16,7 +13,7 @@ import { login } from '../api';
 import { UserContext } from '../contexts/UserContext';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './RootStackParamList';
-import * as Keychain from 'react-native-keychain';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 type LogInProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
@@ -26,12 +23,17 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
   const { setUserId } = useContext(UserContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [biometryType, setBiometryType] = useState<string | null>(null);
 
   useEffect(() => {
-    Keychain.getSupportedBiometryType().then(biometryType => {
-      setBiometryType(biometryType);
-    });
+    const initialize = async () => {
+      const savedEmail = await AsyncStorage.getItem('lastUserEmail');
+      if (savedEmail) {
+        setEmail(savedEmail);
+      }
+      setPassword(''); // Limpiamos el campo de contraseña.
+    };
+
+    initialize();
   }, []);
 
   const btnIngresaronPress = async () => {
@@ -41,48 +43,16 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
         setUserId(data.id);
         Alert.alert('Entraste', 'Iniciando sesión...');
 
-        // Guardar credenciales en el llavero
-        await Keychain.setGenericPassword(email, password, {
-          accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY,
-          accessible: Keychain.ACCESSIBLE.WHEN_UNLOCKED,
-          authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-        });
-
+        await AsyncStorage.setItem('lastUserEmail', email);
         navigation.navigate('Home');
       } else {
-        Alert.alert('Fallido', 'Datos incorrectos');
+        Alert.alert('Fallido', 'Por favor ingresa tu correo y contraseña');
       }
-    } catch (error) {
-      Alert.alert('Error', error.message);
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Ocurrió un error al iniciar sesión');
     }
   };
-
-  const handleBiometricLogin = async () => {
-    try {
-      const credentials = await Keychain.getGenericPassword({
-        authenticationPrompt: {
-          title: 'Autenticación requerida',
-          subtitle: 'Iniciar sesión con biometría',
-          description: 'Usa tu huella digital o Face ID para iniciar sesión',
-          cancel: 'Cancelar',
-        },
-        authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
-      });
-
-      if (credentials) {
-        const { username, password } = credentials;
-        const data = await login(username, password);
-        setUserId(data.id);
-        Alert.alert('Autenticación exitosa', 'Bienvenido de nuevo');
-        navigation.navigate('Home');
-      } else {
-        Alert.alert('No se encontraron credenciales', 'Por favor, inicia sesión primero con tu correo y contraseña');
-      }
-    } catch (error) {
-      Alert.alert('Error', 'Autenticación fallida o cancelada');
-    }
-  };
-
+  
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.container}>
@@ -96,6 +66,7 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
           placeholder="Correo electrónico"
           placeholderTextColor={'#aaa'}
           onChangeText={u => setEmail(u)}
+          value={email}
         />
         <TextInput
           style={styles.textInput}
@@ -103,6 +74,7 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
           secureTextEntry={true}
           placeholderTextColor={'#aaa'}
           onChangeText={p => setPassword(p)}
+          value={password}
         />
         <TouchableOpacity style={styles.buttonPrimary} onPress={btnIngresaronPress}>
           <Text style={styles.buttonTextPrimary}>Iniciar sesión</Text>
@@ -113,13 +85,12 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
         >
           <Text style={styles.buttonTextSecondary}>Crear cuenta</Text>
         </TouchableOpacity>
-        {biometryType && (
-          <TouchableOpacity style={styles.buttonBiometric} onPress={handleBiometricLogin}>
-            <Text style={styles.buttonTextBiometric}>
-              Iniciar con {biometryType === 'FaceID' ? 'Face ID' : 'Huella Digital'}
-            </Text>
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={styles.buttonBiometric}
+          onPress={() => navigation.navigate('FingerprintScreen')}
+        >
+          <Text style={styles.buttonTextBiometric}>Inicio con huella</Text>
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -128,7 +99,7 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
 const styles = StyleSheet.create({
   screen: {
     height: '100%',
-    backgroundColor: '#F5F5F5', // Fondo suave
+    backgroundColor: '#F5F5F5',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -142,7 +113,7 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 10,
-    elevation: 5, // Sombra para efecto de profundidad
+    elevation: 5,
   },
   textInput: {
     color: '#333',
@@ -161,14 +132,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     marginBottom: 10,
-    marginTop: -70 , 
-  },
-  buttonBiometric: {
-    color: '#333',
-    fontSize: 24,
-    fontWeight: '700',
-    marginBottom: 10,
-    marginTop: -70 , 
+    marginTop: -70,
   },
   image: {
     width: 200,
@@ -188,15 +152,28 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   buttonSecondary: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#0d8a94',
     paddingVertical: 12,
     paddingHorizontal: 60,
     borderRadius: 8,
     marginTop: 10,
-    marginBottom: 80, 
+    marginBottom: 5,
   },
   buttonTextSecondary: {
-    color: '#0073AB',
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  buttonBiometric: {
+    backgroundColor: '#39628f',
+    paddingVertical: 12,
+    paddingHorizontal: 45,
+    borderRadius: 8,
+    marginTop: 10,
+    marginBottom: 20,
+  },
+  buttonTextBiometric: {
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: '500',
   },
