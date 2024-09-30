@@ -52,7 +52,12 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
       Alert.alert('Error', error.message || 'Ocurrió un error al iniciar sesión');
     }
   };
-  
+
+  // Aquí solo redirige a la pantalla de huella, sin realizar ninguna acción de autenticación.
+  const handleBiometricRedirect = () => {
+    navigation.navigate('FingerprintScreen', { email });
+  };
+
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.container}>
@@ -87,7 +92,7 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.buttonBiometric}
-          onPress={() => navigation.navigate('FingerprintScreen')}
+          onPress={handleBiometricRedirect} // Solo navega a FingerprintScreen
         >
           <Text style={styles.buttonTextBiometric}>Inicio con huella</Text>
         </TouchableOpacity>
