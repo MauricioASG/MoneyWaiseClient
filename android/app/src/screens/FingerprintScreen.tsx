@@ -6,6 +6,7 @@ import {
   View,
   Alert,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { UserContext } from '../contexts/UserContext';
 import * as Keychain from 'react-native-keychain';
@@ -55,7 +56,12 @@ function FingerprintScreen({ navigation, route }: FingerprintProps): React.JSX.E
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.container}>
-        <Text style={styles.titleText}>Inicio con huella</Text>
+      <Text style={styles.titleText}>Inicio con huella</Text>
+        <Image
+          source={require('../assets/MoneyWiseLogo2.jpg')}
+          style={styles.image}
+        />
+        <Text style={styles.subtitleText}>Usuario: </Text>
         <TouchableOpacity style={styles.buttonPrimary} onPress={handleBiometricLogin}>
           <Text style={styles.buttonTextPrimary}>Escanear huella</Text>
         </TouchableOpacity>
@@ -87,19 +93,32 @@ const styles = StyleSheet.create({
     color: '#333',
     fontSize: 24,
     fontWeight: '700',
-    marginBottom: 10,
+    marginTop: 35,
+    marginBottom: -5,
+  },
+  subtitleText: {
+    color: '#333',
+    fontSize: 24,
+    fontWeight: '700',
+    marginTop: -40,
+    marginBottom: 30,
   },
   buttonPrimary: {
     backgroundColor: '#0073AB',
     paddingVertical: 12,
     paddingHorizontal: 50,
     borderRadius: 8,
-    marginTop: 20,
+    marginTop: 10,
   },
   buttonTextPrimary: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
+  },
+  image: {
+    width: 200,
+    height: 400,
+    resizeMode: 'cover',
   },
 });
 

@@ -1,6 +1,5 @@
 /* eslint-disable prettier/prettier */
 // HomeScreen.tsx
-
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import {
   View,
@@ -10,6 +9,8 @@ import {
   Modal,
   Platform,
   ScrollView,
+  Image,
+  ActivityIndicator, // Para mostrar un indicador de carga
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import FooterMenu from '../components/FooterMenu';
@@ -19,6 +20,7 @@ import { UserContext } from '../contexts/UserContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { useButton } from '../contexts/FooterMenuContext';
 
+// Definir la constante de los meses
 const months = [
   { label: 'Ene', value: 1 },
   { label: 'Feb', value: 2 },
@@ -34,6 +36,7 @@ const months = [
   { label: 'Dic', value: 12 },
 ];
 
+// Definir los años que se mostrarán en el picker
 const years = [];
 const currentYearValue = new Date().getFullYear();
 for (let i = currentYearValue - 5; i <= currentYearValue + 5; i++) {
@@ -44,6 +47,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
   const { setSelectedButton } = useButton();
   const { userId } = useContext(UserContext);
   const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true); // Estado de carga
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1); // Enero es 0
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [isModalVisible, setModalVisible] = useState(false);
@@ -58,6 +62,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
   );
 
   const fetchData = async (month, year) => {
+    setLoading(true); // Mostrar indicador de carga
     try {
       console.log(`Obteniendo datos para el gráfico de ${month}-${year}`);
 
@@ -67,6 +72,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
       if (transactions.length === 0) {
         console.log('No hay transacciones para este mes.');
         setChartData([]);
+        setLoading(false); // Ocultar indicador de carga
         return;
       }
 
@@ -89,8 +95,10 @@ const HomeScreen: React.FC = ({ navigation }) => {
 
       console.log('Datos para el gráfico:', data);
       setChartData(data);
+      setLoading(false); // Ocultar indicador de carga
     } catch (error) {
       console.error('Error al cargar los datos para el gráfico:', error);
+      setLoading(false); // Ocultar indicador de carga en caso de error
     }
   };
 
@@ -176,7 +184,6 @@ const HomeScreen: React.FC = ({ navigation }) => {
     return monthNames[monthNumber - 1];
   };
 
-  // Función para manejar la navegación al seleccionar un elemento de la leyenda
   const handleLegendItemPress = (categoria_id, label) => {
     navigation.navigate('GraphDetails', {
       categoria_id,
@@ -263,7 +270,9 @@ const HomeScreen: React.FC = ({ navigation }) => {
         </View>
       </Modal>
 
-      {chartData.length > 0 ? (
+      {loading ? (
+        <ActivityIndicator size="large" color="#0073AB" />
+      ) : chartData.length > 0 ? (
         <>
           <PieChart
             widthAndHeight={200}
@@ -294,7 +303,7 @@ const HomeScreen: React.FC = ({ navigation }) => {
           </ScrollView>
         </>
       ) : (
-        <Text style={styles.noDataText}>No hay datos para este mes</Text>
+        <Image source={require('../assets/NoDataYet.jpg')} style={styles.noDataImage} />
       )}
       <FooterMenu navigation={navigation} />
     </View>
@@ -302,7 +311,6 @@ const HomeScreen: React.FC = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  // Estilos de la pantalla principal
   container: {
     flex: 1,
     justifyContent: 'flex-start',
@@ -318,21 +326,20 @@ const styles = StyleSheet.create({
     color: '#0056AD',
     textAlign: 'center',
   },
-  noDataText: {
-    fontSize: 18,
-    color: '#999',
-    marginTop: 20,
-    textAlign: 'center',
+  noDataImage: {
+    width: 300,
+    height: 300,
+    resizeMode: 'contain',
+    marginTop: 100,
   },
-  // Estilos del modal y pickers
   modalBackground: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fondo semi-transparente
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', 
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContainer: {
-    width: '85%', // Ajusta el ancho según tus necesidades
+    width: '85%', 
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 20,
@@ -395,12 +402,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  // Estilos de la leyenda y gráfica
   legendScrollContainer: {
-    maxHeight: 250, // Puedes ajustar la altura según tus necesidades
+    maxHeight: 250,
     width: '100%',
     marginTop: 60,
-    backgroundColor: '#F0F8FF', // Fondo para distinguir del fondo general
+    backgroundColor: '#F0F8FF', 
     borderRadius: 10,
     padding: 10,
     borderWidth: 1,
@@ -426,3 +432,4 @@ const styles = StyleSheet.create({
 });
 
 export default HomeScreen;
+

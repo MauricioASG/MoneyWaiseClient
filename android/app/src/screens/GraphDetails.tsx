@@ -1,28 +1,31 @@
-/* eslint-disable prettier/prettier */
-// GraphDetails.tsx
-
-import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
+import React, { useState, useContext, useCallback } from 'react';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, SafeAreaView, Image, ActivityIndicator } from 'react-native';
 import { getTransactionsByCategory, getTransactionsByDate } from '../api';
 import { UserContext } from '../contexts/UserContext';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const GraphDetails = ({ route }) => {
   const { categoria_id, label, month, year } = route.params;
   const { userId } = useContext(UserContext);
   const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true); // Para mostrar un indicador de carga
   const navigation = useNavigation();
 
-  useEffect(() => {
-    fetchTransactions();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchTransactions(); // Cargar las transacciones al enfocar la pantalla
+    }, [categoria_id, month, year])
+  );
 
   const fetchTransactions = async () => {
+    setLoading(true); // Mostrar indicador de carga
     try {
       const data = await getTransactionsByCategory(userId, categoria_id, year, month);
       setTransactions(data);
+      setLoading(false); // Ocultar indicador de carga
     } catch (error) {
       console.error('Error al obtener las transacciones:', error);
+      setLoading(false); // Ocultar indicador de carga en caso de error
     }
   };
 
@@ -62,24 +65,34 @@ const GraphDetails = ({ route }) => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <Text style={styles.title}> {label}</Text>
-        <FlatList
-          data={transactions}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.transactionItem}>
-              <Text style={styles.transactionText}>Tipo: {item.tipo}</Text>
-              <Text style={styles.transactionText}>Monto: ${item.monto}</Text>
-              <Text style={styles.transactionText}>Fecha: {formatDate(item.fecha)}</Text>
-              <TouchableOpacity
-                style={styles.viewButton}
-                onPress={() => handleTransactionPress(item)}
-              >
-                <Text style={styles.viewButtonText}>Ver</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-          contentContainerStyle={styles.listContent}
-        />
+
+        {loading ? (
+          <ActivityIndicator size="large" color="#0056AD" />
+        ) : transactions.length > 0 ? (
+          <FlatList
+            data={transactions}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <View style={styles.transactionItem}>
+                <Text style={styles.transactionText}>Tipo: {item.tipo}</Text>
+                <Text style={styles.transactionText}>Monto: ${item.monto}</Text>
+                <Text style={styles.transactionText}>Fecha: {formatDate(item.fecha)}</Text>
+                <TouchableOpacity
+                  style={styles.viewButton}
+                  onPress={() => handleTransactionPress(item)}
+                >
+                  <Text style={styles.viewButtonText}>Ver</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+            contentContainerStyle={styles.listContent}
+          />
+        ) : (
+          <Image
+            source={require('../assets/NoDataYet.jpg')}
+            style={styles.noDataImage}
+          />
+        )}
       </View>
     </SafeAreaView>
   );
@@ -128,6 +141,13 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 20,
+  },
+  noDataImage: {
+    width: 300,
+    height: 300,
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    marginTop: 50,
   },
 });
 
