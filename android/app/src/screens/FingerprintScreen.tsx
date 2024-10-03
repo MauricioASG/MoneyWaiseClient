@@ -21,7 +21,7 @@ type FingerprintProps = {
 
 function FingerprintScreen({ navigation, route }: FingerprintProps): React.JSX.Element {
   const { setUserId } = useContext(UserContext);
-  const { email } = route.params;
+  const { email } = route.params; // Recibimos el email desde LoginScreen
 
   // Esta función solo se ejecutará cuando el usuario presione el botón "Usar Huella Digital"
   const handleBiometricLogin = async () => {
@@ -53,17 +53,27 @@ function FingerprintScreen({ navigation, route }: FingerprintProps): React.JSX.E
     }
   };
 
+  // Botón para cancelar e ir de regreso a la pantalla anterior
+  const handleCancel = () => {
+    navigation.goBack();
+  };
+
   return (
     <SafeAreaView style={styles.screen}>
       <View style={styles.container}>
-      <Text style={styles.titleText}>Inicio con huella</Text>
+        <Text style={styles.titleText}>Inicio con huella</Text>
         <Image
           source={require('../assets/MoneyWiseLogo2.jpg')}
           style={styles.image}
         />
-        <Text style={styles.subtitleText}>Usuario: </Text>
+        <Text style={styles.subtitleText}>Usuario: {email}</Text>
         <TouchableOpacity style={styles.buttonPrimary} onPress={handleBiometricLogin}>
           <Text style={styles.buttonTextPrimary}>Escanear huella</Text>
+        </TouchableOpacity>
+
+        {/* Botón Cancelar */}
+        <TouchableOpacity style={styles.buttonCancel} onPress={handleCancel}>
+          <Text style={styles.buttonTextCancel}>Cancelar</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -98,22 +108,35 @@ const styles = StyleSheet.create({
   },
   subtitleText: {
     color: '#333',
-    fontSize: 24,
-    fontWeight: '700',
-    marginTop: -40,
-    marginBottom: 30,
+    fontSize: 22,
+    fontWeight: '600',
+    marginTop: 10,
+    marginBottom: 40,
   },
   buttonPrimary: {
     backgroundColor: '#0073AB',
     paddingVertical: 12,
     paddingHorizontal: 50,
     borderRadius: 8,
-    marginTop: 10,
+    marginBottom: 20,
   },
   buttonTextPrimary: {
     color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
+  },
+  buttonCancel: {
+    backgroundColor: '#FF4D4D',
+    paddingVertical: 12,
+    paddingHorizontal: 50,
+    borderRadius: 8,
+    marginBottom: 20 ,
+  },
+  buttonTextCancel: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+    paddingHorizontal: 40,
   },
   image: {
     width: 200,
