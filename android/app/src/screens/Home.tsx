@@ -10,7 +10,7 @@ import {
   Platform,
   ScrollView,
   Image,
-  ActivityIndicator, // Para mostrar un indicador de carga
+  ActivityIndicator,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import FooterMenu from '../components/FooterMenu';
@@ -193,8 +193,24 @@ const HomeScreen: React.FC = ({ navigation }) => {
     });
   };
 
+  // Navegar a la pantalla de configuración del usuario
+  const navigateToUserSettings = () => {
+    navigation.navigate('UserSettingsScreen');
+  };
+
   return (
     <View style={styles.container}>
+      {/* Imagen de configuración en la esquina superior derecha */}
+      <TouchableOpacity
+        style={styles.settingsButton}
+        onPress={navigateToUserSettings}
+      >
+        <Image
+          source={require('../assets/UserSettingsLogo.jpg')}
+          style={styles.settingsImage}
+        />
+      </TouchableOpacity>
+
       <TouchableOpacity onPress={openModal}>
         <Text style={styles.heading}>
           {getMonthName(currentMonth)} {currentYear}
@@ -319,6 +335,17 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     backgroundColor: '#FFFFFF',
   },
+  settingsButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10, // Posicionar en la esquina superior derecha
+    zIndex: 1, // Asegura que esté por encima de otros componentes
+  },
+  settingsImage: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
+  },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -430,6 +457,5 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
 });
-
+ 
 export default HomeScreen;
-
