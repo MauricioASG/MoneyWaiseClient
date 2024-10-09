@@ -174,3 +174,28 @@ export const getTransactionsByCategory = async (usuario_id, categoria_id, year, 
     throw error;
   }
 };
+
+
+
+// Obtener los detalles del usuario
+export const getUserDetails = async (id) => {
+  try {
+    const response = await axios.get(`${API_URL}/usuarios/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los detalles del usuario:', error);
+    throw error;
+  }
+};
+
+
+// Actualizar los detalles del usuario
+export const updateUserDetails = async (userId, userData) => {
+  try {
+    const response = await axios.put(`${API_URL}/usuarios/${userId}`, userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error al actualizar los detalles del usuario:', error);
+    throw error;
+  }
+};

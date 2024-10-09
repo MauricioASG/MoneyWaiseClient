@@ -14,6 +14,7 @@ import { UserContext } from '../contexts/UserContext';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './RootStackParamList';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Keychain from 'react-native-keychain'; // IMPORTACIÓN DE KEYCHAIN
 
 type LogInProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
@@ -42,8 +43,21 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
         const data = await login(email, password);
         setUserId(data.id);
         Alert.alert('Entraste', 'Iniciando sesión...');
-
+  
+        // Almacenar el último email en AsyncStorage
         await AsyncStorage.setItem('lastUserEmail', email);
+  
+        // Almacenar las credenciales en Keychain para biometría usando InternetCredentials
+        await Keychain.setInternetCredentials(
+          'moneywise',  // Identificador para las credenciales (puede ser un dominio o nombre de la app)
+          email,
+          password,
+          {
+            accessControl: Keychain.ACCESS_CONTROL.BIOMETRY_ANY, // Forzar autenticación biométrica
+            authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+          }
+        );
+  
         navigation.navigate('Home');
       } else {
         Alert.alert('Fallido', 'Por favor ingresa tu correo y contraseña');
@@ -52,7 +66,6 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
       Alert.alert('Error', error.message || 'Ocurrió un error al iniciar sesión');
     }
   };
-
   // Aquí solo redirige a la pantalla de huella, sin realizar ninguna acción de autenticación.
   const handleBiometricRedirect = () => {
     navigation.navigate('FingerprintScreen', { email });

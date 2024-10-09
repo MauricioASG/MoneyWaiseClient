@@ -23,22 +23,31 @@ function FingerprintScreen({ navigation, route }: FingerprintProps): React.JSX.E
   const { setUserId } = useContext(UserContext);
   const { email } = route.params; // Recibimos el email desde LoginScreen
 
-  // Esta función solo se ejecutará cuando el usuario presione el botón "Usar Huella Digital"
+  // Esta función se ejecuta cuando el usuario presiona el botón "Escanear Huella"
   const handleBiometricLogin = async () => {
     try {
-      const credentials = await Keychain.getGenericPassword({
+      // Solicita la autenticación biométrica para obtener las credenciales
+      const credentials = await Keychain.getInternetCredentials('moneywise', {
         authenticationPrompt: {
           title: 'Autenticación requerida',
-          subtitle: 'Iniciar sesión con biometría',
-          description: 'Usa tu huella digital o Face ID para iniciar sesión',
+          subtitle: 'Usa tu huella digital o Face ID para iniciar sesión',
+          description: 'Verifica tu identidad para continuar',
           cancel: 'Cancelar',
         },
-        authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
+        authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS, // Solicitar autenticación biométrica
       });
 
       if (credentials) {
         const { username, password } = credentials;
-        // Llama a la API de inicio de sesión con las credenciales recuperadas
+
+        // Verificamos si el email recuperado coincide con el mostrado en la pantalla de login
+        if (username !== email) {
+          Alert.alert('Error', 'Las credenciales almacenadas no coinciden con el correo actual.');
+          await Keychain.resetInternetCredentials('moneywise'); // Elimina las credenciales incorrectas
+          return;
+        }
+
+        // Si las credenciales coinciden, llamamos a la API de inicio de sesión
         const data = await login(username, password);
         setUserId(data.id);
         Alert.alert('Autenticación exitosa', 'Bienvenido de nuevo');
@@ -130,7 +139,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 50,
     borderRadius: 8,
-    marginBottom: 20 ,
+    marginBottom: 20,
   },
   buttonTextCancel: {
     color: '#FFFFFF',
