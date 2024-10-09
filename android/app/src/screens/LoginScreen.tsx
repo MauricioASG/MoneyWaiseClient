@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useCallback } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -15,6 +15,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from './RootStackParamList';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain'; // IMPORTACIÓN DE KEYCHAIN
+import { useFocusEffect } from '@react-navigation/native'; // IMPORTAR useFocusEffect
 
 type LogInProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
@@ -33,11 +34,18 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
         setEmail(savedEmail);
         setLastLoggedEmail(savedEmail); // Almacenar el último correo utilizado
       }
-      setPassword(''); // Limpiamos el campo de contraseña.
+      setPassword(''); // Limpiamos el campo de contraseña inicialmente.
     };
 
     initialize();
   }, []);
+
+  // Limpiar el campo de contraseña cada vez que la pantalla Login esté en foco
+  useFocusEffect(
+    useCallback(() => {
+      setPassword(''); // Limpiamos el campo de contraseña cuando la pantalla está en foco
+    }, [])
+  );
 
   const btnIngresaronPress = async () => {
     try {
