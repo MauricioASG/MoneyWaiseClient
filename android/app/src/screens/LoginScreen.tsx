@@ -24,12 +24,14 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
   const { setUserId } = useContext(UserContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [lastLoggedEmail, setLastLoggedEmail] = useState(''); // Guardamos el último email usado
 
   useEffect(() => {
     const initialize = async () => {
       const savedEmail = await AsyncStorage.getItem('lastUserEmail');
       if (savedEmail) {
         setEmail(savedEmail);
+        setLastLoggedEmail(savedEmail); // Almacenar el último correo utilizado
       }
       setPassword(''); // Limpiamos el campo de contraseña.
     };
@@ -57,6 +59,9 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
             authenticationType: Keychain.AUTHENTICATION_TYPE.BIOMETRICS,
           }
         );
+
+        // Actualizamos el último email utilizado después de un inicio de sesión exitoso
+        setLastLoggedEmail(email);
   
         navigation.navigate('Home');
       } else {
@@ -66,9 +71,19 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
       Alert.alert('Error', error.message || 'Ocurrió un error al iniciar sesión');
     }
   };
-  // Aquí solo redirige a la pantalla de huella, sin realizar ninguna acción de autenticación.
+
+  // Función que redirige a la pantalla de huella si hay credenciales disponibles
   const handleBiometricRedirect = () => {
-    navigation.navigate('FingerprintScreen', { email });
+    if (email !== lastLoggedEmail) {
+      // Si el correo en el campo es diferente al último correo con el que se inició sesión
+      Alert.alert(
+        'Debes iniciar sesión con contraseña',
+        'Parece que cambiaste el correo. Por favor, inicia sesión con tu contraseña al menos una vez.'
+      );
+    } else {
+      // Si los correos coinciden, permitir acceso a la huella
+      navigation.navigate('FingerprintScreen', { email });
+    }
   };
 
   return (
@@ -105,7 +120,7 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.buttonBiometric}
-          onPress={handleBiometricRedirect} // Solo navega a FingerprintScreen
+          onPress={handleBiometricRedirect} // Solo navega a FingerprintScreen si no cambió el correo
         >
           <Text style={styles.buttonTextBiometric}>Inicio con huella</Text>
         </TouchableOpacity>
