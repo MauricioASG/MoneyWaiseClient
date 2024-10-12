@@ -21,6 +21,8 @@ const UserSettingsScreen = ({ navigation }) => {
     salario: '',
   });
 
+  const SALARIO_MAXIMO = 1000000; // Límite de salario
+
   // Cargar los datos del usuario al montar el componente
   useEffect(() => {
     const loadUserData = async () => {
@@ -34,14 +36,43 @@ const UserSettingsScreen = ({ navigation }) => {
     loadUserData();
   }, [userId]);
 
-  // Manejar la actualización de los datos del usuario
+  // Manejar la confirmación de los cambios
   const handleSaveChanges = async () => {
-    try {
-      await updateUserDetails(userId, userData); // Llamada a la API para guardar los cambios
-      Alert.alert('Éxito', 'Los cambios han sido guardados.');
-    } catch (error) {
-      Alert.alert('Error', 'No se pudieron guardar los cambios.');
+    if (parseFloat(userData.salario) > SALARIO_MAXIMO) {
+      Alert.alert('Error', `El salario no puede ser mayor a ${SALARIO_MAXIMO}`);
+      return;
     }
+
+    Alert.alert(
+      'Confirmar cambios',
+      '¿Estás seguro de que deseas guardar los cambios?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Sí',
+          onPress: async () => {
+            try {
+              if (
+                userData.nombre.trim() === '' ||
+                userData.email.trim() === '' ||
+                userData.salario === ''
+              ) {
+                Alert.alert('Error', 'Todos los campos son obligatorios.');
+                return;
+              }
+              await updateUserDetails(userId, userData); // Llamada a la API para guardar los cambios
+              Alert.alert('Éxito', 'Los cambios han sido guardados.');
+              navigation.navigate('Home'); // Redirigir a la pantalla Home
+            } catch (error) {
+              Alert.alert('Error', 'No se pudieron guardar los cambios.');
+            }
+          },
+        },
+      ]
+    );
   };
 
   const handleInputChange = (field, value) => {

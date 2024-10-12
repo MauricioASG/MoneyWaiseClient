@@ -189,7 +189,7 @@ export const getUserDetails = async (id) => {
 };
 
 
-// Actualizar los detalles del usuario
+// api.ts
 export const updateUserDetails = async (userId, userData) => {
   try {
     const response = await axios.put(`${API_URL}/usuarios/${userId}`, userData);
@@ -199,3 +199,4 @@ export const updateUserDetails = async (userId, userData) => {
     throw error;
   }
 };
+
