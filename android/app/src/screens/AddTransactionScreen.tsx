@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-// AddTransactionScreen.tsx
 import React, { useState, useContext, useEffect } from 'react';
 import {
   SafeAreaView,
@@ -108,7 +106,7 @@ const AddTransactionScreen: React.FC<AddTransactionProps> = ({ navigation, route
     ],
     '0': [
       { label: 'Selecciona un tipo de gasto', value: 'Selecciona un tipo de gasto' },
-    ]
+    ],
   };
 
   useEffect(() => {
@@ -124,18 +122,35 @@ const AddTransactionScreen: React.FC<AddTransactionProps> = ({ navigation, route
       return;
     }
 
-    try {
-      await createTransaction(userId, categoryId, amount, type, route.params.selectedDate);
-      const parentState = navigation.getParent()?.getState();
-      const refreshTransactions = parentState?.routes.find(route => route.name === 'Schedule')?.params?.refreshTransactions;
-      if (refreshTransactions) {
-        refreshTransactions();
-      }
-      navigation.goBack();
-    } catch (error) {
-      console.error('Error creating transaction:', error);
-      Alert.alert('Error', 'Hubo un problema al crear la transacción');
-    }
+    Alert.alert(
+      'Confirmación',
+      `¿Estás seguro de agregar esta transacción por $${amount}?`,
+      [
+        {
+          text: 'Cancelar',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Aceptar',
+          onPress: async () => {
+            try {
+              await createTransaction(userId, categoryId, amount, type, route.params.selectedDate);
+              const parentState = navigation.getParent()?.getState();
+              const refreshTransactions = parentState?.routes.find(route => route.name === 'Schedule')?.params?.refreshTransactions;
+              if (refreshTransactions) {
+                refreshTransactions();
+              }
+              navigation.goBack();
+            } catch (error) {
+              console.error('Error creando la transacción:', error);
+              Alert.alert('Error', 'Hubo un problema al crear la transacción');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
   };
 
   return (
@@ -238,4 +253,3 @@ const styles = StyleSheet.create({
 });
 
 export default AddTransactionScreen;
-

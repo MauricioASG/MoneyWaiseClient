@@ -22,6 +22,8 @@ type SavingsConfProps = {
   route: RouteProp<RootStackParamList, 'SavingsConf'>;
 };
 
+const MAX_SAVINGS = 1000000; // Límite máximo de meta de ahorro
+
 const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
   const { userId } = useContext(UserContext);
   const [savingsGoal, setSavingsGoal] = useState('');
@@ -40,8 +42,6 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
         const goalData = await getGoal(userId);
         if (goalData.length > 0) {
           const goal = goalData[0];
-          console.log('Meta financiera cargada:', goal);
-
           setSavingsGoal(goal.monto.toString());
           setInterval(goal.periodo);
           setProgrammedSavings(goal.ahorro_programado.toString());
@@ -59,10 +59,8 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
   const handleSavingsGoalChange = (text: string) => {
     const numericText = text.replace(/[^0-9.]/g, '');
     setSavingsGoal(numericText);
-    console.log('Nueva meta de ahorro ingresada:', numericText);
   };
 
-  // Calcular el ahorro programado en función de la fecha seleccionada y el objetivo
   const calculateProgrammedSavings = () => {
     const goal = parseFloat(savingsGoal);
     const today = new Date();
@@ -85,6 +83,21 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
   };
 
   const handleApply = async () => {
+    if (!savingsGoal || isNaN(parseFloat(savingsGoal)) || parseFloat(savingsGoal) <= 0) {
+      Alert.alert('Error', 'Por favor, ingrese una meta de ahorro válida mayor a 0.');
+      return;
+    }
+
+    if (parseFloat(savingsGoal) > MAX_SAVINGS) {
+      Alert.alert('Error', `La meta de ahorro no puede exceder ${MAX_SAVINGS}.`);
+      return;
+    }
+
+    if (!selectedDate || new Date(selectedDate) <= new Date()) {
+      Alert.alert('Error', 'Por favor, seleccione una fecha límite válida en el futuro.');
+      return;
+    }
+
     Alert.alert(
       'Confirmación',
       '¿Estás seguro de querer aplicar los cambios?',
@@ -104,12 +117,8 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
               const ahorro_programado = parseFloat(programmedSavings);
               const formattedDate = new Date(selectedDate).toISOString().split('T')[0]; // Asegúrate del formato YYYY-MM-DD
   
-              console.log('Fecha límite seleccionada (formato YYYY-MM-DD):', formattedDate);
-              console.log('Meta financiera guardada:', { savingsGoal, interval, ahorro_programado, fecha_limite: formattedDate });
-  
               await saveGoal(goalId, userId, parseFloat(savingsGoal), interval, ahorro_programado, formattedDate);
   
-              console.log('Meta financiera actualizada correctamente');
               navigation.navigate('Savings', { savingsGoal, interval, selectedDate: formattedDate });
             } catch (error) {
               console.error('Error al aplicar la meta financiera:', error);
@@ -121,7 +130,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
       { cancelable: false }
     );
   };
-  
+
   return (
     <KeyboardAwareScrollView contentContainerStyle={styles.container} extraScrollHeight={100}>
       <Image source={require('../assets/MySavingsConfLogo.jpg')} style={styles.image} />
@@ -152,7 +161,7 @@ const SavingsConf: React.FC<SavingsConfProps> = ({ navigation }) => {
         title="Aplicar"
         onPress={handleApply}
         backgroundColor="#80DA80"
-        marginBottom={40} //Esta propiedad altera es espacio que hay en separación de pantalla abajo y boton
+        marginBottom={40}
         paddingHorizontal={85}
         paddingVertical={16}
       />
@@ -168,7 +177,7 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#FFFFFF',
   },
-    heading1: {
+  heading1: {
     fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,

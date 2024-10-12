@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, StyleSheet, Image, TextInput, Alert } from 'react-native';
+import { Text, StyleSheet, Image, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -21,31 +21,50 @@ type SavingsAddProps = {
 
 const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation, route }) => {
   const [savings, setSavings] = useState('');
-  const { savingsGoal, interval, currentSavings, goalId } = route.params; // Asegúrate de que goalId esté presente
+  const [loading, setLoading] = useState(false); // Estado para mostrar un indicador de carga
+  const { savingsGoal, interval, currentSavings, goalId } = route.params;
+
+  const MAX_SAVINGS = 1000000; // Límite de la cantidad permitida para el ahorro
 
   const handleButtonPress = async () => {
-    if (!savings || isNaN(Number(savings))) {
-      Alert.alert('Error', 'Por favor, ingrese una cantidad válida');
+    if (!savings || isNaN(Number(savings)) || Number(savings) <= 0) {
+      Alert.alert('Error', 'Por favor, ingrese una cantidad válida mayor a 0');
       return;
     }
+
+    if (parseFloat(savings) > MAX_SAVINGS) {
+      Alert.alert('Error', `La cantidad ingresada no puede exceder ${MAX_SAVINGS}`);
+      return;
+    }
+
+    setLoading(true); // Iniciar el indicador de carga
 
     // Actualizar el ahorro actual en la base de datos
     try {
       const newSavings = (parseFloat(currentSavings) + parseFloat(savings)).toString();
       await updateSavings(goalId, newSavings);  // Llamada a la API con goalId
 
+      setLoading(false); // Detener el indicador de carga
+
       // Navegar de nuevo a la pantalla de Savings y pasar el nuevo ahorro
-      navigation.navigate('Savings', { amountAdded: savings, savingsGoal, interval, currentSavings: newSavings });
+      navigation.navigate('Savings', {
+        amountAdded: savings,
+        savingsGoal,
+        interval,
+        currentSavings: newSavings,
+      });
     } catch (error) {
+      setLoading(false); // Detener el indicador de carga
       console.error('Error al actualizar el ahorro actual:', error);
       Alert.alert('Error', 'No se pudo actualizar el ahorro');
     }
   };
 
+  // Función para manejar el cambio de entrada
   const handleSavingsChange = (text: string) => {
-    const numericText = text.replace(/[^0-9.]/g, '');
+    const numericText = text.replace(/[^0-9.]/g, ''); // Permitir solo números y puntos
     const parts = numericText.split('.');
-    if (parts.length <= 2) {
+    if (parts.length <= 2 && (parts[1]?.length || 0) <= 2) { // Limitar a dos decimales
       setSavings(numericText);
     }
   };
@@ -62,14 +81,18 @@ const SavingsAdd: React.FC<SavingsAddProps> = ({ navigation, route }) => {
         value={savings}
         onChangeText={handleSavingsChange}
       />
-      <CustomButton
-        title="Ingresar"
-        onPress={handleButtonPress}
-        backgroundColor="#80DA80"
-        marginBottom={200}
-        paddingHorizontal={85}
-        paddingVertical={16}
-      />
+      {loading ? (
+        <ActivityIndicator size="large" color="#80DA80" />
+      ) : (
+        <CustomButton
+          title="Ingresar"
+          onPress={handleButtonPress}
+          backgroundColor="#80DA80"
+          marginBottom={200}
+          paddingHorizontal={85}
+          paddingVertical={16}
+        />
+      )}
     </KeyboardAwareScrollView>
   );
 };

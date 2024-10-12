@@ -21,6 +21,7 @@ const EditTransactionScreen = () => {
   const originalAmount = transaction.monto.toString();
   const originalCategoryId = transaction.categoria_id?.toString();
   const originalType = transaction.tipo;
+
   // Mapa de tipos de subcategorías por categoría
   const categoryTypes = {
     '1': [

@@ -26,26 +26,53 @@ function CreateAccount({ navigation }: CreateAccountProps): React.JSX.Element {
     const [email, setEmail] = useState('');
     const [nombre, setNombre] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [salary, setSalary] = useState('');
 
-    const btnCreaarCuentaPress = async () => {
+    const isValidEmail = (email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const btnCrearCuentaPress = async () => {
+        if (!email || !nombre || !password || !confirmPassword || !salary) {
+            Alert.alert('Fallido', 'Por favor, completa todos los campos.');
+            return;
+        }
+
+        if (!isValidEmail(email)) {
+            Alert.alert('Error', 'Por favor, ingresa un correo electrónico válido.');
+            return;
+        }
+
+        if (password.length < 6) {
+            Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres.');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            Alert.alert('Error', 'Las contraseñas no coinciden.');
+            return;
+        }
+
+        if (isNaN(Number(salary)) || Number(salary) <= 0) {
+            Alert.alert('Error', 'Por favor, ingresa un salario válido.');
+            return;
+        }
+
         try {
-            if (email && nombre && password && salary) {
-                await register(nombre, email, password, parseFloat(salary));
-                Alert.alert('Haz creado tu cuenta', 'Regresando a login...');
-                navigation.navigate('Login');
-            } else {
-                Alert.alert('Fallido', 'Datos incompletos');
-            }
-        } catch (error) {
-            Alert.alert('Error', error.message);
+            await register(nombre, email, password, parseFloat(salary));
+            Alert.alert('Haz creado tu cuenta', 'Regresando a login...');
+            navigation.navigate('Login');
+        } catch (error: any) {
+            Alert.alert('Error', error.message || 'Ocurrió un error al crear la cuenta.');
         }
     };
 
     return (
         <SafeAreaView style={styles.screen}>
             <View style={styles.container}>
-            <Text style={styles.titleText}>Crear una cuenta</Text>
+                <Text style={styles.titleText}>Crear una cuenta</Text>
                 <Image
                     source={require('../assets/MoneyWiseLogo2.jpg')}
                     style={styles.image}
@@ -54,34 +81,37 @@ function CreateAccount({ navigation }: CreateAccountProps): React.JSX.Element {
                     style={styles.textInput}
                     placeholder="Correo electrónico"
                     placeholderTextColor={'#aaa'}
-                    onChangeText={u => setEmail(u)}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
                 />
                 <TextInput
                     style={styles.textInput}
                     placeholder="Nombre de usuario"
                     placeholderTextColor={'#aaa'}
-                    onChangeText={u => setNombre(u)}
+                    onChangeText={setNombre}
                 />
                 <TextInput
                     style={styles.textInput}
                     placeholder="Contraseña"
                     secureTextEntry={true}
                     placeholderTextColor={'#aaa'}
-                    onChangeText={p => setPassword(p)}
+                    onChangeText={setPassword}
                 />
                 <TextInput
                     style={styles.textInput}
                     placeholder="Confirmar contraseña"
                     secureTextEntry={true}
                     placeholderTextColor={'#aaa'}
+                    onChangeText={setConfirmPassword}
                 />
                 <TextInput
                     style={styles.textInput}
                     placeholder="Ingreso mensual aproximado"
                     placeholderTextColor={'#aaa'}
-                    onChangeText={p => setSalary(p)}
+                    keyboardType="decimal-pad"
+                    onChangeText={setSalary}
                 />
-                <TouchableOpacity style={styles.buttonPrimary} onPress={btnCreaarCuentaPress}>
+                <TouchableOpacity style={styles.buttonPrimary} onPress={btnCrearCuentaPress}>
                     <Text style={styles.buttonTextPrimary}>Crear cuenta</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.buttonSecondary} onPress={() => navigation.goBack()}>
@@ -127,7 +157,7 @@ const styles = StyleSheet.create({
     titleText: {
         color: '#333',
         fontSize: 24,
-        fontWeight: '700', 
+        fontWeight: '700',
         marginTop: 40,
     },
     image: {
@@ -154,7 +184,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 60,
         borderRadius: 8,
         marginTop: 10,
-        marginBottom: 40, 
+        marginBottom: 40,
     },
     buttonTextSecondary: {
         color: '#0073AB',

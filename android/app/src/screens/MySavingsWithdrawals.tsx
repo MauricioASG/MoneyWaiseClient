@@ -24,21 +24,52 @@ const MySavingsWithdrawals: React.FC<MySavingsWithdrawalsProps> = ({ navigation,
   const { savingsGoal, interval, currentSavings, goalId } = route.params;  // Asegúrate de que goalId esté presente
 
   const handleButtonPress = async () => {
-    if (!withdrawalAmount || isNaN(Number(withdrawalAmount))) {
-      Alert.alert('Error', 'Por favor, ingrese una cantidad válida');
+    const withdrawal = parseFloat(withdrawalAmount);
+    const currentSavingsAmount = parseFloat(currentSavings);
+
+    if (!withdrawalAmount || isNaN(withdrawal) || withdrawal <= 0) {
+      Alert.alert('Error', 'Por favor, ingrese una cantidad válida mayor a 0.');
       return;
     }
 
-    // Actualizar el ahorro actual en la base de datos
-    try {
-      const newSavings = (parseFloat(currentSavings) - parseFloat(withdrawalAmount)).toString();
-      await updateSavings(goalId, newSavings);  // Llamada a la API con goalId
-
-      navigation.navigate('Savings', { amountAdded: (-Number(withdrawalAmount)).toString(), savingsGoal, interval, currentSavings: newSavings });
-    } catch (error) {
-      console.error('Error al actualizar el ahorro actual:', error);
-      Alert.alert('Error', 'No se pudo actualizar el ahorro');
+    if (withdrawal > currentSavingsAmount) {
+      Alert.alert('Error', 'La cantidad a retirar no puede ser mayor que el ahorro actual.');
+      return;
     }
+
+    // Confirmación de la acción antes de realizar el retiro
+    Alert.alert(
+      'Confirmación',
+      `¿Estás seguro de que deseas retirar ${withdrawalAmount}?`,
+      [
+        {
+          text: 'Cancelar',
+          onPress: () => {},
+          style: 'cancel',
+        },
+        {
+          text: 'Aceptar',
+          onPress: async () => {
+            try {
+              const newSavings = (currentSavingsAmount - withdrawal).toString();
+              await updateSavings(goalId, newSavings);  // Llamada a la API con goalId
+
+              // Navegar de nuevo a la pantalla de Savings y pasar el nuevo ahorro
+              navigation.navigate('Savings', {
+                amountAdded: (-withdrawal).toString(),
+                savingsGoal,
+                interval,
+                currentSavings: newSavings,
+              });
+            } catch (error) {
+              console.error('Error al actualizar el ahorro actual:', error);
+              Alert.alert('Error', 'No se pudo actualizar el ahorro');
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const handleSavingsChange = (text: string) => {
