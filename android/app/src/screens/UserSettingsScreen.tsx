@@ -11,6 +11,7 @@ import {
   Image,
 } from 'react-native';
 import { UserContext } from '../contexts/UserContext';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Importa AsyncStorage
 import { getUserDetails, updateUserDetails } from '../api'; // Asegúrate de tener estas funciones en tu api.ts
 
 const UserSettingsScreen = ({ navigation }) => {
@@ -75,6 +76,35 @@ const UserSettingsScreen = ({ navigation }) => {
     );
   };
 
+  // Manejar la acción de cerrar sesión
+  const handleLogout = async () => {
+    Alert.alert(
+      'Cerrar sesión',
+      '¿Estás seguro de que deseas cerrar sesión?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Sí',
+          onPress: async () => {
+            try {
+              // Eliminar el último correo almacenado en AsyncStorage
+              await AsyncStorage.removeItem('lastUserEmail');
+
+              // Redirigir al login
+              Alert.alert('Has cerrado sesión con éxito.');
+              navigation.navigate('Login');
+            } catch (error) {
+              Alert.alert('Error', 'Ocurrió un error al cerrar sesión.');
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const handleInputChange = (field, value) => {
     setUserData({ ...userData, [field]: value });
   };
@@ -124,9 +154,30 @@ const UserSettingsScreen = ({ navigation }) => {
         {/* Botón para cerrar sesión */}
         <TouchableOpacity
           style={[styles.button, styles.logoutButton]}
-          onPress={() => {
-            Alert.alert('Cerrar sesión', 'Has cerrado sesión con éxito.');
-            navigation.navigate('Login');
+          onPress={async () => {
+            Alert.alert(
+              'Cerrar sesión',
+              '¿Estás seguro de que deseas cerrar sesión?',
+              [
+                {
+                  text: 'Cancelar',
+                  style: 'cancel',
+                },
+                {
+                  text: 'Sí',
+                  onPress: async () => {
+                    try {
+                      await AsyncStorage.setItem('comingFromLogout', 'true'); // Señal de cierre de sesión
+                      await AsyncStorage.removeItem('lastUserEmail'); // Opcional: Eliminar el último correo almacenado
+                      Alert.alert('Cerrar sesión', 'Has cerrado sesión con éxito.');
+                      navigation.navigate('Login'); // Navega al Login
+                    } catch (error) {
+                      console.error('Error al cerrar sesión:', error);
+                    }
+                  },
+                },
+              ]
+            );
           }}
         >
           <Text style={styles.buttonText}>Cerrar Sesión</Text>

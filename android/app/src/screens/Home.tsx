@@ -1,5 +1,3 @@
-/* eslint-disable prettier/prettier */
-// HomeScreen.tsx
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import {
   View,

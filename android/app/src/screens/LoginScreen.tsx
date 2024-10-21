@@ -40,10 +40,19 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
     initialize();
   }, []);
 
-  // Limpiar el campo de contraseña cada vez que la pantalla Login esté en foco
+  // Limpiar el campo de contraseña y correo cada vez que la pantalla Login esté en foco si es por cerrar sesión
   useFocusEffect(
     useCallback(() => {
-      setPassword(''); // Limpiamos el campo de contraseña cuando la pantalla está en foco
+      const resetFields = async () => {
+        const comingFromLogout = await AsyncStorage.getItem('comingFromLogout');
+        if (comingFromLogout) {
+          setEmail(''); // Limpiar el campo de correo si viene desde el cierre de sesión
+          await AsyncStorage.removeItem('comingFromLogout'); // Eliminar el flag de cierre de sesión
+        }
+        setPassword(''); // Limpiamos el campo de contraseña cuando la pantalla está en foco
+      };
+
+      resetFields();
     }, [])
   );
 
@@ -53,10 +62,10 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
         const data = await login(email, password);
         setUserId(data.id);
         Alert.alert('Entraste', 'Iniciando sesión...');
-  
+
         // Almacenar el último email en AsyncStorage
         await AsyncStorage.setItem('lastUserEmail', email);
-  
+
         // Almacenar las credenciales en Keychain para biometría usando InternetCredentials
         await Keychain.setInternetCredentials(
           'moneywise',  // Identificador para las credenciales (puede ser un dominio o nombre de la app)
@@ -70,7 +79,7 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
 
         // Actualizamos el último email utilizado después de un inicio de sesión exitoso
         setLastLoggedEmail(email);
-  
+
         navigation.navigate('Home');
       } else {
         Alert.alert('Fallido', 'Por favor ingresa tu correo y contraseña');
