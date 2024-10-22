@@ -20,6 +20,7 @@ import GraphDetails from './android/app/src/screens/GraphDetails';
 import FingerprintScreen from './android/app/src/screens/FingerprintScreen';
 import UserSettingsScreen from './android/app/src/screens/UserSettingsScreen';
 import { UserProvider } from './android/app/src/contexts/UserContext';
+import RemindersScreen from './android/app/src/screens/RemindersScreen'; // Importar nueva pantalla
 
 const Stack = createStackNavigator();
 
@@ -44,6 +45,7 @@ const App = () => {
             <Stack.Screen name="GraphDetails" component={GraphDetails} options={{ title: 'Detalles de gastos' }} />
             <Stack.Screen name="FingerprintScreen" component={FingerprintScreen} options={{ headerShown: false }} />
             <Stack.Screen name="UserSettingsScreen" component={UserSettingsScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Reminders" component={RemindersScreen} options={{ title: 'Recordatorios' }} />
           </Stack.Navigator>
         </ButtonProvider>
       </UserProvider>

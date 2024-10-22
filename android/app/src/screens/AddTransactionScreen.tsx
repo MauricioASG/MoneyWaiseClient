@@ -135,7 +135,7 @@ const AddTransactionScreen: React.FC<AddTransactionProps> = ({ navigation, route
           text: 'Aceptar',
           onPress: async () => {
             try {
-              await createTransaction(userId, categoryId, amount, type, route.params.selectedDate);
+              await createTransaction(userId, categoryId, amount, type, route.params.selectedDate); // Usar la fecha seleccionada
               const parentState = navigation.getParent()?.getState();
               const refreshTransactions = parentState?.routes.find(route => route.name === 'Schedule')?.params?.refreshTransactions;
               if (refreshTransactions) {

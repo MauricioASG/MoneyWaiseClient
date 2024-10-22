@@ -1,16 +1,32 @@
 /* eslint-disable prettier/prettier */
 // AllTransactionsScreen.tsx
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Button } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { deleteTransaction } from '../api';
+import { deleteTransaction, getTransactionsByDate } from '../api';
 import { UserContext } from '../contexts/UserContext';
 
 const AllTransactionsScreen = ({ route }) => {
-  const { transactions: initialTransactions } = route.params;
+  const { transactions: initialTransactions, selectedDate } = route.params;
   const [transactions, setTransactions] = useState(initialTransactions);
   const navigation = useNavigation();
   const { userId } = useContext(UserContext);
+
+  // Hook para cargar las transacciones cada vez que la pantalla sea enfocada
+  useFocusEffect(
+    React.useCallback(() => {
+      const fetchTransactions = async () => {
+        try {
+          const fetchedTransactions = await getTransactionsByDate(userId, selectedDate);
+          setTransactions(fetchedTransactions);
+        } catch (error) {
+          console.error('Error fetching transactions:', error);
+        }
+      };
+
+      fetchTransactions();
+    }, [selectedDate, userId])
+  );
 
   useEffect(() => {
     setTransactions(initialTransactions);
@@ -43,7 +59,7 @@ const AllTransactionsScreen = ({ route }) => {
         {
           text: 'Eliminar',
           onPress: () => handleDelete(id),
-          style: 'destructive', // Estilo para llamar la atención
+          style: 'destructive',
         },
       ],
       { cancelable: true }
@@ -74,13 +90,11 @@ const AllTransactionsScreen = ({ route }) => {
   };
 
   const formatDate = (dateString) => {
-    // Extraer solo la parte de la fecha si hay información adicional
-    const datePart = dateString.split('T')[0]; // Esto toma solo 'YYYY-MM-DD'
+    const datePart = dateString.split('T')[0];
     const [year, month, day] = datePart.split('-');
     const date = new Date(year, month - 1, day);
     return date.toLocaleDateString();
   };
-  
 
   const getCategoryLabel = (categoria_id) => {
     const categories = {
@@ -132,6 +146,10 @@ const AllTransactionsScreen = ({ route }) => {
       ) : (
         <Text style={styles.noTransactionsText}>No hay transacciones disponibles.</Text>
       )}
+      <Button
+        title="Agregar Transacción"
+        onPress={() => navigation.navigate('AddTransaction', { selectedDate })}
+      />
     </View>
   );
 };
