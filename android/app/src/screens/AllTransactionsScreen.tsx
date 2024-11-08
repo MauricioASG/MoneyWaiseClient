@@ -1,36 +1,40 @@
 /* eslint-disable prettier/prettier */
 // AllTransactionsScreen.tsx
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Button } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { deleteTransaction, getTransactionsByDate } from '../api';
 import { UserContext } from '../contexts/UserContext';
 
 const AllTransactionsScreen = ({ route }) => {
-  const { transactions: initialTransactions, selectedDate } = route.params;
+  const { transactions: initialTransactions, selectedDate } = route.params; // Asegúrate de que selectedDate esté aquí
   const [transactions, setTransactions] = useState(initialTransactions);
   const navigation = useNavigation();
   const { userId } = useContext(UserContext);
 
-  // Hook para cargar las transacciones cada vez que la pantalla sea enfocada
   useFocusEffect(
     React.useCallback(() => {
       const fetchTransactions = async () => {
-        try {
-          const fetchedTransactions = await getTransactionsByDate(userId, selectedDate);
-          setTransactions(fetchedTransactions);
-        } catch (error) {
-          console.error('Error fetching transactions:', error);
+        if (selectedDate) { // Verifica que selectedDate esté definido
+          try {
+            const fetchedTransactions = await getTransactionsByDate(userId, selectedDate);
+            setTransactions(fetchedTransactions);
+          } catch (error) {
+            console.error('Error fetching transactions:', error);
+          }
+        } else {
+          console.warn('selectedDate es undefined en AllTransactionsScreen');
         }
       };
-
       fetchTransactions();
     }, [selectedDate, userId])
   );
 
   useEffect(() => {
+    console.log('selectedDate recibido en AllTransactionsScreen:', selectedDate); // Log para depuración
     setTransactions(initialTransactions);
-  }, [initialTransactions]);
+  }, [initialTransactions, selectedDate]);
+  
 
   useFocusEffect(
     React.useCallback(() => {
@@ -51,16 +55,8 @@ const AllTransactionsScreen = ({ route }) => {
       'Confirmar eliminación',
       '¿Está seguro de que desea eliminar esta transacción?',
       [
-        {
-          text: 'Cancelar',
-          onPress: () => console.log('Eliminación cancelada'),
-          style: 'cancel',
-        },
-        {
-          text: 'Eliminar',
-          onPress: () => handleDelete(id),
-          style: 'destructive',
-        },
+        { text: 'Cancelar', style: 'cancel' },
+        { text: 'Eliminar', onPress: () => handleDelete(id), style: 'destructive' },
       ],
       { cancelable: true }
     );
@@ -84,18 +80,18 @@ const AllTransactionsScreen = ({ route }) => {
     }
   };
 
+  // Función para editar la transacción
   const handleEdit = (transaction) => {
-    // Navegar a la pantalla de edición, pasando la transacción completa
     navigation.navigate('EditTransaction', { transaction });
   };
 
+  // Formatear la fecha para mostrarla en un formato más amigable
   const formatDate = (dateString) => {
-    const datePart = dateString.split('T')[0];
-    const [year, month, day] = datePart.split('-');
-    const date = new Date(year, month - 1, day);
-    return date.toLocaleDateString();
+    const [year, month, day] = dateString.split('T')[0].split('-');
+    return new Date(year, month - 1, day).toLocaleDateString();
   };
 
+  // Obtener la etiqueta de la categoría con base en el ID de categoría
   const getCategoryLabel = (categoria_id) => {
     const categories = {
       1: 'Vivienda',
@@ -127,16 +123,10 @@ const AllTransactionsScreen = ({ route }) => {
               <Text style={styles.transactionText}>Monto: ${item.monto}</Text>
               <Text style={styles.transactionText}>Fecha: {formatDate(item.fecha)}</Text>
               <View style={styles.buttonsContainer}>
-                <TouchableOpacity
-                  style={styles.editButton}
-                  onPress={() => handleEdit(item)}
-                >
+                <TouchableOpacity style={styles.editButton} onPress={() => handleEdit(item)}>
                   <Text style={styles.buttonText}>Editar</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => confirmDelete(item.id)}
-                >
+                <TouchableOpacity style={styles.deleteButton} onPress={() => confirmDelete(item.id)}>
                   <Text style={styles.buttonText}>Eliminar</Text>
                 </TouchableOpacity>
               </View>
@@ -146,10 +136,12 @@ const AllTransactionsScreen = ({ route }) => {
       ) : (
         <Text style={styles.noTransactionsText}>No hay transacciones disponibles.</Text>
       )}
-      <Button
-        title="Agregar Transacción"
+      <TouchableOpacity
+        style={styles.addTransactionButton}
         onPress={() => navigation.navigate('AddTransaction', { selectedDate })}
-      />
+      >
+        <Text style={styles.addTransactionButtonText}>Agregar Transacción</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -158,7 +150,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#B2DFDF',
+    backgroundColor: '#d6e7fe',
   },
   transactionItem: {
     backgroundColor: '#f0f0f0',
@@ -172,7 +164,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   editButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: '#089dda',
     padding: 10,
     borderRadius: 8,
     paddingHorizontal: 45,
@@ -200,6 +192,25 @@ const styles = StyleSheet.create({
     color: '#333',
     textAlign: 'center',
     marginTop: 50,
+  },
+  addTransactionButton: {
+    backgroundColor: '#089dda', // color atractivo para el botón de agregar transacción
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 25, // bordes redondeados
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5, // sombra en Android
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  addTransactionButtonText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 

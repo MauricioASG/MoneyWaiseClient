@@ -48,9 +48,16 @@ const GraphDetails = ({ route }) => {
           text: 'Sí',
           onPress: async () => {
             try {
-              const datePart = transaction.fecha.split('T')[0];
-              const transactionsByDate = await getTransactionsByDate(userId, datePart);
-              navigation.navigate('AllTransactions', { transactions: transactionsByDate });
+              const datePart = transaction.fecha.split('T')[0]; // Extrae la fecha en formato "YYYY-MM-DD"
+              if (datePart) {
+                const transactionsByDate = await getTransactionsByDate(userId, datePart);
+                navigation.navigate('AllTransactions', {
+                  transactions: transactionsByDate,
+                  selectedDate: datePart, // Asegúrate de pasar datePart como selectedDate
+                });
+              } else {
+                console.warn('datePart es undefined');
+              }
             } catch (error) {
               console.error('Error al obtener transacciones por fecha:', error);
             }
@@ -60,6 +67,8 @@ const GraphDetails = ({ route }) => {
       { cancelable: true }
     );
   };
+  
+  
 
   return (
     <SafeAreaView style={styles.safeArea}>

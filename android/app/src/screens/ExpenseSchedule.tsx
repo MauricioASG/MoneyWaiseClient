@@ -1,13 +1,14 @@
 /* eslint-disable prettier/prettier */
 // ScheduleScreen.tsx
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Button } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
 import FooterMenu from '../components/FooterMenu';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp, useFocusEffect } from '@react-navigation/native';
 import { Calendar } from 'react-native-calendars';
 import { UserContext } from '../contexts/UserContext';
 import { getTransactionsByMonth } from '../api';
+import CustomButton from '../components/CustomButton';
 
 type RootStackParamList = {
   Home: undefined;
@@ -125,10 +126,12 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
             <Text style={styles.viewAllText}>Ver todos los movimientos</Text>
           </TouchableOpacity>
         ) : null}
-        <Button
-          title="Gestionar Recordatorios"
+        <TouchableOpacity
+          style={styles.ReminderButton}
           onPress={() => navigation.navigate('Reminders')}
-        />
+        >
+          <Text style={styles.ReminderButtonText}>Gestionar Recordatorios</Text>
+        </TouchableOpacity>
         <FooterMenu navigation={navigation} />
       </View>
     </SafeAreaView>
@@ -162,8 +165,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   viewAllText: {
-    color: '#00adf5',
+    color: '#ee4520',
+    marginTop: 50,
     fontWeight: 'bold',
+    fontSize: 16,
+  },
+  ReminderButton: {
+    backgroundColor: '#00adf5', // color atractivo para el fondo
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 25, // bordes redondeados
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5, // sombra en Android
+    marginTop: 30,
+  },
+  ReminderButtonText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
 

@@ -87,6 +87,9 @@ export const deleteGoal = async (id) => {
 };
 
 export const getTransactionsByDate = async (usuario_id, date) => {
+  if (!date) {
+    throw new Error("La fecha es undefined o está vacía.");
+  }
   try {
     const response = await axios.get(`${API_URL}/transacciones/${usuario_id}/fecha/${date}`);
     return response.data;
@@ -95,6 +98,7 @@ export const getTransactionsByDate = async (usuario_id, date) => {
     throw error;
   }
 };
+
 
 export const addTransaction = async (usuario_id, fecha, monto, categoria, tipo) => {
   try {
