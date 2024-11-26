@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
   deleteButton: { backgroundColor: '#F44336' },
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16, textAlign: 'center' },
   reminderText: { fontSize: 18, color: '#333', marginBottom: 5 },
-  noRemindersText: { fontSize: 20, textAlign: 'center', marginTop: 50 },
+  noRemindersText: {  paddingTop: 150,paddingBottom: 20, color: 'black', fontSize: 20, textAlign: 'center', marginTop: 50 },
   addReminderButton: { backgroundColor: '#089dda', padding: 15, borderRadius: 25, alignItems: 'center' },
   addReminderButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   centeredView: {
