@@ -5,6 +5,7 @@ import notifee, { TriggerType, TimestampTrigger, AndroidImportance } from '@noti
 import { Calendar } from 'react-native-calendars';
 import DatePicker from 'react-native-date-picker';
 import { getReminders, addReminder, deleteReminder } from '../api';
+import { black } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 interface Reminder {
   id: string;
@@ -88,18 +89,28 @@ export default function RemindersScreen() {
         type: TriggerType.TIMESTAMP,
         timestamp: triggerDate.getTime(),
       };
-
+  
+      // Formatear la fecha en formato legible para la notificación
+      const formattedDate = triggerDate.toLocaleString('es-ES', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      });
+  
       await notifee.createChannel({
         id: 'reminders',
         name: 'Recordatorios',
         importance: AndroidImportance.HIGH,
       });
-
+  
       await notifee.createTriggerNotification(
         {
           id: `reminder-${reminder.id}`,
-          title: reminder.title,
-          body: `Costo: $${reminder.description}`,
+          title: `Recordatorio pago de ${reminder.title}`, // Título personalizado
+          body: `${formattedDate}      $${parseFloat(reminder.description).toFixed(2)}`, // Formato de fecha y costo
           android: {
             channelId: 'reminders',
             importance: AndroidImportance.HIGH,
@@ -107,13 +118,13 @@ export default function RemindersScreen() {
         },
         trigger
       );
-
+  
       console.log('Notificación programada para:', triggerDate);
     } catch (error) {
       console.error('Error al programar la notificación:', error);
       Alert.alert('Error', 'No se pudo programar la notificación.');
     }
-  };
+  };  
 
   const handleDeleteReminder = async (id: string) => {
     try {
@@ -198,12 +209,16 @@ export default function RemindersScreen() {
             <TextInput
               style={styles.input}
               placeholder="Título"
+              placeholderTextColor="#666" // Cambiar el color del texto del placeholder
+              textAlign='center'
               value={title}
               onChangeText={setTitle}
             />
             <TextInput
               style={styles.input}
               placeholder="Costo"
+              placeholderTextColor="#666" // Cambiar el color del texto del placeholder
+              textAlign='center'
               value={cost}
               onChangeText={setCost}
               keyboardType="numeric"
@@ -264,7 +279,7 @@ export default function RemindersScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: '#d6e7fe' },
+  container: { flex: 1, padding: 20, backgroundColor: '#d6e7fe', },
   reminderItem: { backgroundColor: '#f0f0f0', padding: 10, borderRadius: 10, marginBottom: 25 },
   deleteButton: { backgroundColor: '#F44336', padding: 10, borderRadius: 8, marginTop: 10 },
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16, textAlign: 'center' },
@@ -274,7 +289,8 @@ const styles = StyleSheet.create({
   addReminderButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   centeredView: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: 60,
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
@@ -298,6 +314,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     fontWeight: 'bold',
+    color: 'black',
   },
   input: {
     height: 40,
@@ -305,8 +322,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 10,
-    width: '100%',
+    width: 200,
     borderRadius: 5,
+    color: 'black',
+    textAlign: 'center',
   },
   timePickerButton: {
     backgroundColor: '#089dda',
