@@ -51,19 +51,18 @@ export default function RemindersScreen() {
         return;
       }
 
-      const formattedDate = selectedDate.toISOString().slice(0, 19).replace('T', ' ');
+      // Convertir fecha seleccionada a UTC antes de enviarla al backend
+      const utcDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
+      const formattedDate = utcDate.toISOString().slice(0, 19).replace('T', ' ');
+
       const newReminder = {
-        usuario_id: userId.toString(), // Convert to string
+        usuario_id: userId.toString(),
         title: title.trim(),
-        description: cost.trim(), // Use cost as description
+        description: cost.trim(),
         date: formattedDate,
       };
 
-      console.log('Datos enviados al backend:', newReminder);
-
       const savedReminder = await addReminder(newReminder);
-      
-      console.log('Respuesta del servidor:', savedReminder);
 
       if (!savedReminder || !savedReminder.id) {
         throw new Error('La respuesta del servidor no incluye un ID válido');
@@ -147,14 +146,14 @@ export default function RemindersScreen() {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('es-ES', {
+    const localDate = new Date(dateString);
+    return localDate.toLocaleString('es-ES', {
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: false,
+      hour12: true,
     });
   };
 
@@ -216,31 +215,7 @@ export default function RemindersScreen() {
                 setSelectedDate(newDate);
               }}
               markedDates={{
-                [selectedDate.toISOString().split('T')[0]]: {selected: true, selectedColor: '#00adf5'},
-              }}
-              theme={{
-                backgroundColor: '#ffffff',
-                calendarBackground: '#ffffff',
-                textSectionTitleColor: '#b6c1cd',
-                selectedDayBackgroundColor: '#00adf5',
-                selectedDayTextColor: '#ffffff',
-                todayTextColor: '#00adf5',
-                dayTextColor: '#2d4150',
-                textDisabledColor: '#d9e1e8',
-                dotColor: '#00adf5',
-                selectedDotColor: '#ffffff',
-                arrowColor: 'orange',
-                monthTextColor: 'blue',
-                indicatorColor: 'blue',
-                textDayFontFamily: 'monospace',
-                textMonthFontFamily: 'monospace',
-                textDayHeaderFontFamily: 'monospace',
-                textDayFontWeight: '300',
-                textMonthFontWeight: 'bold',
-                textDayHeaderFontWeight: '300',
-                textDayFontSize: 16,
-                textMonthFontSize: 16,
-                textDayHeaderFontSize: 16,
+                [selectedDate.toISOString().split('T')[0]]: { selected: true, selectedColor: '#00adf5' },
               }}
             />
             <TouchableOpacity
@@ -367,4 +342,5 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 });
+
 export default RemindersScreen;
