@@ -4,7 +4,7 @@ import { useFocusEffect, useRoute } from '@react-navigation/native';
 import notifee, { TriggerType, TimestampTrigger, AndroidImportance } from '@notifee/react-native';
 import { Calendar } from 'react-native-calendars';
 import DatePicker from 'react-native-date-picker';
-import { getReminders, addReminder, deleteReminder } from '../api';
+import { getReminders, addReminder, deleteReminder, updateReminder } from '../api';
 
 interface Reminder {
   id: string;
@@ -23,15 +23,15 @@ export default function RemindersScreen() {
   const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [cost, setCost] = useState('');
-  const [currentTime, setCurrentTime] = useState(new Date()); // Estado para la hora actual
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [editingReminder, setEditingReminder] = useState<Reminder | null>(null);
 
-  // Actualizar la hora actual cada segundo
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
-    return () => clearInterval(interval); // Limpiar el intervalo al desmontar
+    return () => clearInterval(interval);
   }, []);
 
   useFocusEffect(
@@ -54,46 +54,53 @@ export default function RemindersScreen() {
     }
   };
 
-  const handleAddReminder = async () => {
+  const handleAddOrUpdateReminder = async () => {
     try {
       if (!title.trim() || !cost.trim()) {
         Alert.alert('Error', 'Por favor, ingrese un título y un costo para el recordatorio.');
         return;
       }
 
-      const now = new Date(); // Hora actual
+      const now = new Date();
       if (selectedDate < now) {
         Alert.alert('Error', 'No puedes programar un recordatorio en una fecha u hora pasada.');
         return;
       }
 
-      // Convertir fecha seleccionada a UTC antes de enviarla al backend
       const utcDate = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
       const formattedDate = utcDate.toISOString().slice(0, 19).replace('T', ' ');
 
-      const newReminder = {
-        usuario_id: userId.toString(),
-        title: title.trim(),
-        description: cost.trim(),
-        date: formattedDate,
-      };
-
-      const savedReminder = await addReminder(newReminder);
-
-      if (!savedReminder || !savedReminder.id) {
-        throw new Error('La respuesta del servidor no incluye un ID válido');
+      if (editingReminder) {
+        // Update existing reminder
+        const updatedReminder = {
+          title: title.trim(),
+          description: cost.trim(),
+          date: formattedDate,
+        };
+        await updateReminder(editingReminder.id, updatedReminder);
+        setReminders(reminders.map(r => r.id === editingReminder.id ? { ...r, ...updatedReminder } : r));
+      } else {
+        // Add new reminder
+        const newReminder = {
+          usuario_id: userId.toString(),
+          title: title.trim(),
+          description: cost.trim(),
+          date: formattedDate,
+        };
+        const savedReminder = await addReminder(newReminder);
+        if (!savedReminder || !savedReminder.id) {
+          throw new Error('La respuesta del servidor no incluye un ID válido');
+        }
+        setReminders([...reminders, { ...newReminder, id: savedReminder.id }]);
+        await scheduleNotification({ ...newReminder, id: savedReminder.id });
       }
 
-      const updatedReminders = [...reminders, { ...newReminder, id: savedReminder.id }];
-      setReminders(updatedReminders);
-
-      await scheduleNotification({ ...newReminder, id: savedReminder.id });
       setModalVisible(false);
       resetForm();
-      Alert.alert('Éxito', 'Recordatorio creado correctamente');
+      Alert.alert('Éxito', editingReminder ? 'Recordatorio actualizado correctamente' : 'Recordatorio creado correctamente');
     } catch (error) {
-      console.error('Error detallado al crear el recordatorio:', error.response?.data || error.message);
-      Alert.alert('Error', 'No se pudo crear el recordatorio. Por favor, intente de nuevo.');
+      console.error('Error detallado al crear/actualizar el recordatorio:', error.response?.data || error.message);
+      Alert.alert('Error', 'No se pudo crear/actualizar el recordatorio. Por favor, intente de nuevo.');
     }
   };
 
@@ -105,7 +112,6 @@ export default function RemindersScreen() {
         timestamp: triggerDate.getTime(),
       };
 
-      // Formatear la fecha en formato legible para la notificación
       const formattedDate = triggerDate.toLocaleString('es-ES', {
         year: 'numeric',
         month: '2-digit',
@@ -124,8 +130,8 @@ export default function RemindersScreen() {
       await notifee.createTriggerNotification(
         {
           id: `reminder-${reminder.id}`,
-          title: `Recordatorio pago de ${reminder.title}`, // Título personalizado
-          body: `${formattedDate}      $${parseFloat(reminder.description).toFixed(2)}`, // Formato de fecha y costo
+          title: `Recordatorio pago de ${reminder.title}`,
+          body: `${formattedDate}      $${parseFloat(reminder.description).toFixed(2)}`,
           android: {
             channelId: 'reminders',
             importance: AndroidImportance.HIGH,
@@ -169,6 +175,7 @@ export default function RemindersScreen() {
     setSelectedDate(new Date());
     setTitle('');
     setCost('');
+    setEditingReminder(null);
   };
 
   const formatDate = (dateString: string) => {
@@ -183,6 +190,14 @@ export default function RemindersScreen() {
     });
   };
 
+  const handleEditReminder = (reminder: Reminder) => {
+    setEditingReminder(reminder);
+    setTitle(reminder.title);
+    setCost(reminder.description);
+    setSelectedDate(new Date(reminder.date));
+    setModalVisible(true);
+  };
+
   return (
     <View style={styles.container}>
       {reminders.length > 0 ? (
@@ -194,12 +209,20 @@ export default function RemindersScreen() {
               <Text style={styles.reminderText}>Título: {item.title}</Text>
               <Text style={styles.reminderText}>Costo: ${item.description}</Text>
               <Text style={styles.reminderText}>Fecha: {formatDate(item.date)}</Text>
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={() => confirmDelete(item.id)}
-              >
-                <Text style={styles.buttonText}>Eliminar</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[styles.button, styles.editButton]}
+                  onPress={() => handleEditReminder(item)}
+                >
+                  <Text style={styles.buttonText}>Editar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.deleteButton]}
+                  onPress={() => confirmDelete(item.id)}
+                >
+                  <Text style={styles.buttonText}>Eliminar</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
         />
@@ -208,7 +231,10 @@ export default function RemindersScreen() {
       )}
       <TouchableOpacity
         style={styles.addReminderButton}
-        onPress={() => setModalVisible(true)}
+        onPress={() => {
+          resetForm();
+          setModalVisible(true);
+        }}
       >
         <Text style={styles.addReminderButtonText}>Agregar Recordatorio</Text>
       </TouchableOpacity>
@@ -216,15 +242,20 @@ export default function RemindersScreen() {
         animationType="slide"
         transparent={true}
         visible={isModalVisible}
-        onRequestClose={() => setModalVisible(false)}
+        onRequestClose={() => {
+          setModalVisible(false);
+          resetForm();
+        }}
       >
         <View style={styles.centeredView}>
           <ScrollView contentContainerStyle={styles.modalView}>
-            <Text style={styles.modalText}>Agregar Nuevo Recordatorio</Text>
+            <Text style={styles.modalText}>
+              {editingReminder ? 'Editar Recordatorio' : 'Agregar Nuevo Recordatorio'}
+            </Text>
             <TextInput
               style={styles.input}
               placeholder="Título"
-              placeholderTextColor="#666" // Cambiar el color del texto del placeholder
+              placeholderTextColor="#666"
               textAlign='center'
               value={title}
               onChangeText={setTitle}
@@ -232,7 +263,7 @@ export default function RemindersScreen() {
             <TextInput
               style={styles.input}
               placeholder="Costo"
-              placeholderTextColor="#666" // Cambiar el color del texto del placeholder
+              placeholderTextColor="#666"
               textAlign='center'
               value={cost}
               onChangeText={setCost}
@@ -263,7 +294,7 @@ export default function RemindersScreen() {
               mode="time"
               onConfirm={(date) => {
                 setIsTimePickerOpen(false);
-                setSelectedDate(date); // Actualiza el estado con la nueva hora seleccionada
+                setSelectedDate(date);
               }}
               onCancel={() => {
                 setIsTimePickerOpen(false);
@@ -282,9 +313,11 @@ export default function RemindersScreen() {
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.modalButton, styles.confirmButton]}
-                onPress={handleAddReminder}
+                onPress={handleAddOrUpdateReminder}
               >
-                <Text style={styles.modalButtonText}>Confirmar</Text>
+                <Text style={styles.modalButtonText}>
+                  {editingReminder ? 'Actualizar' : 'Confirmar'}
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -297,7 +330,10 @@ export default function RemindersScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#d6e7fe', },
   reminderItem: { backgroundColor: '#f0f0f0', padding: 10, borderRadius: 10, marginBottom: 25 },
-  deleteButton: { backgroundColor: '#F44336', padding: 10, borderRadius: 8, marginTop: 10 },
+  buttonContainer: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
+  button: { padding: 10, borderRadius: 8, flex: 1, marginHorizontal: 5 },
+  editButton: { backgroundColor: '#4CAF50' },
+  deleteButton: { backgroundColor: '#F44336' },
   buttonText: { color: '#fff', fontWeight: 'bold', fontSize: 16, textAlign: 'center' },
   reminderText: { fontSize: 18, color: '#333', marginBottom: 5 },
   noRemindersText: { fontSize: 20, textAlign: 'center', marginTop: 50 },
@@ -371,11 +407,9 @@ const styles = StyleSheet.create({
   confirmButton: {
     backgroundColor: '#4CAF50',
   },
-  modalButtonText: {
+modalButtonText: {
     color: '#fff',
     fontWeight: 'bold',
     textAlign: 'center',
   },
 });
-
-export default RemindersScreen;
