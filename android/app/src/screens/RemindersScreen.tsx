@@ -1,11 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Modal, TextInput, ScrollView } from 'react-native';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import notifee, { TriggerType, TimestampTrigger, AndroidImportance } from '@notifee/react-native';
 import { Calendar } from 'react-native-calendars';
 import DatePicker from 'react-native-date-picker';
 import { getReminders, addReminder, deleteReminder } from '../api';
-import { black } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 interface Reminder {
   id: string;
@@ -24,6 +23,16 @@ export default function RemindersScreen() {
   const [isTimePickerOpen, setIsTimePickerOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [cost, setCost] = useState('');
+  const [currentTime, setCurrentTime] = useState(new Date()); // Estado para la hora actual
+
+  // Actualizar la hora actual cada segundo
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval); // Limpiar el intervalo al desmontar
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -49,6 +58,12 @@ export default function RemindersScreen() {
     try {
       if (!title.trim() || !cost.trim()) {
         Alert.alert('Error', 'Por favor, ingrese un título y un costo para el recordatorio.');
+        return;
+      }
+
+      const now = new Date(); // Hora actual
+      if (selectedDate < now) {
+        Alert.alert('Error', 'No puedes programar un recordatorio en una fecha u hora pasada.');
         return;
       }
 
@@ -89,7 +104,7 @@ export default function RemindersScreen() {
         type: TriggerType.TIMESTAMP,
         timestamp: triggerDate.getTime(),
       };
-  
+
       // Formatear la fecha en formato legible para la notificación
       const formattedDate = triggerDate.toLocaleString('es-ES', {
         year: 'numeric',
@@ -99,13 +114,13 @@ export default function RemindersScreen() {
         minute: '2-digit',
         hour12: true,
       });
-  
+
       await notifee.createChannel({
         id: 'reminders',
         name: 'Recordatorios',
         importance: AndroidImportance.HIGH,
       });
-  
+
       await notifee.createTriggerNotification(
         {
           id: `reminder-${reminder.id}`,
@@ -118,13 +133,13 @@ export default function RemindersScreen() {
         },
         trigger
       );
-  
+
       console.log('Notificación programada para:', triggerDate);
     } catch (error) {
       console.error('Error al programar la notificación:', error);
       Alert.alert('Error', 'No se pudo programar la notificación.');
     }
-  };  
+  };
 
   const handleDeleteReminder = async (id: string) => {
     try {
@@ -238,7 +253,7 @@ export default function RemindersScreen() {
               onPress={() => setIsTimePickerOpen(true)}
             >
               <Text style={styles.timePickerButtonText}>
-                Seleccionar Hora: {selectedDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
+                Seleccionar Hora: {selectedDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: true })}
               </Text>
             </TouchableOpacity>
             <DatePicker
@@ -248,12 +263,13 @@ export default function RemindersScreen() {
               mode="time"
               onConfirm={(date) => {
                 setIsTimePickerOpen(false);
-                setSelectedDate(date);
+                setSelectedDate(date); // Actualiza el estado con la nueva hora seleccionada
               }}
               onCancel={() => {
                 setIsTimePickerOpen(false);
               }}
             />
+
             <View style={styles.modalButtons}>
               <TouchableOpacity
                 style={[styles.modalButton, styles.cancelButton]}
