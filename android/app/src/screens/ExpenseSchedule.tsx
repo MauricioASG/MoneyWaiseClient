@@ -128,7 +128,7 @@ const ScheduleScreen: React.FC<ScheduleScreenProps> = ({ navigation }) => {
         ) : null}
         <TouchableOpacity
           style={styles.ReminderButton}
-          onPress={() => navigation.navigate('Reminders')}
+          onPress={() => navigation.navigate('Reminders', { userId })}
         >
           <Text style={styles.ReminderButtonText}>Gestionar Recordatorios</Text>
         </TouchableOpacity>

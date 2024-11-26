@@ -179,8 +179,6 @@ export const getTransactionsByCategory = async (usuario_id, categoria_id, year, 
   }
 };
 
-
-
 // Obtener los detalles del usuario
 export const getUserDetails = async (id) => {
   try {
@@ -192,15 +190,55 @@ export const getUserDetails = async (id) => {
   }
 };
 
-
-// api.ts
-export const updateUserDetails = async (userId, userData) => {
+// Crear un nuevo recordatorio
+export const addReminder = async (reminder: {
+  usuario_id: string;
+  title: string;
+  description: string;
+  date: string;
+}) => {
   try {
-    const response = await axios.put(`${API_URL}/usuarios/${userId}`, userData);
+    const response = await axios.post(`${API_URL}/reminders`, reminder);
     return response.data;
   } catch (error) {
-    console.error('Error al actualizar los detalles del usuario:', error);
-    throw error;
+    console.error('Error al crear el recordatorio:', error);
+    throw error; // Throw the entire error object for more detailed logging
   }
 };
 
+// Obtener recordatorios por usuario
+export const getReminders = async (usuario_id: string) => {
+  try {
+    const response = await axios.get(`${API_URL}/reminders/${usuario_id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener los recordatorios:', error);
+    throw new Error('No se pudieron obtener los recordatorios.');
+  }
+};
+
+// Actualizar un recordatorio existente
+export const updateReminder = async (id: string, data: {
+  title: string;
+  cost: string;
+  date: string;
+}) => {
+  try {
+    const response = await axios.put(`${API_URL}/reminders/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error('Error al actualizar el recordatorio:', error);
+    throw new Error('No se pudo actualizar el recordatorio.');
+  }
+};
+
+// Eliminar un recordatorio
+export const deleteReminder = async (id: string) => {
+  try {
+    const response = await axios.delete(`${API_URL}/reminders/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error al eliminar el recordatorio:', error);
+    throw new Error('No se pudo eliminar el recordatorio.');
+  }
+};
