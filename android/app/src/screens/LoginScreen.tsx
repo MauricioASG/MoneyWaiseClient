@@ -16,6 +16,8 @@ import { RootStackParamList } from './RootStackParamList';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain'; // IMPORTACIÓN DE KEYCHAIN
 import { useFocusEffect } from '@react-navigation/native'; // IMPORTAR useFocusEffect
+import notifee, { AndroidImportance } from '@notifee/react-native'; // IMPORTACIÓN DE NOTIFEE
+
 
 type LogInProps = {
   navigation: StackNavigationProp<RootStackParamList, 'Login'>;
@@ -27,6 +29,38 @@ function Login({ navigation }: LogInProps): React.JSX.Element {
   const [password, setPassword] = useState('');
   const [lastLoggedEmail, setLastLoggedEmail] = useState(''); // Guardamos el último email usado
 
+  useEffect(() => {
+    const initializePermissions = async () => {
+      const settings = await notifee.getNotificationSettings();
+      if (settings.authorizationStatus === 0) {
+        // Solicitar permisos si no están otorgados
+        const permissionGranted = await notifee.requestPermission();
+        if (!permissionGranted) {
+          Alert.alert(
+            'Permisos requeridos',
+            'Para que esta aplicación funcione correctamente, necesitas habilitar las notificaciones.',
+            [
+              {
+                text: 'Abrir configuración',
+                onPress: () => notifee.openNotificationSettings(),
+              },
+              { text: 'Cancelar', style: 'cancel' },
+            ]
+          );
+        }
+      }
+  
+      // Crear canal de notificaciones (para Android)
+      await notifee.createChannel({
+        id: 'default',
+        name: 'Notificaciones generales',
+        importance: AndroidImportance.HIGH,
+      });
+    };
+  
+    initializePermissions();
+  }, []);
+  
   useEffect(() => {
     const initialize = async () => {
       const savedEmail = await AsyncStorage.getItem('lastUserEmail');
