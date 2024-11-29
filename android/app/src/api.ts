@@ -3,7 +3,11 @@
 import axios from 'axios';
 import WebServiceParams from './WebServiceParams';
 
-const API_URL = `http://${WebServiceParams.host}:${WebServiceParams.port}`;
+//Back local
+//const API_URL = `http://${WebServiceParams.host}:${WebServiceParams.port}`;
+
+//Google GCP
+const API_URL = WebServiceParams.BASE_URL;
 
 export const login = async (email, passw) => {
   try {
